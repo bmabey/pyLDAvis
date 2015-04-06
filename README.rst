@@ -11,7 +11,7 @@ pyLDAvis
 
 Python package for interactive topic model visualization. Port of the R package.
 
-* Free software: BSD license
+* MIT license
 * Documentation: https://pyLDAvis.readthedocs.org.
 
 Features
