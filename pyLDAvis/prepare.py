@@ -1,6 +1,7 @@
 from collections import namedtuple
 import json
 
+from joblib import Parallel, delayed, cpu_count
 import numpy as np
 import pandas as pd
 from skbio.stats.ordination import PCoA
@@ -72,7 +73,32 @@ def _topic_coordinates(mds, topic_term_dists, topic_proportion):
    # note: cluster (should?) be deprecated soon. See: https://github.com/cpsievert/LDAvis/issues/26
    return mds_df
 
-def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_freq, vocab, lambda_step, R):
+def _chunks(l, n):
+    """ Yield successive n-sized chunks from l.
+    """
+    for i in xrange(0, len(l), n):
+        yield l[i:i+n]
+
+def _job_chunks(l, n_jobs):
+   n_chunks = n_jobs
+   if n_jobs < 0:
+      # so, have n chunks if we are using all n cores/cpus
+      n_chunks = cpu_count() + 1 - n_jobs
+
+   return _chunks(l, n_chunks)
+
+
+
+def _find_relevance(log_ttd, log_lift, R, lambda_):
+   relevance = lambda_ * log_ttd + (1 - lambda_) * log_lift
+   return relevance.T.apply(lambda s: s.order(ascending=False).index).head(R)
+
+
+def _find_relevance_chunks(log_ttd, log_lift, R, lambda_seq):
+   return pd.concat(map(lambda l: _find_relevance(log_ttd, log_lift, R, l), lambda_seq))
+
+
+def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_freq, vocab, lambda_step, R, n_jobs):
    # marginal distribution over terms (width of blue bars)
    term_proportion = term_frequency / term_frequency.sum()
 
@@ -97,10 +123,6 @@ def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_f
    log_ttd = np.log(topic_term_dists)
    lambda_seq = np.arange(0, 1 + lambda_step, lambda_step)
 
-   def find_relevance(lambda_):
-      relevance = lambda_ * log_ttd + (1 - lambda_) * log_lift
-      return relevance.T.apply(lambda s: s.order(ascending=False).index).head(R)
-
    def topic_top_term_df((i, (original_topic_id, topic_terms))):
       new_topic_id = i + 1
       term_ix = topic_terms.unique()
@@ -111,7 +133,8 @@ def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_f
                            'loglift': log_lift.loc[original_topic_id, term_ix].round(4), \
                            'Category': 'Topic%d' % new_topic_id})
 
-   top_terms = pd.concat(map(find_relevance, lambda_seq))
+   top_terms = pd.concat(Parallel(n_jobs=n_jobs)(delayed(_find_relevance_chunks)(log_ttd, log_lift, R, ls) \
+                                                 for ls in _job_chunks(lambda_seq, n_jobs)))
    topic_dfs = map(topic_top_term_df, enumerate(top_terms.T.iterrows()))
    return pd.concat([default_term_info] + topic_dfs)
 
@@ -146,7 +169,8 @@ def _term_topic_freq(topic_term_dists, topic_freq, term_frequency):
    err = term_frequency / term_topic_freq.sum()
    return term_topic_freq * err
 
-def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequency, R=30, lambda_step = 0.01, mds=js_PCoA, plot_opts={'xlab': 'PC1', 'ylab': 'PC2'}):
+def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequency, R=30, lambda_step = 0.01, \
+            mds=js_PCoA, plot_opts={'xlab': 'PC1', 'ylab': 'PC2'}, n_jobs=-1):
    topic_term_dists = _df_with_names(topic_term_dists, 'topic', 'term')
    doc_topic_dists  = _df_with_names(doc_topic_dists, 'doc', 'topic')
    term_frequency   = pd.Series(term_frequency, name='term_frequency')
@@ -157,18 +181,17 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
    topic_freq       = (doc_topic_dists.T * doc_lengths).T.sum()
    topic_proportion = (topic_freq / topic_freq.sum()).order(ascending=False)
    topic_order      = topic_proportion.index
+   # reorder all data based on new ordering of topics
    topic_freq       = topic_freq[topic_order]
-
-   # reorder main data based on new ordering of topics
    topic_term_dists = topic_term_dists.ix[topic_order]
    doc_topic_dists  = doc_topic_dists[topic_order]
 
-   topic_coordinates = _topic_coordinates(mds, topic_term_dists, topic_proportion)
 
    # token counts for each term-topic combination (widths of red bars)
    term_topic_freq    = _term_topic_freq(topic_term_dists, topic_freq, term_frequency)
-   topic_info         = _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_freq, vocab, lambda_step, R)
+   topic_info         = _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_freq, vocab, lambda_step, R, n_jobs)
    token_table        = _token_table(topic_info, term_topic_freq, vocab, term_frequency)
+   topic_coordinates = _topic_coordinates(mds, topic_term_dists, topic_proportion)
    client_topic_order = [x + 1 for x in topic_order]
 
    return PreparedData(topic_coordinates, topic_info, token_table, R, lambda_step, plot_opts, client_topic_order)

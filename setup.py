@@ -40,6 +40,7 @@ requirements = [
     'pandas',
     'numpy',
     'scikit-bio==0.2.3'
+    'joblib==0.8.4'
 ]
 
 test_requirements = [
