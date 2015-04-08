@@ -74,7 +74,7 @@ def _mds_df(mds, topic_term_dists, topic_proportion):
 
 # phi  - topic_merm_dists
 # theta - doc_topic_dists
-def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequency, R=30, lambda_step = 0.01, mds=js_PCoA, plot_opts={'xlabel': 'PC1', 'ylabel': 'PC2'}):
+def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequency, R=30, lambda_step = 0.01, mds=js_PCoA, plot_opts={'xlab': 'PC1', 'ylab': 'PC2'}):
    topic_term_dists = _df_with_names(topic_term_dists, 'topic', 'term')
    doc_topic_dists  = _df_with_names(doc_topic_dists, 'doc', 'topic')
    term_frequency   = pd.Series(term_frequency, name='term_frequency')
