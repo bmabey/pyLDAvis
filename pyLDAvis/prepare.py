@@ -1,3 +1,4 @@
+from collections import namedtuple
 import json
 
 import numpy as np
@@ -61,16 +62,17 @@ def _df_with_names(data, index_name, columns_name):
    df.index.name = index_name
    df.columns.name = columns_name
    return df
-# phi  - topic_term_dists
+# phi  - topic_merm_dists
 # theta - doc_topic_dists
 def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequency, R=30, lambda_step = 0.01, mds=js_PCoA, plot_opts={'xlabel': 'PC1', 'ylabel': 'PC2'}):
-   _input_validate(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequency)
    topic_term_dists = _df_with_names(topic_term_dists, 'topic', 'term')
    doc_topic_dists  = _df_with_names(doc_topic_dists, 'doc', 'topic')
    term_frequency   = pd.Series(term_frequency, name='term_frequency')
    doc_lengths      = pd.Series(doc_lengths, name='doc_length')
    vocab            = pd.Series(vocab, name='vocab')
    K = num_topics   = topic_term_dists.shape[0]
+
+   _input_validate(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequency)
 
    topic_freq = (doc_topic_dists.T * doc_lengths).T.sum()
    topic_proportion = (topic_freq / topic_freq.sum()).order(ascending=False)
@@ -82,7 +84,9 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
 
    mds_res = mds(topic_term_dists)
    assert mds_res.shape == (num_topics, 2)
-   mds_df = pd.DataFrame(mds_res, columns=['x','y'], index=topic_term_dists.index)
+   mds_df = pd.DataFrame({'x': mds_res[:,0], 'y': mds_res[:,1], 'topics': range(1,K+1), \
+                          'cluster': 1, 'Freq': topic_proportion * 100})
+  # note: cluster (should?) be deprecated soon. See: https://github.com/cpsievert/LDAvis/issues/26
 
    # marginal distribution over terms (width of blue bars)
    term_proportion = term_frequency / term_frequency.sum()
@@ -117,8 +121,10 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
       relevance = lambda_ * log_ttd + (1 - lambda_) * log_lift
       return relevance.T.apply(lambda s: s.order(ascending=False).index).head(R)
 
-   def topic_top_term_df((new_topic_id, (original_topic_id, topic_terms))):
-      term_ix = set(topic_terms.values)
+   topic_order = list(topic_order)
+   def topic_top_term_df((original_topic_id, topic_terms)):
+      new_topic_id = topic_order.index(original_topic_id) + 1
+      term_ix = topic_terms.unique()
       return pd.DataFrame({'Term': vocab[term_ix], \
                            'Freq': term_topic_freq.loc[original_topic_id, term_ix], \
                            'Total': term_frequency[term_ix], \
@@ -127,7 +133,7 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
                            'Category': 'Topic%d' % new_topic_id})
 
    top_terms = pd.concat(map(find_relevance, lambda_seq))
-   topic_dfs = map(topic_top_term_df, zip(range(1,K+1), top_terms.T.iterrows()))
+   topic_dfs = map(topic_top_term_df, top_terms.T.iterrows())
    topic_info = pd.concat([default_term_info] + topic_dfs)
 
    # last, to compute the areas of the circles when a term is highlighted
@@ -136,28 +142,36 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
 
    # term-topic frequency table of unique terms across all topics and all values of lambda
    term_ix = topic_info.index.unique()
-   top_topic_terms_freq = term_topic_freq[term_ix].unstack().round()
+   term_ix.sort()
+   top_topic_terms_freq = term_topic_freq[term_ix]
+   # use the new ordering for the topics
+   top_topic_terms_freq.index = range(1, K + 1)
+   top_topic_terms_freq.index.name = 'Topic'
 
-   # we filter to Freq > 0.5 to avoid sending too much data to the browser
-   token_table = pd.DataFrame({'Freq': top_topic_terms_freq}). \
+   # we filter to Freq >= 0.5 to avoid sending too much data to the browser
+   token_table = pd.DataFrame({'Freq': top_topic_terms_freq.unstack()}). \
                  reset_index().set_index('term'). \
-                 query('Freq > 0.5'). \
-                 rename(columns={'topic': 'Topic'})
+                 query('Freq >= 0.5')
 
+   token_table['Freq'] = token_table['Freq'].round()
    token_table['Term'] = vocab[token_table.index.values].values
    # Normalize token frequencies:
    token_table['Freq'] = token_table.Freq / term_frequency[token_table.index]
    token_table.sort(['Term', 'Topic'], inplace=True)
 
+   client_topic_order = [x + 1 for x in topic_order]
+   return PreparedData(mds_df, topic_info, token_table, R, lambda_step, plot_opts, client_topic_order)
 
-   return {'mdsDat': mds_df,
-           'tinfo': topic_info,
-           'token.table': token_table,
-           'R': R,
-           'lambda.step': lambda_step,
-           'plot.opts': plot_opts,
-           'topic.order': topic_order}
-
+class PreparedData(namedtuple('PreparedData', ['mds_df', 'topic_info', 'token_table',\
+                                               'R', 'lambda_step', 'plot_opts', 'topic_order'])):
+    def to_dict(self):
+       return {'mdsDat': self.mds_df.to_dict(orient='list'),
+               'tinfo': self.topic_info.to_dict(orient='list'),
+               'token.table': self.token_table.to_dict(orient='list'),
+               'R': self.R,
+               'lambda.step': self.lambda_step,
+               'plot.opts': self.plot_opts,
+               'topic.order': self.topic_order}
 
 def create_json(*args, **kargs):
-   json.dumps(prepare(*args, **kargs))
+   return json.dumps(prepare(*args, **kargs).to_dict())

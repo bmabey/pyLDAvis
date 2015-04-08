@@ -43,7 +43,8 @@ requirements = [
 ]
 
 test_requirements = [
-    'pytest'
+    'pytest',
+    'funcy'
 ]
 
 setup(
