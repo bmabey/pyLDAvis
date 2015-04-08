@@ -62,6 +62,16 @@ def _df_with_names(data, index_name, columns_name):
    df.index.name = index_name
    df.columns.name = columns_name
    return df
+
+def _mds_df(mds, topic_term_dists, topic_proportion):
+   K = topic_term_dists.shape[0]
+   mds_res = mds(topic_term_dists)
+   assert mds_res.shape == (K, 2)
+   mds_df = pd.DataFrame({'x': mds_res[:,0], 'y': mds_res[:,1], 'topics': range(1, K + 1), \
+                          'cluster': 1, 'Freq': topic_proportion * 100})
+   # note: cluster (should?) be deprecated soon. See: https://github.com/cpsievert/LDAvis/issues/26
+   return mds_df
+
 # phi  - topic_merm_dists
 # theta - doc_topic_dists
 def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequency, R=30, lambda_step = 0.01, mds=js_PCoA, plot_opts={'xlabel': 'PC1', 'ylabel': 'PC2'}):
@@ -82,11 +92,7 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
    topic_term_dists = topic_term_dists.ix[topic_order]
    doc_topic_dists = doc_topic_dists[topic_order]
 
-   mds_res = mds(topic_term_dists)
-   assert mds_res.shape == (num_topics, 2)
-   mds_df = pd.DataFrame({'x': mds_res[:,0], 'y': mds_res[:,1], 'topics': range(1,K+1), \
-                          'cluster': 1, 'Freq': topic_proportion * 100})
-  # note: cluster (should?) be deprecated soon. See: https://github.com/cpsievert/LDAvis/issues/26
+   mds_df = _mds_df(mds, topic_term_dists, topic_proportion)
 
    # marginal distribution over terms (width of blue bars)
    term_proportion = term_frequency / term_frequency.sum()
