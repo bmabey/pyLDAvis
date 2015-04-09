@@ -1,8 +1,8 @@
-/* Taken from https://github.com/cpsievert/LDAvis */
+/* Original code taken from https://github.com/cpsievert/LDAvis */
 /* Copyright 2013, AT&T Intellectual Property */
 /* MIT Licence */
 
-LDAvis = function(to_select, json_file) {
+LDAvis = function(to_select, data_or_file_name) {
 
     // This section sets up the logic for event handling
     var current_clicked = {
@@ -95,8 +95,7 @@ LDAvis = function(to_select, json_file) {
     }
 
 
-    // The actual read-in of the data and main code:
-    d3.json(json_file, function(error, data) {
+    function visualize(data) {
 
         // set the number of topics to global variable K:
         K = data['mdsDat'].x.length;
@@ -1358,7 +1357,13 @@ LDAvis = function(to_select, json_file) {
             state_save(true);
         }
 
-    });
+    }
+
+    if (typeof data_or_file_name === 'string')
+        d3.json(data_or_file_name, function(error, data) {visualize(data);});
+    else
+        visualize(data_or_file_name);
+
     // var current_clicked = {
     //     what: "nothing",
     //     element: undefined
