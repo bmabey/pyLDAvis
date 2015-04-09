@@ -6,6 +6,7 @@ help:
 	@echo "clean-pyc - remove Python file artifacts"
 	@echo "clean-test - remove test and coverage artifacts"
 	@echo "lint - check style with flake8"
+	@echo "fetch_R_data - download needed data files and computes expected outputs for tests"
 	@echo "test - run tests quickly with the default Python"
 	@echo "test-all - run tests on every Python version with tox"
 	@echo "coverage - check code coverage quickly with the default Python"
@@ -37,10 +38,13 @@ clean-test:
 lint:
 	flake8 pyLDAvis tests
 
-test:
+fetch_R_data:
+	(cd tests/data && ./export_data.R)
+
+test: fetch_R_data
 	python setup.py test
 
-test-all:
+test-all: fetch_R_data
 	tox
 
 coverage:
