@@ -11,10 +11,9 @@ import numpy as np
 import pandas as pd
 from pandas.util.testing import assert_frame_equal, assert_series_equal
 
-import pyLDAvis.prepare as p
+from pyLDAvis import prepare
 
-
-roundtrip = fp.compose(json.loads, p.create_json)
+roundtrip = fp.compose(json.loads, json.dumps, lambda d: d.to_dict(), prepare)
 
 DATA_DIR = path.join(path.dirname(path.realpath(__file__)), "../data/")
 def load_dataset(name):

@@ -206,6 +206,3 @@ class PreparedData(namedtuple('PreparedData', ['topic_coordinates', 'topic_info'
                'lambda.step': self.lambda_step,
                'plot.opts': self.plot_opts,
                'topic.order': self.topic_order}
-
-def create_json(*args, **kargs):
-   return json.dumps(prepare(*args, **kargs).to_dict())
