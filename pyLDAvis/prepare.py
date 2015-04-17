@@ -59,10 +59,23 @@ def js_PCoA(distributions):
    return pcoa.site[:,0:2]
 
 def _df_with_names(data, index_name, columns_name):
-   df = pd.DataFrame(data)
+   if type(data) == pd.DataFrame:
+      # we want our index to be numbered
+      df = pd.DataFrame(data.values)
+   else:
+      df = pd.DataFrame(data)
    df.index.name = index_name
    df.columns.name = columns_name
    return df
+
+def _series_with_name(data, name):
+   if type(data) == pd.Series:
+      data.name = name
+      # ensures a numeric index
+      return data.reset_index()[name]
+   else:
+      return pd.Series(data, name=name)
+
 
 def _topic_coordinates(mds, topic_term_dists, topic_proportion):
    K = topic_term_dists.shape[0]
@@ -173,9 +186,9 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
             mds=js_PCoA, plot_opts={'xlab': 'PC1', 'ylab': 'PC2'}, n_jobs=-1):
    topic_term_dists = _df_with_names(topic_term_dists, 'topic', 'term')
    doc_topic_dists  = _df_with_names(doc_topic_dists, 'doc', 'topic')
-   term_frequency   = pd.Series(term_frequency, name='term_frequency')
-   doc_lengths      = pd.Series(doc_lengths, name='doc_length')
-   vocab            = pd.Series(vocab, name='vocab')
+   term_frequency   = _series_with_name(term_frequency, 'term_frequency')
+   doc_lengths      = _series_with_name(doc_lengths, 'doc_length')
+   vocab            = _series_with_name(vocab, 'vocab')
    _input_validate(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequency)
 
    topic_freq       = (doc_topic_dists.T * doc_lengths).T.sum()
