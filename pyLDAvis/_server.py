@@ -12,7 +12,7 @@ import random
 
 IPYTHON_WARNING = """
 Note: if you're in the IPython notebook, pyLDAvis.show() is not the best command
-      to use. Consider using pyLDAvis.display(), or mpld3.enable_notebook().
+      to use. Consider using pyLDAvis.display(), or pyLDAvis.enable_notebook().
       See more information at http://pyLDAvis.github.io/quickstart.html .
 
 You must interrupt the kernel to end this command
@@ -38,7 +38,7 @@ def generate_handler(html, files=None):
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
                 self.wfile.write("<html><head>"
-                                 "<title>pyLDAvis plot</title>"
+                                 "<title>LDAvis</title>"
                                  "</head><body>\n".encode())
                 self.wfile.write(html.encode())
                 self.wfile.write("</body></html>".encode())

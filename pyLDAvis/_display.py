@@ -14,9 +14,8 @@ from .prepare import PreparedData
 from . import urls
 
 __all__ = ["prepared_data_to_html", "display",
-           #"show",
-           "enable_notebook", "disable_notebook",
-           "save_html", "save_json"]
+           "show", "save_html", "save_json",
+           "enable_notebook", "disable_notebook"]
 
 
 # Simple HTML template. This works in standalone web pages for single figures,
@@ -234,59 +233,58 @@ def display(data, local=False, **kwargs):
 
     return HTML(prepared_data_to_html(data, **kwargs))
 
-# def show(fig=None, ip='127.0.0.1', port=8888, n_retries=50,
-#          local=True, open_browser=True, http_server=None, **kwargs):
-#     """Open figure in a web browser
+def show(data, ip='127.0.0.1', port=8888, n_retries=50,
+         local=True, open_browser=True, http_server=None, **kwargs):
+    """Open figure in a web browser
 
-#     Similar behavior to plt.show().  This opens the D3 visualization of the
-#     specified figure in the web browser.  On most platforms, the browser
-#     will open automatically.
+    Similar behavior to plt.show().  This opens the D3 visualization of the
+    specified figure in the web browser.  On most platforms, the browser
+    will open automatically.
 
-#     Parameters
-#     ----------
-#     fig : matplotlib figure
-#         The figure to display.  If not specified, the current active figure
-#         will be used.
-#     ip : string, default = '127.0.0.1'
-#         the ip address used for the local server
-#     port : int, default = 8888
-#         the port number to use for the local server.  If already in use,
-#         a nearby open port will be found (see n_retries)
-#     n_retries : int, default = 50
-#         the maximum number of ports to try when locating an empty port.
-#     local : bool, default = True
-#         if True, use the local d3 & LDAvis javascript versions, within the
-#         js/ folder.  If False, use the standard urls.
-#     open_browser : bool (optional)
-#         if True (default), then open a web browser to the given HTML
-#     http_server : class (optional)
-#         optionally specify an HTTPServer class to use for showing the
-#         figure. The default is Python's basic HTTPServer.
-#     **kwargs :
-#         additional keyword arguments are passed through to :func:`fig_to_html`
+    Parameters
+    ----------
+    fig : matplotlib figure
+        The figure to display.  If not specified, the current active figure
+        will be used.
+    ip : string, default = '127.0.0.1'
+        the ip address used for the local server
+    port : int, default = 8888
+        the port number to use for the local server.  If already in use,
+        a nearby open port will be found (see n_retries)
+    n_retries : int, default = 50
+        the maximum number of ports to try when locating an empty port.
+    local : bool, default = True
+        if True, use the local d3 & LDAvis javascript versions, within the
+        js/ folder.  If False, use the standard urls.
+    open_browser : bool (optional)
+        if True (default), then open a web browser to the given HTML
+    http_server : class (optional)
+        optionally specify an HTTPServer class to use for showing the
+        figure. The default is Python's basic HTTPServer.
+    **kwargs :
+        additional keyword arguments are passed through to :func:`fig_to_html`
 
-#     See Also
-#     --------
-#     :func:`display` : embed figure within the IPython notebook
-#     :func:`enable_notebook` : automatically embed figures in IPython notebook
-#     """
-#     if local:
-#         kwargs['ldavis_url'] = '/LDAvis.js'
-#         kwargs['d3_url'] = '/d3.js'
-#         files = {'/LDAvis.js': ["text/javascript",
-#                                open(urls.LDAVIS_LOCAL, 'r').read()],
-#                  '/d3.js': ["text/javascript",
-#                             open(urls.D3_LOCAL, 'r').read()]}
-#     else:
-#         files = None
+    See Also
+    --------
+    :func:`display` : embed figure within the IPython notebook
+    :func:`enable_notebook` : automatically embed figures in IPython notebook
+    """
+    if local:
+        kwargs['ldavis_url'] = '/LDAvis.js'
+        kwargs['d3_url'] = '/d3.js'
+        kwargs['ldavis_css_url'] = '/LDAvis.css'
+        files = {'/LDAvis.js': ["text/javascript",
+                               open(urls.LDAVIS_LOCAL, 'r').read()],
+                 '/LDAvis.css': ["text/css",
+                                 open(urls.LDAVIS_CSS_LOCAL, 'r').read()],
+                 '/d3.js': ["text/javascript",
+                            open(urls.D3_LOCAL, 'r').read()]}
+    else:
+        files = None
 
-#     if fig is None:
-#         # import here, in case matplotlib.use(...) is called by user
-#         import matplotlib.pyplot as plt
-#         fig = plt.gcf()
-#     html = fig_to_html(fig, **kwargs)
-#     serve(html, ip=ip, port=port, n_retries=n_retries, files=files,
-#           open_browser=open_browser, http_server=http_server)
+    html = prepared_data_to_html(data, **kwargs)
+    serve(html, ip=ip, port=port, n_retries=n_retries, files=files,
+          open_browser=open_browser, http_server=http_server)
 
 
 def enable_notebook(local=False, **kwargs):
@@ -408,8 +406,3 @@ def save_json(data, fileobj, **kwargs):
     if not hasattr(fileobj, 'write'):
         raise ValueError("fileobj should be a filename or a writable file")
     json.dump(data.to_dict(), fileobj)
-
-# Deprecated versions of these functions
-#show_d3 = deprecated(show, "mpld3.show_d3", "mpld3.show")
-#fig_to_d3 = deprecated(fig_to_html, "mpld3.fig_to_d3", "mpld3.fig_to_html")
-#display_d3 = deprecated(display, "mpld3.display_d3", "mpld3.display")
