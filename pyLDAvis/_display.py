@@ -1,5 +1,6 @@
 # this file is largely based on https://github.com/jakevdp/mpld3/blob/master/mpld3/_display.py
 # Copyright (c) 2013, Jake Vanderplas
+# It was adapted for pyLDAvis by Ben Mabey
 import warnings
 import random
 import json
@@ -14,8 +15,8 @@ from . import urls
 
 __all__ = ["prepared_data_to_html", "display",
            #"show",
-           "enable_notebook", "disable_notebook"]
-           #"save_html", "save_json"]
+           "enable_notebook", "disable_notebook",
+           "save_html", "save_json"]
 
 
 # Simple HTML template. This works in standalone web pages for single figures,
@@ -232,8 +233,6 @@ def display(data, local=False, **kwargs):
         kwargs['d3_url'], kwargs['ldavis_url'], kwargs['ldavis_css_url'] = write_ipynb_local_js()
 
     return HTML(prepared_data_to_html(data, **kwargs))
-    #return prepared_data_to_html(data, **kwargs)
-
 
 # def show(fig=None, ip='127.0.0.1', port=8888, n_retries=50,
 #          local=True, open_browser=True, http_server=None, **kwargs):
@@ -356,59 +355,59 @@ def disable_notebook():
     formatter.type_printers.pop(PreparedData, None)
 
 
-# def save_html(fig, fileobj, **kwargs):
-#     """Save a matplotlib figure to an html file
+def save_html(data, fileobj, **kwargs):
+    """Save a matplotlib figure to an html file
 
-#     Parameters
-#     ----------
-#     fig : matplotlib Figure instance
-#         The figure to write to file.
-#     fileobj : filename or file object
-#         The filename or file-like object in which to write the HTML
-#         representation of the figure.
-#     **kwargs :
-#         additional keyword arguments will be passed to :func:`fig_to_html`
+    Parameters
+    ----------
+    fig : matplotlib Figure instance
+        The figure to write to file.
+    fileobj : filename or file object
+        The filename or file-like object in which to write the HTML
+        representation of the figure.
+    **kwargs :
+        additional keyword arguments will be passed to :func:`fig_to_html`
 
-#     See Also
-#     --------
-#     :func:`save_json`: save json representation of a figure to file
-#     :func:`fig_to_html` : output html representation of the figure
-#     :func:`fig_to_dict` : output dictionary representation of the figure
-#     """
-#     if isinstance(fileobj, str):
-#         fileobj = open(fileobj, 'w')
-#     if not hasattr(fileobj, 'write'):
-#         raise ValueError("fileobj should be a filename or a writable file")
-#     fileobj.write(fig_to_html(fig, **kwargs))
+    See Also
+    --------
+    :func:`save_json`: save json representation of a figure to file
+    :func:`fig_to_html` : output html representation of the figure
+    :func:`fig_to_dict` : output dictionary representation of the figure
+    """
+    if isinstance(fileobj, str):
+        fileobj = open(fileobj, 'w')
+    if not hasattr(fileobj, 'write'):
+        raise ValueError("fileobj should be a filename or a writable file")
+    fileobj.write(prepared_data_to_html(data, **kwargs))
 
 
-# def save_json(fig, fileobj, **kwargs):
-#     """Save a matplotlib figure to a json file.
+def save_json(data, fileobj, **kwargs):
+    """Save a matplotlib figure to a json file.
 
-#     Note that any plugins which depend on generated HTML will not be included
-#     in the JSON encoding.
+    Note that any plugins which depend on generated HTML will not be included
+    in the JSON encoding.
 
-#     Parameters
-#     ----------
-#     fig : matplotlib Figure instance
-#         The figure to write to file.
-#     fileobj : filename or file object
-#         The filename or file-like object in which to write the HTML
-#         representation of the figure.
-#     **kwargs :
-#         additional keyword arguments will be passed to :func:`fig_to_dict`
+    Parameters
+    ----------
+    fig : matplotlib Figure instance
+        The figure to write to file.
+    fileobj : filename or file object
+        The filename or file-like object in which to write the HTML
+        representation of the figure.
+    **kwargs :
+        additional keyword arguments will be passed to :func:`fig_to_dict`
 
-#     See Also
-#     --------
-#     :func:`save_html` : save html representation of a figure to file
-#     :func:`fig_to_html` : output html representation of the figure
-#     :func:`fig_to_dict` : output dictionary representation of the figure
-#     """
-#     if isinstance(fileobj, str):
-#         fileobj = open(fileobj, 'w')
-#     if not hasattr(fileobj, 'write'):
-#         raise ValueError("fileobj should be a filename or a writable file")
-#     json.dump(fig_to_dict(fig, **kwargs), fileobj)
+    See Also
+    --------
+    :func:`save_html` : save html representation of a figure to file
+    :func:`fig_to_html` : output html representation of the figure
+    :func:`fig_to_dict` : output dictionary representation of the figure
+    """
+    if isinstance(fileobj, str):
+        fileobj = open(fileobj, 'w')
+    if not hasattr(fileobj, 'write'):
+        raise ValueError("fileobj should be a filename or a writable file")
+    json.dump(data.to_dict(), fileobj)
 
 # Deprecated versions of these functions
 #show_d3 = deprecated(show, "mpld3.show_d3", "mpld3.show")
