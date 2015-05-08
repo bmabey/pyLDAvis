@@ -144,6 +144,7 @@ var LDAvis = function(to_select, data_or_file_name) {
             }
             lamData.push(obj);
         }
+        var dat3 = lamData.slice(0, R);
 
         // Create the topic input & lambda slider forms. Inspired from:
         // http://bl.ocks.org/d3noob/10632804
@@ -443,7 +444,7 @@ var LDAvis = function(to_select, data_or_file_name) {
             .style("text-anchor", "middle");
 
         // establish layout and vars for bar chart
-        var barDefault2 = lamData.filter(function(d) {
+        var barDefault2 = dat3.filter(function(d) {
             return d.Category == "Default";
         });
 
