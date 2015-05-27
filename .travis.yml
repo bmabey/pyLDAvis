@@ -32,8 +32,8 @@ install:
   - source activate testenv
   - conda install --yes $DEPS
   - python setup.py install
-  # debugging travis failures...
-  - pwd
+  # download JSON data from github since travis does not have git-lfs rolled out yet
+  - (cd tests/data; curl -L -O https://github.com/bmabey/pyLDAvis/raw/master/tests/data/movie_reviews_input.json && curl -L -O https://github.com/bmabey/pyLDAvis/raw/master/tests/data/movie_reviews_output.json)
   - ls -la tests/data/
 
 # command to run tests, e.g. python setup.py test
