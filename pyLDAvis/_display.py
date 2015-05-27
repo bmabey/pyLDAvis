@@ -9,7 +9,7 @@ import numpy
 import re
 import os
 from ._server import serve
-from .utils import deprecated, get_id, write_ipynb_local_js
+from .utils import deprecated, get_id, write_ipynb_local_js, NumPyEncoder
 from .prepare import PreparedData
 from . import urls
 
@@ -175,7 +175,7 @@ def prepared_data_to_html(data, d3_url=None, ldavis_url=None, ldavis_css_url=Non
                            visid_raw=visid,
                            d3_url=d3_url,
                            ldavis_url=ldavis_url,
-                           vis_json=json.dumps(data.to_dict()),
+                           vis_json=data.to_json(),
                            ldavis_css_url=ldavis_css_url)
 
 def display(data, local=False, **kwargs):
@@ -379,4 +379,4 @@ def save_json(data, fileobj):
         fileobj = open(fileobj, 'w')
     if not hasattr(fileobj, 'write'):
         raise ValueError("fileobj should be a filename or a writable file")
-    json.dump(data.to_dict(), fileobj)
+    json.dump(data.to_dict(), fileobj, cls=NumPyEncoder)

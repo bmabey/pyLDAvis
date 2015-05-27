@@ -1,14 +1,19 @@
+"""
+pyLDAvis Prepare
+===============
+Main transformation functions for preparing LDAdata to the visualization's data structures
+"""
+
 from collections import namedtuple
 import json
-
 from joblib import Parallel, delayed, cpu_count
 import numpy as np
 import pandas as pd
-from skbio.stats.ordination import PCoA
-from skbio.stats.distance import DistanceMatrix
-
 import scipy.spatial.distance as dist
 from scipy.stats import entropy
+from skbio.stats.ordination import PCoA
+from skbio.stats.distance import DistanceMatrix
+from .utils import NumPyEncoder
 
 def __num_dist_rows__(array, ndigits=2):
    return int(pd.DataFrame(array).sum(axis=1).map(lambda x: round(x, ndigits)).sum())
@@ -44,19 +49,23 @@ def _input_check(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_fre
    if len(errors) > 0:
       return errors
 
+
 def _input_validate(*args):
    res = _input_check(*args)
    if res:
       raise ValidationError('\n' + '\n'.join([' * ' + s for s in res]))
 
+
 def jensen_shannon(_P, _Q):
     _M = 0.5 * (_P + _Q)
     return 0.5 * (entropy(_P, _M) + entropy(_Q, _M))
+
 
 def js_PCoA(distributions):
    dist_matrix = DistanceMatrix(dist.squareform(dist.pdist(distributions.values, jensen_shannon)))
    pcoa = PCoA(dist_matrix).scores()
    return pcoa.site[:,0:2]
+
 
 def _df_with_names(data, index_name, columns_name):
    if type(data) == pd.DataFrame:
@@ -67,6 +76,7 @@ def _df_with_names(data, index_name, columns_name):
    df.index.name = index_name
    df.columns.name = columns_name
    return df
+
 
 def _series_with_name(data, name):
    if type(data) == pd.Series:
@@ -86,11 +96,13 @@ def _topic_coordinates(mds, topic_term_dists, topic_proportion):
    # note: cluster (should?) be deprecated soon. See: https://github.com/cpsievert/LDAvis/issues/26
    return mds_df
 
+
 def _chunks(l, n):
     """ Yield successive n-sized chunks from l.
     """
     for i in range(0, len(l), n):
         yield l[i:i+n]
+
 
 def _job_chunks(l, n_jobs):
    n_chunks = n_jobs
@@ -99,7 +111,6 @@ def _job_chunks(l, n_jobs):
       n_chunks = cpu_count() + 1 - n_jobs
 
    return _chunks(l, n_chunks)
-
 
 
 def _find_relevance(log_ttd, log_lift, R, lambda_):
@@ -150,6 +161,7 @@ def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_f
                                                  for ls in _job_chunks(lambda_seq, n_jobs)))
    topic_dfs = map(topic_top_term_df, enumerate(top_terms.T.iterrows(), 1))
    return pd.concat([default_term_info] + list(topic_dfs))
+
 
 def _token_table(topic_info, term_topic_freq, vocab, term_frequency):
    # last, to compute the areas of the circles when a term is highlighted
@@ -208,12 +220,6 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
    client_topic_order = [x + 1 for x in topic_order]
 
    return PreparedData(topic_coordinates, topic_info, token_table, R, lambda_step, plot_opts, client_topic_order)
-
-class NumPyEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.int64) or isinstance(obj, np.int32):
-            return int(obj)
-        return json.JSONEncoder.default(self, obj)
 
 class PreparedData(namedtuple('PreparedData', ['topic_coordinates', 'topic_info', 'token_table',\
                                                'R', 'lambda_step', 'plot_opts', 'topic_order'])):

@@ -4,11 +4,13 @@ pyLDAvis Utilities
 Utility routines for the pyLDAvis package
 """
 
+import json
 import os
 import re
 import shutil
 import warnings
 from functools import wraps
+import numpy as np
 from . import urls
 
 # Make sure that DeprecationWarning gets printed
@@ -147,3 +149,9 @@ def write_ipynb_local_js(location=None, d3_src=None, ldavis_src=None, ldavis_css
 
 
     return prefix + d3js, prefix + ldavisjs, prefix + ldaviscss
+
+class NumPyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.int64) or isinstance(obj, np.int32):
+            return int(obj)
+        return json.JSONEncoder.default(self, obj)
