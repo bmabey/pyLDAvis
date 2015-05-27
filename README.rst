@@ -11,7 +11,7 @@ Status: **WORK IN PROGRESS**
 
 -  DONE: All the core logic from the R version has been ported
 -  DONE: The initial Notebook integration is done.
--  BUG: The visualization JS/HTLM does not currently work with multiple
+-  DONE: The visualization JS/HTLM does not currently work with multiple
    visualizations per page/Notebook.
 -  TODO: The css for the notebook integration still needs to be worked
    on.
