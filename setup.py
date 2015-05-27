@@ -38,6 +38,7 @@ class PyTest(TestCommand):
 
 requirements = [
     'pandas',
+    'numexpr',
     'numpy',
     'scikit-bio==0.2.3',
     'joblib==0.8.4'
