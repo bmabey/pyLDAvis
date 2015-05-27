@@ -149,7 +149,7 @@ def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_f
    top_terms = pd.concat(Parallel(n_jobs=n_jobs)(delayed(_find_relevance_chunks)(log_ttd, log_lift, R, ls) \
                                                  for ls in _job_chunks(lambda_seq, n_jobs)))
    topic_dfs = map(topic_top_term_df, enumerate(top_terms.T.iterrows(), 1))
-   return pd.concat([default_term_info] + topic_dfs)
+   return pd.concat([default_term_info] + list(topic_dfs))
 
 def _token_table(topic_info, term_topic_freq, vocab, term_frequency):
    # last, to compute the areas of the circles when a term is highlighted
