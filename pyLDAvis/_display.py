@@ -18,7 +18,7 @@ __all__ = ["prepared_data_to_html", "display",
            "enable_notebook", "disable_notebook"]
 
 
-# Simple HTML template. This works in standalone web pages for single figures,
+# Simple HTML template. This works in standalone web pages for single visualizations,
 # but will not work within the IPython notebook due to the presence of
 # requirejs
 SIMPLE_HTML = jinja2.Template("""
@@ -112,24 +112,20 @@ TEMPLATE_DICT = {"simple": SIMPLE_HTML,
                  "notebook": REQUIREJS_HTML,
                  "general": GENERAL_HTML}
 
-def prepared_data_to_html(data, d3_url=None, ldavis_url=None, ldavis_css_url=None, no_extras=False,
-                template_type="general", visid=None, use_http=False, **kwargs):
-    """Output html representation of the figure
+def prepared_data_to_html(data, d3_url=None, ldavis_url=None, ldavis_css_url=None,
+                          template_type="general", visid=None, use_http=False):
+    """Output HTML with embedded visualization
 
     Parameters
     ----------
-    fig : matplotlib figure
-        The figure to display
+    data : PreparedData, created using :func:`prepare`
+        The data for the visualization.
     d3_url : string (optional)
         The URL of the d3 library.  If not specified, a standard web path
         will be used.
     ldavis_url : string (optional)
         The URL of the LDAvis library.  If not specified, a standard web path
         will be used.
-    no_extras : boolean
-        If true, remove any extra javascript or CSS. The output will be similar
-        to that if the representation output by fig_to_json is embedded in
-        a web page.
     template_type : string
         string specifying the type of HTML template to use. Options are:
 
@@ -147,26 +143,21 @@ def prepared_data_to_html(data, d3_url=None, ldavis_url=None, ldavis_css_url=Non
     use_http : boolean (optional)
         If true, use http:// instead of https:// for d3_url and ldavis_url.
 
-    **kwargs :
-        Additional keyword arguments passed to mplexporter.Exporter
-
     Returns
     -------
-    fig_html : string
-        the HTML representation of the figure
+    vis_html : string
+        the HTML visualization
 
     See Also
     --------
     :func:`save_json`: save json representation of a figure to file
     :func:`save_html` : save html representation of a figure to file
-    :func:`fig_to_dict` : output dictionary representation of the figure
     :func:`show` : launch a local server and show a figure in a browser
     :func:`display` : embed figure within the IPython notebook
-    :func:`enable_notebook` : automatically embed figures in IPython notebook
+    :func:`enable_notebook` : automatically embed visualizations in IPython notebook
     """
     template = TEMPLATE_DICT[template_type]
 
-    # TODO: allow fig to be a list of figures?
     d3_url = d3_url or urls.D3_URL
     ldavis_url = ldavis_url or urls.LDAVIS_URL
     ldavis_css_url = ldavis_css_url or urls.LDAVIS_CSS_URL
@@ -188,24 +179,21 @@ def prepared_data_to_html(data, d3_url=None, ldavis_url=None, ldavis_css_url=Non
                            ldavis_css_url=ldavis_css_url)
 
 def display(data, local=False, **kwargs):
-    """Display figure in IPython notebook via the HTML display hook
+    """Display visualization in IPython notebook via the HTML display hook
 
     Parameters
     ----------
-    fig : matplotlib figure
-        The figure to display (grabs current figure if missing)
-    closefig : boolean (default: True)
-        If true, close the figure so that the IPython matplotlib mode will not
-        display the png version of the figure.
+    data : PreparedData, created using :func:`prepare`
+        The data for the visualization.
     local : boolean (optional, default=False)
         if True, then copy the d3 & mpld3 libraries to a location visible to
         the notebook server, and source them from there. See Notes below.
     **kwargs :
-        additional keyword arguments are passed through to :func:`fig_to_html`.
+        additional keyword arguments are passed through to :func:`prepared_data_to_html`.
 
     Returns
     -------
-    fig_d3 : IPython.display.HTML object
+    vis_d3 : IPython.display.HTML object
         the IPython HTML rich display of the figure.
 
     Notes
@@ -220,7 +208,7 @@ def display(data, local=False, **kwargs):
     See Also
     --------
     :func:`show` : launch a local server and show a figure in a browser
-    :func:`enable_notebook` : automatically embed figures in IPython notebook
+    :func:`enable_notebook` : automatically embed visualizations in IPython notebook
     """
     # import here, in case users don't have requirements installed
     from IPython.display import HTML
@@ -235,17 +223,12 @@ def display(data, local=False, **kwargs):
 
 def show(data, ip='127.0.0.1', port=8888, n_retries=50,
          local=True, open_browser=True, http_server=None, **kwargs):
-    """Open figure in a web browser
-
-    Similar behavior to plt.show().  This opens the D3 visualization of the
-    specified figure in the web browser.  On most platforms, the browser
-    will open automatically.
+    """Starts a local webserver and opens the visualization in a browser.
 
     Parameters
     ----------
-    fig : matplotlib figure
-        The figure to display.  If not specified, the current active figure
-        will be used.
+    data : PreparedData, created using :func:`prepare`
+        The data for the visualization.
     ip : string, default = '127.0.0.1'
         the ip address used for the local server
     port : int, default = 8888
@@ -262,12 +245,12 @@ def show(data, ip='127.0.0.1', port=8888, n_retries=50,
         optionally specify an HTTPServer class to use for showing the
         figure. The default is Python's basic HTTPServer.
     **kwargs :
-        additional keyword arguments are passed through to :func:`fig_to_html`
+        additional keyword arguments are passed through to :func:`prepared_data_to_html`
 
     See Also
     --------
     :func:`display` : embed figure within the IPython notebook
-    :func:`enable_notebook` : automatically embed figures in IPython notebook
+    :func:`enable_notebook` : automatically embed visualizations in IPython notebook
     """
     if local:
         kwargs['ldavis_url'] = '/LDAvis.js'
@@ -288,13 +271,7 @@ def show(data, ip='127.0.0.1', port=8888, n_retries=50,
 
 
 def enable_notebook(local=False, **kwargs):
-    """Enable the automatic display of figures in the IPython Notebook.
-
-    This function should be used with the inline Matplotlib backend
-    that ships with IPython that can be enabled with `%pylab inline`
-    or `%matplotlib inline`. This works by adding an HTML formatter
-    for Figure objects; the existing SVG/PNG formatters will remain
-    enabled.
+    """Enable the automatic display of visualizations in the IPython Notebook.
 
     Parameters
     ----------
@@ -302,7 +279,7 @@ def enable_notebook(local=False, **kwargs):
         if True, then copy the d3 & LDAvis libraries to a location visible to
         the notebook server, and source them from there. See Notes below.
     **kwargs :
-        all keyword parameters are passed through to :func:`fig_to_html`
+        all keyword parameters are passed through to :func:`prepared_data_to_html`
 
     Notes
     -----
@@ -337,11 +314,11 @@ def enable_notebook(local=False, **kwargs):
 
 
 def disable_notebook():
-    """Disable the automatic display of figures in the IPython Notebook.
+    """Disable the automatic display of visualizations in the IPython Notebook.
 
     See Also
     --------
-    :func:`enable_notebook` : automatically embed figures in IPython notebook
+    :func:`enable_notebook` : automatically embed visualizations in IPython notebook
     """
     try:
         from IPython.core.getipython import get_ipython
@@ -354,22 +331,25 @@ def disable_notebook():
 
 
 def save_html(data, fileobj, **kwargs):
-    """Save a matplotlib figure to an html file
+    """Save an embedded visualization to file.
+
+    This will produce a self-contained HTML file. Internet access is still required
+    for the D3 and LDAvis libraries.
 
     Parameters
     ----------
-    fig : matplotlib Figure instance
-        The figure to write to file.
+    data : PreparedData, created using :func:`prepare`
+        The data for the visualization.
     fileobj : filename or file object
         The filename or file-like object in which to write the HTML
         representation of the figure.
     **kwargs :
-        additional keyword arguments will be passed to :func:`fig_to_html`
+        additional keyword arguments will be passed to :func:`prepared_data_to_html`
 
     See Also
     --------
     :func:`save_json`: save json representation of a figure to file
-    :func:`fig_to_html` : output html representation of the figure
+    :func:`prepared_data_to_html` : output html representation of the figure
     :func:`fig_to_dict` : output dictionary representation of the figure
     """
     if isinstance(fileobj, str):
@@ -379,27 +359,21 @@ def save_html(data, fileobj, **kwargs):
     fileobj.write(prepared_data_to_html(data, **kwargs))
 
 
-def save_json(data, fileobj, **kwargs):
-    """Save a matplotlib figure to a json file.
-
-    Note that any plugins which depend on generated HTML will not be included
-    in the JSON encoding.
+def save_json(data, fileobj):
+    """Save the visualization's data a json file.
 
     Parameters
     ----------
-    fig : matplotlib Figure instance
-        The figure to write to file.
+    data : PreparedData, created using :func:`prepare`
+        The data for the visualization.
     fileobj : filename or file object
         The filename or file-like object in which to write the HTML
         representation of the figure.
-    **kwargs :
-        additional keyword arguments will be passed to :func:`fig_to_dict`
 
     See Also
     --------
     :func:`save_html` : save html representation of a figure to file
-    :func:`fig_to_html` : output html representation of the figure
-    :func:`fig_to_dict` : output dictionary representation of the figure
+    :func:`prepared_data_to_html` : output html representation of the figure
     """
     if isinstance(fileobj, str):
         fileobj = open(fileobj, 'w')
