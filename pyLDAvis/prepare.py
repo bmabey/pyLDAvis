@@ -136,8 +136,8 @@ def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_f
    log_ttd = np.log(topic_term_dists)
    lambda_seq = np.arange(0, 1 + lambda_step, lambda_step)
 
-   def topic_top_term_df((i, (original_topic_id, topic_terms))):
-      new_topic_id = i + 1
+   def topic_top_term_df(tup):
+      new_topic_id, (original_topic_id, topic_terms) = tup
       term_ix = topic_terms.unique()
       return pd.DataFrame({'Term': vocab[term_ix], \
                            'Freq': term_topic_freq.loc[original_topic_id, term_ix], \
@@ -148,7 +148,7 @@ def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_f
 
    top_terms = pd.concat(Parallel(n_jobs=n_jobs)(delayed(_find_relevance_chunks)(log_ttd, log_lift, R, ls) \
                                                  for ls in _job_chunks(lambda_seq, n_jobs)))
-   topic_dfs = map(topic_top_term_df, enumerate(top_terms.T.iterrows()))
+   topic_dfs = map(topic_top_term_df, enumerate(top_terms.T.iterrows(), 1))
    return pd.concat([default_term_info] + topic_dfs)
 
 def _token_table(topic_info, term_topic_freq, vocab, term_frequency):
