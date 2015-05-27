@@ -6,7 +6,6 @@ python:
   - "3.4"
   - "3.3"
   - "2.7"
-  - "2.6"
 
 env:
   - DEPS="numpy=1.9.2 pandas=0.16.0 jinja2=2.7.2 scikit-bio=0.2.3 joblib=0.8.4 numexpr pytest"
