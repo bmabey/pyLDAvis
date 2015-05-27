@@ -40,6 +40,7 @@ requirements = [
     'pandas',
     'numexpr',
     'numpy',
+    'funcy',
     'jinja2==2.7.2',
     'scikit-bio==0.2.3',
     'joblib==0.8.4'
