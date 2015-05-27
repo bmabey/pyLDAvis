@@ -13,7 +13,7 @@ from pandas.util.testing import assert_frame_equal, assert_series_equal
 
 from pyLDAvis import prepare
 
-roundtrip = fp.compose(json.loads, json.dumps, lambda d: d.to_dict(), prepare)
+roundtrip = fp.compose(json.loads, lambda d: d.to_json(), prepare)
 
 DATA_DIR = path.join(path.dirname(path.realpath(__file__)), "../data/")
 def load_dataset(name):

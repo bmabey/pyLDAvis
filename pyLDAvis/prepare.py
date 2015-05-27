@@ -209,6 +209,12 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
 
    return PreparedData(topic_coordinates, topic_info, token_table, R, lambda_step, plot_opts, client_topic_order)
 
+class NumPyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.int64) or isinstance(obj, np.int32):
+            return int(obj)
+        return json.JSONEncoder.default(self, obj)
+
 class PreparedData(namedtuple('PreparedData', ['topic_coordinates', 'topic_info', 'token_table',\
                                                'R', 'lambda_step', 'plot_opts', 'topic_order'])):
     def to_dict(self):
@@ -219,3 +225,6 @@ class PreparedData(namedtuple('PreparedData', ['topic_coordinates', 'topic_info'
                'lambda.step': self.lambda_step,
                'plot.opts': self.plot_opts,
                'topic.order': self.topic_order}
+
+    def to_json(self):
+       return json.dumps(self.to_dict(), cls=NumPyEncoder)
