@@ -4,10 +4,9 @@
 import sys
 import os
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-if on_rtd:
-    html_theme = 'default'
-else:
-    html_theme = 'nature'
+
+print('on_rtd is ' + str(on_rtd))
+
 
 try:
     from setuptools import setup
