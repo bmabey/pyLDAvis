@@ -34,12 +34,13 @@ project_root = os.path.dirname(cwd)
 # version is used.
 sys.path.insert(0, project_root)
 
+MOCK_MODULES = ['numpy', 'scipy', 'scipy.stats', 'scipy.spatial', 'scipy.spatial.distance', 'pandas', 'skbio', 'skbio.stats', 'skbio.stats.distance', 'skbio.stats.ordination']
+for mod_name in MOCK_MODULES:
+    sys.modules[mod_name] = mock.Mock()
+
 import pyLDAvis
 
 
-MOCK_MODULES = ['numpy', 'scipy', 'pandas', 'matplotlib', 'matplotlib.pyplot']
-for mod_name in MOCK_MODULES:
-    sys.modules[mod_name] = mock.Mock()
 
 # -- General configuration ---------------------------------------------
 
