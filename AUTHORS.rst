@@ -10,4 +10,4 @@ Development Lead
 Contributors
 ------------
 
-None yet. Why not be the first?
+* Paul English <paul@onfrst.com> - JS and CSS fixes and improvements.
