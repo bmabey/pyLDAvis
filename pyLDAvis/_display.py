@@ -10,7 +10,7 @@ import re
 import os
 from ._server import serve
 from .utils import get_id, write_ipynb_local_js, NumPyEncoder
-from .prepare import PreparedData
+from ._prepare import PreparedData
 from . import urls
 
 __all__ = ["prepared_data_to_html", "display",
