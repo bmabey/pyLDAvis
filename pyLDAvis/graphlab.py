@@ -3,6 +3,7 @@ pyLDAvis GraphLab
 ===============
 Helper functions to visualize GraphLab Create's TopicModel (an implementation of LDA)
 """
+
 import funcy as fp
 import numpy as np
 import pandas as pd
