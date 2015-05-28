@@ -15,11 +15,14 @@ from skbio.stats.ordination import PCoA
 from skbio.stats.distance import DistanceMatrix
 from .utils import NumPyEncoder
 
+
 def __num_dist_rows__(array, ndigits=2):
    return int(pd.DataFrame(array).sum(axis=1).map(lambda x: round(x, ndigits)).sum())
 
+
 class ValidationError(ValueError):
    pass
+
 
 def _input_check(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequency):
    ttds = topic_term_dists.shape
@@ -56,13 +59,24 @@ def _input_validate(*args):
       raise ValidationError('\n' + '\n'.join([' * ' + s for s in res]))
 
 
-def jensen_shannon(_P, _Q):
+def _jensen_shannon(_P, _Q):
     _M = 0.5 * (_P + _Q)
     return 0.5 * (entropy(_P, _M) + entropy(_Q, _M))
 
 
 def js_PCoA(distributions):
-   dist_matrix = DistanceMatrix(dist.squareform(dist.pdist(distributions.values, jensen_shannon)))
+   """Dimension reduction via Jensen-Shannon Divergence & Principal Components
+
+    Parameters
+    ----------
+    distributions : array-like, shape (`n_dists`, `k`)
+        Matrix of distributions probabilities.
+
+    Returns
+    -------
+    pcoa : array, shape (`n_dists`, 2)
+   """
+   dist_matrix = DistanceMatrix(dist.squareform(dist.pdist(distributions.values, _jensen_shannon)))
    pcoa = PCoA(dist_matrix).scores()
    return pcoa.site[:,0:2]
 
@@ -188,14 +202,74 @@ def _token_table(topic_info, term_topic_freq, vocab, term_frequency):
    token_table['Freq'] = token_table.Freq / term_frequency[token_table.index]
    return token_table.sort(['Term', 'Topic'])
 
+
 def _term_topic_freq(topic_term_dists, topic_freq, term_frequency):
    term_topic_freq = (topic_term_dists.T  * topic_freq).T
    # adjust to match term frequencies exactly (get rid of rounding error)
    err = term_frequency / term_topic_freq.sum()
    return term_topic_freq * err
 
-def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequency, R=30, lambda_step = 0.01, \
-            mds=js_PCoA, plot_opts={'xlab': 'PC1', 'ylab': 'PC2'}, n_jobs=-1):
+
+def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequency, \
+            R=30, lambda_step=0.01, mds=js_PCoA, n_jobs=-1, \
+            plot_opts={'xlab': 'PC1', 'ylab': 'PC2'}):
+   """Transforms the topic model distributions and related corpus data into
+   the data structures needed for the visualization.
+
+    Parameters
+    ----------
+    topic_term_dists : array-like, shape (`n_topics`, `n_terms`)
+        Matrix of topic-term probabilities. Where `n_terms` is `len(vocab)`.
+    doc_topic_dists : array-like, shape (`n_docs`, `n_topics`)
+        Matrix of document-topic probabilities.
+    doc_lengths : array-like, shape `n_docs`
+        The length of each document, i.e. the number of words in each document.
+        The order of the numbers should be consistent with the ordering of the
+        docs in `doc_topic_dists`.
+    vocab : array-like, shape `n_terms`
+        List of all the words in the corpus used to train the model.
+    term_frequency : array-like, shape `n_terms`
+        The count of each particular term over the entire corpus. The ordering
+        of these counts should correspond with `vocab` and `topic_term_dists`.
+    R : int
+        The number of terms to display in the barcharts of the visualization.
+        Default is 30. Recommended to be roughly between 10 and 50.
+    lambda_step : float, between 0 and 1
+        Determines the interstep distance in the grid of lambda values over
+        which to iterate when computing relevance.
+        Default is 0.01. Recommended to be between 0.01 and 0.1.
+    mds : function
+        A function that takes `topic_term_dists` as an input and outputs a
+        `n_topics` by `2`  distance matrix. The output approximates the distance
+        between topics. See :func:`js_PCoA` for details on the default function.
+    n_jobs: int
+        The number of cores to be used to do the computations. The regular
+        joblib conventions are followed so `-1`, which is the default, will
+        use all cores.
+    plot_opts : dict, with keys 'xlab' and `ylab`
+        Dictionary of plotting options, right now only used for the axis labels.
+
+    Returns
+    -------
+    prepared_data : PreparedData
+        A named tuple containing all the data structures required to create
+        the visualization. To be passed on to functions like :func:`display`.
+
+    Notes
+    -----
+    This implements the method of `Sievert, C. and Shirley, K. (2014):
+    LDAvis: A Method for Visualizing and Interpreting Topics, ACL Workshop on
+    Interactive Language Learning, Visualization, and Interfaces.`
+    http://nlp.stanford.edu/events/illvi2014/papers/sievert-illvi2014.pdf
+
+    See Also
+    --------
+    :func:`save_json`: save json representation of a figure to file
+    :func:`save_html` : save html representation of a figure to file
+    :func:`show` : launch a local server and show a figure in a browser
+    :func:`display` : embed figure within the IPython notebook
+    :func:`enable_notebook` : automatically embed visualizations in IPython notebook
+   """
    topic_term_dists = _df_with_names(topic_term_dists, 'topic', 'term')
    doc_topic_dists  = _df_with_names(doc_topic_dists, 'doc', 'topic')
    term_frequency   = _series_with_name(term_frequency, 'term_frequency')

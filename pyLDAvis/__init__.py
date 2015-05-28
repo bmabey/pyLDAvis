@@ -34,11 +34,11 @@ Functions: IPython Notebook
 """
 
 __all__ = ["__version__",
-           "prepare", "prepared_data_to_html",
+           "prepare", "js_PCoA", "PreparedData", "prepared_data_to_html",
            "display", "show", "save_html", "save_json",
            "enable_notebook", "disable_notebook"]
 
 __version__ = '0.1.0-git'
 
 from ._display import *
-from .prepare import prepare
+from ._prepare import prepare, js_PCoA, PreparedData
