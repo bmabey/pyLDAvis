@@ -1,7 +1,7 @@
 pyLDAvis
 ========
 
-Python package for interactive topic model visualization.
+Python library for interactive topic model visualization.
 This is a port of the fabulous `R package <https://github.com/cpsievert/LDAvis>`__ by Carson Sievert and Kenny Shirley.
 
 .. figure:: http://www2.research.att.com/~kshirley/figures/ldavis-pic.png
@@ -26,6 +26,13 @@ Installation
 
 Clone the repository and run ``python setup.py``
 
+Usage
+~~~~~~~~~~~~~~~~~~~~~~
+
+The best way to learn how to use **pyLDAvis** is to see it in action.
+Check out this `notebook for an overview <http://nbviewer.ipython.org/github/bmabey/pyLDAvis/blob/master/notebooks/pyLDAvis_overview.ipynb>`__.
+Refer to the `documentation <https://pyLDAvis.readthedocs.org>` for details.
+
 Video demos
 ~~~~~~~~~~~
 
@@ -42,6 +49,7 @@ which was presented at the `2014 ACL Workshop on Interactive Language
 Learning, Visualization, and
 Interfaces <http://nlp.stanford.edu/events/illvi2014/>`__ in Baltimore
 on June 27, 2014.
+
 
 
 
