@@ -29,3 +29,5 @@ text {
 /* IPython Notebook CSS to allow visualization to fit */
 /* I'm open to a better way of accomplishing this goal... */
 .container { width:1350px !important; }
+/* This is for nbviewer's benefit since the above wasn't enough... */
+.output_area { width:1450px !important; }
