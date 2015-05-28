@@ -2,6 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import os
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+if on_rtd:
+    html_theme = 'default'
+else:
+    html_theme = 'nature'
 
 try:
     from setuptools import setup
@@ -36,15 +42,19 @@ class PyTest(TestCommand):
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
 
-requirements = [
-    'pandas',
-    'numexpr',
-    'numpy',
-    'funcy',
-    'jinja2==2.7.2',
-    'scikit-bio==0.2.3',
-    'joblib==0.8.4'
-]
+if on_rtd:
+    requirements = [
+        'pandas',
+        'numexpr',
+        'numpy',
+        'funcy',
+        'jinja2==2.7.2',
+        'scikit-bio==0.2.3',
+        'joblib==0.8.4'
+    ]
+else:
+    requirements = []
+
 
 test_requirements = [
     'pytest',
