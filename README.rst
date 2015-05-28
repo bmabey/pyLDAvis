@@ -9,7 +9,7 @@ This is a port of the fabulous `R package <https://github.com/cpsievert/LDAvis>`
 
 **pyLDAvis** is designed to help users interpret the topics in a topic model that has been fit to a corpus of text data. The package extracts information from a fitted LDA topic model to inform an interactive web-based visualization.
 
-The visualization is intended to be within an IPython notebook but can also be saved to a stand-alone HTML file for easy sharing.
+The visualization is intended to be used within an IPython notebook but can also be saved to a stand-alone HTML file for easy sharing.
 
 |version status| |downloads| |build status| |docs|
 
@@ -31,7 +31,7 @@ Usage
 
 The best way to learn how to use **pyLDAvis** is to see it in action.
 Check out this `notebook for an overview <http://nbviewer.ipython.org/github/bmabey/pyLDAvis/blob/master/notebooks/pyLDAvis_overview.ipynb>`__.
-Refer to the `documentation <https://pyLDAvis.readthedocs.org>` for details.
+Refer to the `documentation <https://pyLDAvis.readthedocs.org>`__ for details.
 
 Video demos
 ~~~~~~~~~~~
