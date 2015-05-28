@@ -3,9 +3,6 @@
 
 import sys
 import os
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-
-print('on_rtd is ' + str(on_rtd))
 
 
 try:
@@ -41,7 +38,11 @@ class PyTest(TestCommand):
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
 
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 if on_rtd:
+    print('Being built on ReadTheDocs so we are avoiding pulling in scikit-bio since it imports numpy...')
+    requirements = []
+else:
     requirements = [
         'pandas',
         'numexpr',
@@ -51,9 +52,6 @@ if on_rtd:
         'scikit-bio==0.2.3',
         'joblib==0.8.4'
     ]
-else:
-    print('Being built on ReadTheDocs so we are avoiding pulling in scikit-bio since it imports numpy...')
-    requirements = []
 
 
 test_requirements = [
