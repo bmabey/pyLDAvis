@@ -43,19 +43,6 @@ def get_id(obj, suffix="", prefix="el", warn_on_invalid=True):
     return objid
 
 
-def deprecated(func, old_name, new_name):
-    """Decorator to mark functions as deprecated."""
-    @wraps(func)
-    def new_func(*args, **kwargs):
-        warnings.warn(("{0} is deprecated and will be removed.  "
-                       "Use {1} instead".format(old_name, new_name)),
-                      category=DeprecationWarning)
-        return func(*args, **kwargs)
-    new_func.__doc__ = ("*%s is deprecated: use %s instead*\n\n    "
-                        % (old_name, new_name)) + new_func.__doc__
-    return new_func
-
-
 def write_ipynb_local_js(location=None, d3_src=None, ldavis_src=None, ldavis_css=None):
     """
     Write the pyLDAvis and d3 javascript libraries to the given file location.

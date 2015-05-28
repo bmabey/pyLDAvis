@@ -9,7 +9,7 @@ import numpy
 import re
 import os
 from ._server import serve
-from .utils import deprecated, get_id, write_ipynb_local_js, NumPyEncoder
+from .utils import get_id, write_ipynb_local_js, NumPyEncoder
 from .prepare import PreparedData
 from . import urls
 
