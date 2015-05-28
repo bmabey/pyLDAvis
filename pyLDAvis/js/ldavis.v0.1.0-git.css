@@ -25,3 +25,7 @@ text {
     font-family: sans-serif;
     font-size: 11px;
 }
+
+/* IPython Notebook CSS to allow visualization to fit */
+/* I'm open to a better way of accomplishing this goal... */
+.container { width:1350px !important; }
