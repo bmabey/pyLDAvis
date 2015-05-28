@@ -260,6 +260,7 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
     This implements the method of `Sievert, C. and Shirley, K. (2014):
     LDAvis: A Method for Visualizing and Interpreting Topics, ACL Workshop on
     Interactive Language Learning, Visualization, and Interfaces.`
+
     http://nlp.stanford.edu/events/illvi2014/papers/sievert-illvi2014.pdf
 
     See Also
