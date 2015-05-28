@@ -18,12 +18,10 @@ import os
 
 import mock
 
-
-# If extensions (or modules to document with autodoc) are in another
-# directory, add these directories to sys.path here. If the directory is
-# relative to the documentation root, use os.path.abspath to make it
-# absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
+# If extensions (or modules to document with autodoc) are in another directory,
+# add these directories to sys.path here. If the directory is relative to the
+# documentation root, use os.path.abspath to make it absolute, like shown here.
+sys.path.insert(0, os.path.abspath('sphinxext'))
 
 # Get the project root dir, which is the parent dir of this
 cwd = os.getcwd()
@@ -34,7 +32,7 @@ project_root = os.path.dirname(cwd)
 # version is used.
 sys.path.insert(0, project_root)
 
-MOCK_MODULES = ['numpy', 'joblib', 'funcy', 'scipy', 'scipy.stats', 'scipy.spatial',
+MOCK_MODULES = ['numpy','joblib', 'funcy', 'scipy', 'scipy.stats', 'scipy.spatial',
                 'scipy.spatial.distance', 'pandas', 'skbio', 'skbio.stats',
                 'skbio.stats.distance', 'skbio.stats.ordination']
 for mod_name in MOCK_MODULES:
@@ -56,8 +54,10 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx.ext.doctest',
     'sphinx.ext.coverage',
-    'sphinx.ext.viewcode',
-    'numpy_ext.numpydoc']
+    'sphinx.ext.viewcode']
+
+import numpy_ext.numpydoc
+extensions.append('numpy_ext.numpydoc')
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
