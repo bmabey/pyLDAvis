@@ -53,6 +53,7 @@ if on_rtd:
         'joblib==0.8.4'
     ]
 else:
+    print('Being built on ReadTheDocs so we are avoiding pulling in scikit-bio since it imports numpy...')
     requirements = []
 
 
