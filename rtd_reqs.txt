@@ -1,2 +1,2 @@
-inja2==2.7.2
+jinja2==2.7.2
 pytest
