@@ -12,7 +12,7 @@ Functions: General Use
     convert prepared data to an html string
 
 :func:`show`
-    launch a web server to view the d3 visualization
+    launch a web server to view the visualization
 
 :func:`save_html`
     save a visualization to a standalone html file
