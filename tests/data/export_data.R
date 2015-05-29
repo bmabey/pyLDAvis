@@ -34,6 +34,6 @@ export <- function(data, name, out.dir='.') {
 }
 
 
-#export(AP, 'ap')
-#export(Jeopardy, 'jeopardy')
+export(AP, 'ap')
+export(Jeopardy, 'jeopardy')
 export(MovieReviews, 'movie_reviews')
