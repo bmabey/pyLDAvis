@@ -4,6 +4,9 @@ API documentation
 .. automodule:: pyLDAvis
    :members:
 
+.. automodule:: pyLDAvis.gensim
+   :members:
+
 .. automodule:: pyLDAvis.graphlab
    :members:
 
