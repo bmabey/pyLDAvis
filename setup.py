@@ -62,11 +62,12 @@ test_requirements = [
 setup(
     name='pyLDAvis',
     version='1.0.0',
-    description="Python package for interactive topic model visualization. Port of the R package.",
+    description="Interactive topic model visualization. Port of the R package.",
     long_description=readme + '\n\n' + history,
     author="Ben Mabey",
     author_email='ben@benmabey.com',
     url='https://github.com/bmabey/pyLDAvis',
+    download_url = 'https://github.com/bmabey/pyLDAvis/tarball/1.0.0',
     packages=[
         'pyLDAvis',
     ],
@@ -76,7 +77,7 @@ setup(
     install_requires=requirements,
     license="MIT",
     zip_safe=False,
-    keywords='pyLDAvis',
+    keywords=['data science', 'visualization'],
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
