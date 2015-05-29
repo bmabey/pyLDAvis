@@ -11,7 +11,7 @@ This is a port of the fabulous `R package <https://github.com/cpsievert/LDAvis>`
 
 The visualization is intended to be used within an IPython notebook but can also be saved to a stand-alone HTML file for easy sharing.
 
-|version status| |downloads| |build status| |docs|
+|version status| |build status| |docs|
 
 Installation
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -53,9 +53,7 @@ on June 27, 2014.
 
 
 
-.. |version status| image:: https://pypip.in/v/pyLDAvis/badge.png
-   :target: https://pypi.python.org/pypi/pyLDAvis
-.. |downloads| image:: https://pypip.in/d/pyLDAvis/badge.png
+.. |version status| image:: https://img.shields.io/pypi/v/pyLDAvis.svg
    :target: https://pypi.python.org/pypi/pyLDAvis
 .. |build status| image:: https://travis-ci.org/bmabey/pyLDAvis.png?branch=master
    :target: https://travis-ci.org/bmabey/pyLDAvis
