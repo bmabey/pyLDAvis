@@ -38,7 +38,7 @@ __all__ = ["__version__",
            "display", "show", "save_html", "save_json",
            "enable_notebook", "disable_notebook"]
 
-__version__ = '0.1.0-git'
+__version__ = '1.0.0'
 
 from ._display import *
 from ._prepare import prepare, js_PCoA, PreparedData

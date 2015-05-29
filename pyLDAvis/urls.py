@@ -13,13 +13,14 @@ __all__ = ["D3_URL", "LDAVIS_URL", "LDAVISMIN_URL", "LDAVIS_CSS_URL",
 
 D3_URL = "https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"
 
-#TODO: update all of these once we release...
-LDAVIS_URL = "https://rawgit.com/bmabey/pyLDAvis/master/pyLDAvis/js/ldavis.v0.1.0-git.js"
-LDAVISMIN_URL = LDAVIS_URL
+# for dev
+#WWW_JS_DIR = "https://rawgit.com/bmabey/pyLDAvis/master/pyLDAvis/js/"
+# for stable releases
+WWW_JS_DIR = "https://cdn.rawgit.com/bmabey/pyLDAvis/master/pyLDAvis/js/"
 
-LDAVIS_CSS_URL = "https://rawgit.com/bmabey/pyLDAvis/master/pyLDAvis/js/ldavis.v0.1.0-git.css"
-#LDAVIS_URL = WWW_JS_DIR + "ldavis.v{0}.js".format(__version__)
-#LDAVISMIN_URL = WWW_JS_DIR + "ldavis.v{0}.min.js".format(__version__)
+LDAVIS_URL = WWW_JS_DIR + "ldavis.v{0}.js".format(__version__)
+LDAVISMIN_URL = LDAVIS_URL
+LDAVIS_CSS_URL = WWW_JS_DIR + "ldavis.v{0}.css".format(__version__)
 
 LOCAL_JS_DIR = os.path.join(__path__[0], "js")
 D3_LOCAL = os.path.join(LOCAL_JS_DIR, "d3.v3.min.js")
