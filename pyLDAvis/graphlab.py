@@ -23,7 +23,7 @@ def _extract_data(topic_model, docs):
    doc_topic_dists = np.vstack(topic_model.predict(docs, output_type='probabilities'))
 
    topics = _topics_as_df(topic_model)
-   topic_term_dists = topics.T.values
+   topic_term_dists = topics.T[vocab].values
 
    return {'topic_term_dists': topic_term_dists, 'doc_topic_dists': doc_topic_dists,
            'doc_lengths': doc_lengths, 'vocab': vocab, 'term_frequency': term_freqs}
