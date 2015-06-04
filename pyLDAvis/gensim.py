@@ -7,22 +7,26 @@ Helper functions to visualize LDA models trained by Gensim
 import funcy as fp
 import numpy as np
 import pandas as pd
+from past.builtins import xrange
 from . import prepare as vis_prepare
 
+def _normalize(array):
+   return pd.DataFrame(array).\
+      apply(lambda row: row / row.sum(), axis=1).values
 
 def _extract_data(topic_model, corpus, dictionary):
    doc_lengths = [sum([t[1] for t in doc]) for doc in corpus]
 
    term_freqs_dict = fp.merge_with(sum, *corpus)
+   N = len(term_freqs_dict)
 
-   vocab = fp.map(dictionary, term_freqs_dict.keys())
-   term_freqs = term_freqs_dict.values()
+   vocab = [dictionary[id] for id in xrange(N)]
+   term_freqs = [term_freqs_dict[id] for id in xrange(N)]
 
    gamma, _ = topic_model.inference(corpus)
-   doc_topic_dists = np.array([r / sum(r) for r in gamma])
+   doc_topic_dists = _normalize(gamma)
 
-   topic_term_dists = pd.DataFrame(topic_model.state.get_lambda()).\
-                      apply(lambda row: row / row.sum(), axis=1).values
+   topic_term_dists = _normalize(topic_model.state.get_lambda())
 
    return {'topic_term_dists': topic_term_dists, 'doc_topic_dists': doc_topic_dists,
            'doc_lengths': doc_lengths, 'vocab': vocab, 'term_frequency': term_freqs}

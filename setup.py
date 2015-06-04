@@ -46,6 +46,7 @@ else:
     requirements = [
         'pandas',
         'numexpr',
+        'future',
         'numpy',
         'funcy',
         'jinja2==2.7.2',
