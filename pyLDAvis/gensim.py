@@ -21,9 +21,8 @@ def _extract_data(topic_model, corpus, dictionary):
    gamma, _ = topic_model.inference(corpus)
    doc_topic_dists = np.array([r / sum(r) for r in gamma])
 
-   topics = topic_model.show_topics(formatted=False, num_words=len(vocab), num_topics=topic_model.num_topics)
-   topics_df = pd.DataFrame([dict((y,x) for x, y in tuples) for tuples in topics])[vocab]
-   topic_term_dists = topics_df.values
+   topic_term_dists = pd.DataFrame(topic_model.state.get_lambda()).\
+                      apply(lambda row: row / row.sum(), axis=1).values
 
    return {'topic_term_dists': topic_term_dists, 'doc_topic_dists': doc_topic_dists,
            'doc_lengths': doc_lengths, 'vocab': vocab, 'term_frequency': term_freqs}
