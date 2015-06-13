@@ -277,6 +277,7 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
    doc_lengths      = _series_with_name(doc_lengths, 'doc_length')
    vocab            = _series_with_name(vocab, 'vocab')
    _input_validate(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequency)
+   R = min(R, len(vocab))
 
    topic_freq       = (doc_topic_dists.T * doc_lengths).T.sum()
    topic_proportion = (topic_freq / topic_freq.sum()).order(ascending=False)
