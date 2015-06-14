@@ -3,6 +3,11 @@
 History
 -------
 
+1.2.0 (2015-06-13)
+---------------------
+
+* Updates gensim logic to be clearer and work with Python 3.x.
+
 1.1.0 (2015-06-02)
 ---------------------
 
