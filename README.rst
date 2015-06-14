@@ -33,6 +33,9 @@ The best way to learn how to use **pyLDAvis** is to see it in action.
 Check out this `notebook for an overview <http://nbviewer.ipython.org/github/bmabey/pyLDAvis/blob/master/notebooks/pyLDAvis_overview.ipynb>`__.
 Refer to the `documentation <https://pyLDAvis.readthedocs.org>`__ for details.
 
+For a concise explanation of the visualization see this
+`vignette <http://cran.r-project.org/web/packages/LDAvis/vignettes/details.pdf>`__ from the LDAvis R package.
+
 Video demos
 ~~~~~~~~~~~
 
