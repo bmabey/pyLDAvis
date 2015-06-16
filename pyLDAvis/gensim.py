@@ -14,7 +14,7 @@ def _normalize(array):
    return pd.DataFrame(array).\
       apply(lambda row: row / row.sum(), axis=1).values
 
-def _extract_data(topic_model, corpus, dictionary):
+def _extract_data(topic_model, corpus, dictionary,R):
    doc_lengths = [sum([t[1] for t in doc]) for doc in corpus]
 
    term_freqs_dict = fp.merge_with(sum, *corpus)
@@ -29,9 +29,10 @@ def _extract_data(topic_model, corpus, dictionary):
    topic_term_dists = _normalize(topic_model.state.get_lambda())
 
    return {'topic_term_dists': topic_term_dists, 'doc_topic_dists': doc_topic_dists,
-           'doc_lengths': doc_lengths, 'vocab': vocab, 'term_frequency': term_freqs}
+           'doc_lengths': doc_lengths, 'vocab': vocab, 'term_frequency': term_freqs
+           'R':R}
 
-def prepare(topic_model, corpus, dictionary):
+def prepare(topic_model, corpus, dictionary,R=30):
     """Transforms the Gensim TopicModel and related corpus and dictionary into
     the data structures needed for the visualization.
 
@@ -58,4 +59,4 @@ def prepare(topic_model, corpus, dictionary):
     http://nbviewer.ipython.org/github/bmabey/pyLDAvis/blob/master/notebooks/Gensim%20Newsgroup.ipynb
     """
 
-    return vis_prepare(**_extract_data(topic_model, corpus, dictionary))
+    return vis_prepare(**_extract_data(topic_model, corpus, dictionary,R))
