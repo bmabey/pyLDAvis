@@ -31,7 +31,7 @@ def _extract_data(topic_model, corpus, dictionary):
    return {'topic_term_dists': topic_term_dists, 'doc_topic_dists': doc_topic_dists,
            'doc_lengths': doc_lengths, 'vocab': vocab, 'term_frequency': term_freqs}
 
-def prepare(topic_model, corpus, dictionary):
+def prepare(topic_model, corpus, dictionary, **kargs):
     """Transforms the Gensim TopicModel and related corpus and dictionary into
     the data structures needed for the visualization.
 
@@ -46,6 +46,8 @@ def prepare(topic_model, corpus, dictionary):
     dictionary: gensim.corpora.Dictionary
         The dictionary object used to create the corpus. Needed to extract the
     actual terms (not ids).
+    **kwargs :
+        additional keyword arguments are passed through to :func:`pyldavis.prepare`.
 
     Returns
     -------
@@ -57,5 +59,5 @@ def prepare(topic_model, corpus, dictionary):
     For example usage please see this notebook:
     http://nbviewer.ipython.org/github/bmabey/pyLDAvis/blob/master/notebooks/Gensim%20Newsgroup.ipynb
     """
-
-    return vis_prepare(**_extract_data(topic_model, corpus, dictionary))
+    opts = fp.merge(_extract_data(topic_model, corpus, dictionary), kargs)
+    return vis_prepare(**opts)

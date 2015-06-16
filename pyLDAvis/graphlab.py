@@ -28,7 +28,7 @@ def _extract_data(topic_model, docs):
    return {'topic_term_dists': topic_term_dists, 'doc_topic_dists': doc_topic_dists,
            'doc_lengths': doc_lengths, 'vocab': vocab, 'term_frequency': term_freqs}
 
-def prepare(topic_model, docs):
+def prepare(topic_model, docs, **kargs):
     """Transforms the GraphLab TopicModel and related corpus data into
     the data structures needed for the visualization.
 
@@ -38,6 +38,8 @@ def prepare(topic_model, docs):
         An already trained GraphLab topic model.
     docs : SArray of dicts
         The corpus in bag of word form, the same docs used to train the model.
+    **kwargs :
+        additional keyword arguments are passed through to :func:`pyldavis.prepare`.
 
     Returns
     -------
@@ -49,4 +51,5 @@ def prepare(topic_model, docs):
     For example usage please see this notebook:
     http://nbviewer.ipython.org/github/bmabey/pyLDAvis/blob/master/notebooks/GraphLab.ipynb
     """
-    return vis_prepare(**_extract_data(topic_model, docs))
+    opts = fp.merge(_extract_data(topic_model, docs), kargs)
+    return vis_prepare(**opts)
