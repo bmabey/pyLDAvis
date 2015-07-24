@@ -18,10 +18,9 @@ def _extract_data(topic_model, corpus, dictionary):
    doc_lengths = [sum([t[1] for t in doc]) for doc in corpus]
 
    term_freqs_dict = fp.merge_with(sum, *corpus)
-   N = len(term_freqs_dict)
 
-   vocab = [dictionary[id] for id in xrange(N)]
-   term_freqs = [term_freqs_dict[id] for id in xrange(N)]
+   vocab = [dictionary[id] for id in term_freqs_dict.keys()]
+   term_freqs = term_freqs_dict.values()
 
    gamma, _ = topic_model.inference(corpus)
    doc_topic_dists = _normalize(gamma)
