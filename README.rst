@@ -39,6 +39,13 @@ For a concise explanation of the visualization see this
 Video demos
 ~~~~~~~~~~~
 
+Ben Mabey walked through the visualization in this short talk using a Hacker News corpus:
+
+-  `Visualizing Topic Models <https://www.youtube.com/watch?v=tGxW2BzC_DU&index=4&list=PLykRMO7ZuHwP5cWnbEmP_mUIVgzd5DZgH>`__
+-  `Notebook and visualization used in the demo <http://nbviewer.ipython.org/github/bmabey/hacker_news_topic_modelling/blob/master/HN%20Topic%20Model%20Talk.ipynb>`__
+-  `Slide deck <https://speakerdeck.com/bmabey/visualizing-topic-models>`__
+
+
 Carson Sievert created a video demoing the R package. The visualization is the same and so it applies equally to pyLDAvis:
 
 -  `Visualizing & Exploring the Twenty Newsgroup Data <http://stat-graphics.org/movies/ldavis.html>`__
