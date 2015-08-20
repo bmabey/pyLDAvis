@@ -44,14 +44,14 @@ if on_rtd:
     requirements = []
 else:
     requirements = [
-        'pandas',
+        'pandas >= 0.16',
         'numexpr',
         'future',
         'numpy',
         'funcy',
-        'jinja2==2.7.2',
-        'scikit-bio==0.2.3',
-        'joblib==0.8.4'
+        'jinja2 >= 2.7.2',
+        'scikit-bio >= 0.2.3',
+        'joblib >= 0.8.4'
     ]
 
 
