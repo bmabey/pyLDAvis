@@ -19,13 +19,18 @@ def _extract_data(topic_model, corpus, dictionary):
 
    term_freqs_dict = fp.merge_with(sum, *corpus)
 
-   vocab = [dictionary[id] for id in term_freqs_dict.keys()]
-   term_freqs = term_freqs_dict.values()
+   vocab = dictionary.token2id.keys()
+   # TODO: add the hyperparam to smooth it out? no beta in online LDA impl.. hmm..
+   # for now, I'll just make sure we don't ever get zeros...
+   beta = 0.01
+   term_freqs = [term_freqs_dict.get(tid, beta) for tid in dictionary.token2id.values()]
 
    gamma, _ = topic_model.inference(corpus)
    doc_topic_dists = _normalize(gamma)
 
-   topic_term_dists = _normalize(topic_model.state.get_lambda())
+   topics = topic_model.show_topics(formatted=False, num_words=len(vocab), num_topics=topic_model.num_topics)
+   topics_df = pd.DataFrame([dict((y,x) for x, y in tuples) for tuples in topics])[vocab]
+   topic_term_dists = topics_df.values
 
    return {'topic_term_dists': topic_term_dists, 'doc_topic_dists': doc_topic_dists,
            'doc_lengths': doc_lengths, 'vocab': vocab, 'term_frequency': term_freqs}
