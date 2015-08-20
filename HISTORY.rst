@@ -3,6 +3,14 @@
 History
 -------
 
+1.3.0 (2015-08-20)
+---------------------
+
+* Fixes gensim logic and makes it more robust.
+* Faster graphlab processing.
+* kargs for gensim and graphlab are passed down to underlying prepare function.
+* Requires recent version of pandas to avoid problems with our use of the newer `DataFrame.to_dict` API.
+
 1.2.0 (2015-06-13)
 ---------------------
 
