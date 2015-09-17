@@ -19,7 +19,7 @@ def _extract_data(topic_model, corpus, dictionary):
 
    term_freqs_dict = fp.merge_with(sum, *corpus)
 
-   vocab = dictionary.token2id.keys()
+   vocab = list(dictionary.token2id.keys())
    # TODO: add the hyperparam to smooth it out? no beta in online LDA impl.. hmm..
    # for now, I'll just make sure we don't ever get zeros...
    beta = 0.01
