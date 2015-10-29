@@ -46,7 +46,7 @@ def _extract_data(topic_model, corpus, dictionary, doc_topic_dists=None):
    return {'topic_term_dists': topic_term_dists, 'doc_topic_dists': doc_topic_dists,
            'doc_lengths': doc_lengths, 'vocab': vocab, 'term_frequency': term_freqs}
 
-def prepare(topic_model, corpus, dictionary, doc_topic_dist=None, **kargs):
+def prepare(topic_model, corpus, dictionary, doc_topic_dist=None, **kwargs):
     """Transforms the Gensim TopicModel and related corpus and dictionary into
     the data structures needed for the visualization.
 
@@ -91,5 +91,5 @@ def prepare(topic_model, corpus, dictionary, doc_topic_dist=None, **kargs):
     ------
     See `pyLDAvis.prepare` for **kwargs.
     """
-    opts = fp.merge(_extract_data(topic_model, corpus, dictionary, doc_topic_dist), kargs)
+    opts = fp.merge(_extract_data(topic_model, corpus, dictionary, doc_topic_dist), kwargs)
     return vis_prepare(**opts)
