@@ -35,13 +35,11 @@ def _extract_data(topic_model, corpus, dictionary, doc_topic_dists=None):
       gamma, _ = topic_model.inference(corpus)
       doc_topic_dists = gamma / gamma.sum(axis=1)[:, None]
 
+   # get the topic-term distribution straight from gensim without
+   # iterating over tuples
    topic = topic_model.state.get_lambda()
    topic = topic / topic.sum(axis=1)[:, None]
-   topic = topic[:, fnames_argsort]
-   topics_df = pd.DataFrame(data=topic, columns=dictionary.token2id)
-   topics_df = topics_df[vocab]
-
-   topic_term_dists = topics_df.values
+   topic_term_dists = topic[:, fnames_argsort].ravel()
 
    return {'topic_term_dists': topic_term_dists, 'doc_topic_dists': doc_topic_dists,
            'doc_lengths': doc_lengths, 'vocab': vocab, 'term_frequency': term_freqs}
