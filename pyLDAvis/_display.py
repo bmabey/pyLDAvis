@@ -351,8 +351,12 @@ def save_html(data, fileobj, **kwargs):
     :func:`prepared_data_to_html` : output html representation of the visualization
     :func:`fig_to_dict` : output dictionary representation of the visualization
     """
-    if isinstance(fileobj, basestring):
-        fileobj = open(fileobj, 'w')
+    try:
+        if isinstance(fileobj, basestring):
+            fileobj = open(fileobj, 'w')
+    except NameError:
+        if isinstance(fileobj, str):
+            fileobj = open(fileobj, 'w')
     if not hasattr(fileobj, 'write'):
         raise ValueError("fileobj should be a filename or a writable file")
     fileobj.write(prepared_data_to_html(data, **kwargs))
@@ -374,8 +378,12 @@ def save_json(data, fileobj):
     :func:`save_html` : save html representation of a visualization to file
     :func:`prepared_data_to_html` : output html representation of the visualization
     """
-    if isinstance(fileobj, basestring):
-        fileobj = open(fileobj, 'w')
+    try:
+        if isinstance(fileobj, basestring):
+            fileobj = open(fileobj, 'w')
+    except NameError:
+        if isinstance(fileobj, str):
+            fileobj = open(fileobj, 'w')
     if not hasattr(fileobj, 'write'):
         raise ValueError("fileobj should be a filename or a writable file")
     json.dump(data.to_dict(), fileobj, cls=NumPyEncoder)
