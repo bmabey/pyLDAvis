@@ -44,7 +44,7 @@ if on_rtd:
     requirements = []
 else:
     requirements = [
-        'pandas >= 0.16',
+        'pandas >= 0.17',
         'numexpr',
         'future',
         'numpy',
