@@ -78,4 +78,4 @@ def test_end_to_end_with_R_examples():
     most_likely_map = pd.DataFrame(joined.groupby('Topic_o')['Topic_e'].value_counts(), columns=['count']).query('count > 100')
     most_likely_map.index.names = ['Topic_o', 'Topic_e']
     df = pd.DataFrame(most_likely_map).reset_index()
-    assert_series_equal(df['Topic_o'], df['Topic_e'])
+    assert_array_equal(df['Topic_o'].values, df['Topic_e'].values)
