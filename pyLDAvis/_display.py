@@ -13,8 +13,6 @@ from .utils import get_id, write_ipynb_local_js, NumPyEncoder
 from ._prepare import PreparedData
 from . import urls
 
-import six
-
 __all__ = ["prepared_data_to_html", "display",
            "show", "save_html", "save_json",
            "enable_notebook", "disable_notebook"]
@@ -353,11 +351,11 @@ def save_html(data, fileobj, **kwargs):
     :func:`prepared_data_to_html` : output html representation of the visualization
     :func:`fig_to_dict` : output dictionary representation of the visualization
     """
-    if isinstance(fileobj, six.string_types):
+    try:
+        fileobj.write(prepared_data_to_html(data, **kwargs))
+    except AttributeError:
         fileobj = open(fileobj, 'w')
-    if not hasattr(fileobj, 'write'):
-        raise ValueError("fileobj should be a filename or a writable file")
-    fileobj.write(prepared_data_to_html(data, **kwargs))
+        fileobj.write(prepared_data_to_html(data, **kwargs))
 
 
 def save_json(data, fileobj):
@@ -376,8 +374,8 @@ def save_json(data, fileobj):
     :func:`save_html` : save html representation of a visualization to file
     :func:`prepared_data_to_html` : output html representation of the visualization
     """
-    if isinstance(fileobj, basestring):
+    try:
+        json.dump(data.to_dict(), fileobj, cls=NumPyEncoder)
+    except AttributeError:
         fileobj = open(fileobj, 'w')
-    if not hasattr(fileobj, 'write'):
-        raise ValueError("fileobj should be a filename or a writable file")
-    json.dump(data.to_dict(), fileobj, cls=NumPyEncoder)
+        json.dump(data.to_dict(), fileobj, cls=NumPyEncoder)
