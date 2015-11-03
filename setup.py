@@ -45,7 +45,6 @@ if on_rtd:
 else:
     requirements = [
         'pandas >= 0.16',
-        'six',
         'numexpr',
         'future',
         'numpy',
