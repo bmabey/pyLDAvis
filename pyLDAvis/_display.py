@@ -352,10 +352,14 @@ def save_html(data, fileobj, **kwargs):
     :func:`fig_to_dict` : output dictionary representation of the visualization
     """
     try:
-        fileobj.write(prepared_data_to_html(data, **kwargs))
-    except AttributeError:
-        fileobj = open(fileobj, 'w')
-        fileobj.write(prepared_data_to_html(data, **kwargs))
+        if isinstance(fileobj, basestring):
+            fileobj = open(fileobj, 'w')
+    except NameError:
+        if isinstance(fileobj, str):
+            fileobj = open(fileobj, 'w')
+    if not hasattr(fileobj, 'write'):
+        raise ValueError("fileobj should be a filename or a writable file")
+    fileobj.write(prepared_data_to_html(data, **kwargs))
 
 
 def save_json(data, fileobj):
@@ -375,7 +379,11 @@ def save_json(data, fileobj):
     :func:`prepared_data_to_html` : output html representation of the visualization
     """
     try:
-        json.dump(data.to_dict(), fileobj, cls=NumPyEncoder)
-    except AttributeError:
-        fileobj = open(fileobj, 'w')
-        json.dump(data.to_dict(), fileobj, cls=NumPyEncoder)
+        if isinstance(fileobj, basestring):
+            fileobj = open(fileobj, 'w')
+    except NameError:
+        if isinstance(fileobj, str):
+            fileobj = open(fileobj, 'w')
+    if not hasattr(fileobj, 'write'):
+        raise ValueError("fileobj should be a filename or a writable file")
+    json.dump(data.to_dict(), fileobj, cls=NumPyEncoder)
