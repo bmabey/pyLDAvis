@@ -28,18 +28,22 @@ def _extract_data(topic_model, corpus, dictionary, doc_topic_dists=None):
    term_freqs[term_freqs == 0] = beta
    doc_lengths = corpus_csc.sum(axis=0).A.ravel()
 
-   assert term_freqs.shape[0] == len(dictionary), 'Term frequencies and Dictionary have different sizes {} != {}'.format(term_freqs.shape[0], len(dictionary))
+   assert term_freqs.shape[0] == len(dictionary), 'Term frequencies and dictionary have different shape {} != {}'.format(term_freqs.shape[0], len(dictionary))
    assert doc_lengths.shape[0] == len(corpus), 'Document lengths and corpus have different sizes {} != {}'.format(doc_lengths.shape[0], len(corpus))
 
    if doc_topic_dists is None:
       gamma, _ = topic_model.inference(corpus)
       doc_topic_dists = gamma / gamma.sum(axis=1)[:, None]
 
+   assert doc_topic_dists.shape[1] == topic_model.num_topics, 'Document topics and number of topics do not match {} != {}'.format(doc_topic_dists.shape[0], topic_model.num_topics)
+
    # get the topic-term distribution straight from gensim without
    # iterating over tuples
    topic = topic_model.state.get_lambda()
    topic = topic / topic.sum(axis=1)[:, None]
-   topic_term_dists = topic[:, fnames_argsort].ravel()
+   topic_term_dists = topic[:, fnames_argsort]
+
+   assert topic_term_dists.shape[0] == doc_topic_dists.shape[1]
 
    return {'topic_term_dists': topic_term_dists, 'doc_topic_dists': doc_topic_dists,
            'doc_lengths': doc_lengths, 'vocab': vocab, 'term_frequency': term_freqs}
