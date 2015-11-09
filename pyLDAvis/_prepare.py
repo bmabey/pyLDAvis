@@ -129,7 +129,7 @@ def _job_chunks(l, n_jobs):
 
 def _find_relevance(log_ttd, log_lift, R, lambda_):
    relevance = lambda_ * log_ttd + (1 - lambda_) * log_lift
-   return relevance.T.apply(lambda s: s.order(ascending=False).index).head(R)
+   return relevance.T.apply(lambda s: s.sort_values(ascending=False).index).head(R)
 
 
 def _find_relevance_chunks(log_ttd, log_lift, R, lambda_seq):
@@ -151,7 +151,7 @@ def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_f
    default_term_info  = pd.DataFrame({'saliency': saliency, 'Term': vocab, \
                                       'Freq': term_frequency, 'Total': term_frequency, \
                                       'Category': 'Default'}). \
-      sort('saliency', ascending=False). \
+      sort_values(by='saliency', ascending=False). \
       head(R).drop('saliency', 1)
    ranks = np.arange(R, 0, -1)
    default_term_info['logprob'] = default_term_info['loglift'] = ranks
@@ -200,7 +200,7 @@ def _token_table(topic_info, term_topic_freq, vocab, term_frequency):
    token_table['Term'] = vocab[token_table.index.values].values
    # Normalize token frequencies:
    token_table['Freq'] = token_table.Freq / term_frequency[token_table.index]
-   return token_table.sort(['Term', 'Topic'])
+   return token_table.sort_values(by=['Term', 'Topic'])
 
 
 def _term_topic_freq(topic_term_dists, topic_freq, term_frequency):
@@ -280,7 +280,7 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
    R = min(R, len(vocab))
 
    topic_freq       = (doc_topic_dists.T * doc_lengths).T.sum()
-   topic_proportion = (topic_freq / topic_freq.sum()).order(ascending=False)
+   topic_proportion = (topic_freq / topic_freq.sum()).sort_values(ascending=False)
    topic_order      = topic_proportion.index
    # reorder all data based on new ordering of topics
    topic_freq       = topic_freq[topic_order]
