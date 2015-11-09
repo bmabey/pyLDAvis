@@ -3,6 +3,13 @@
 History
 -------
 
+1.3.2 (2015-11-09)
+---------------------
+
+* Gensim prepare 25% speed increase, thanks @mattilyra!
+* Pandas deprecation warnings are now gone.
+* Pandas v0.17 is now being used.
+
 1.3.1 (2015-11-02)
 ---------------------
 
