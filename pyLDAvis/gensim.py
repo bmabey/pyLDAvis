@@ -4,6 +4,7 @@ pyLDAvis Gensim
 Helper functions to visualize LDA models trained by Gensim
 """
 
+from __future __ import absolute_import
 import funcy as fp
 import numpy as np
 import pandas as pd
