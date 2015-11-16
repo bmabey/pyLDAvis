@@ -38,7 +38,7 @@ __all__ = ["__version__",
            "display", "show", "save_html", "save_json",
            "enable_notebook", "disable_notebook"]
 
-__version__ = '1.3.3'
+__version__ = '1.3.4'
 
 from ._display import *
 from ._prepare import prepare, js_PCoA, PreparedData
