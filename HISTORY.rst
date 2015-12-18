@@ -3,6 +3,11 @@
 History
 -------
 
+1.3.5 (2015-12-18)
+---------------------
+
+* Add explicit version info for scikit-bio since the API has changed.
+
 
 1.3.4 (2015-11-16)
 ---------------------
