@@ -4,7 +4,7 @@ pyLDAvis
 Python library for interactive topic model visualization.
 This is a port of the fabulous `R package <https://github.com/cpsievert/LDAvis>`__ by Carson Sievert and Kenny Shirley.
 
-.. figure:: http://www2.research.att.com/~kshirley/figures/ldavis-pic.png
+.. figure:: http://www.kennyshirley.com/figures/ldavis-pic.png
    :alt: LDAvis icon
 
 **pyLDAvis** is designed to help users interpret the topics in a topic model that has been fit to a corpus of text data. The package extracts information from a fitted LDA topic model to inform an interactive web-based visualization.
