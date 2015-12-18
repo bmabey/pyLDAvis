@@ -50,7 +50,7 @@ else:
         'numpy',
         'funcy',
         'jinja2 >= 2.7.2',
-        'scikit-bio >= 0.2.3',
+        'scikit-bio >= 0.2.3, < 0.3.0',
         'joblib >= 0.8.4'
     ]
 
