@@ -38,21 +38,14 @@ class PyTest(TestCommand):
         errno = pytest.main(self.pytest_args)
         sys.exit(errno)
 
+
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 if on_rtd:
     print('Being built on ReadTheDocs so we are avoiding pulling in scikit-bio since it imports numpy...')
     requirements = []
 else:
-    requirements = [
-        'pandas >= 0.17',
-        'numexpr',
-        'future',
-        'numpy',
-        'funcy',
-        'jinja2 >= 2.7.2',
-        'scikit-bio >= 0.2.3, < 0.3.0',
-        'joblib >= 0.8.4'
-    ]
+    with open('requirements.txt') as f:
+        requirements = f.read().splitlines()
 
 
 test_requirements = [
