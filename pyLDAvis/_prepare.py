@@ -11,7 +11,14 @@ import numpy as np
 import pandas as pd
 import scipy.spatial.distance as dist
 from scipy.stats import entropy
-from skbio.stats.ordination import PCoA
+try:
+    # scikit-bio naming before 0.30
+    from skbio.stats.ordination import PCoA
+    skbio_old = True
+except ImportError:
+    # scikit-bio naming after 0.30
+    from skbio.stats.ordination import pcoa
+    skbio_old = False
 from skbio.stats.distance import DistanceMatrix
 from .utils import NumPyEncoder
 
@@ -77,8 +84,11 @@ def js_PCoA(distributions):
     pcoa : array, shape (`n_dists`, 2)
    """
    dist_matrix = DistanceMatrix(dist.squareform(dist.pdist(distributions.values, _jensen_shannon)))
-   pcoa = PCoA(dist_matrix).scores()
-   return pcoa.site[:,0:2]
+   if skbio_old:
+       data = PCoA(dist_matrix).scores()
+       return data.site[:,0:2]
+   else:
+       return pcoa(dist_matrix).samples.values[:, 0:2]
 
 
 def _df_with_names(data, index_name, columns_name):
