@@ -6,6 +6,7 @@ Main transformation functions for preparing LDAdata to the visualization's data 
 
 from collections import namedtuple
 import json
+import logging
 from joblib import Parallel, delayed, cpu_count
 import numpy as np
 import pandas as pd
@@ -20,6 +21,17 @@ except ImportError:
     from skbio.stats.ordination import pcoa
     skbio_old = False
 from skbio.stats.distance import DistanceMatrix
+try:
+    from sklearn.manifold import TSNE
+    sklearn_present = True
+except ImportError:
+    sklearn_present = False
+try:
+    # for python3, define basestring using builtins module (basestring ~ bytes & str)
+    from builtins import str as basestring
+except ImportError:
+    # for python2, there is no builtins package, keep default basestring
+    pass
 from .utils import NumPyEncoder
 
 
@@ -89,6 +101,23 @@ def js_PCoA(distributions):
        return data.site[:,0:2]
    else:
        return pcoa(dist_matrix).samples.values[:, 0:2]
+
+
+def js_TSNE(distributions):
+    """Dimension reduction via Jensen-Shannon Divergence & t-distributed Stochastic Neighbor Embedding
+
+    Parameters
+    ----------
+    distributions : array-like, shape (`n_dists`, `k`)
+        Matrix of distributions probabilities.
+
+    Returns
+    -------
+    t-SNE : array, shape (`n_dists`, 2)
+    """
+    dist_matrix = DistanceMatrix(dist.squareform(dist.pdist(distributions.values, _jensen_shannon)))
+    model = TSNE(n_components=2, random_state=0, metric='precomputed')
+    return model.fit_transform(dist_matrix.data)
 
 
 def _df_with_names(data, index_name, columns_name):
@@ -281,6 +310,19 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
     :func:`display` : embed figure within the IPython notebook
     :func:`enable_notebook` : automatically embed visualizations in IPython notebook
    """
+   # parse mds
+   if isinstance(mds, basestring):
+      if mds.lower() == 'pcoa':
+         mds = js_PCoA
+      elif mds.lower() == 'tsne':
+         if sklearn_present:
+            mds = js_TSNE
+         else:
+            logging.warning('sklearn not present, switch from t-SNE to PCoA')
+      else:
+         mds = js_PCoA
+         logging.warning('Unknown mds `%s`, switch to PCoA' % mds)
+
    topic_term_dists = _df_with_names(topic_term_dists, 'topic', 'term')
    doc_topic_dists  = _df_with_names(doc_topic_dists, 'doc', 'topic')
    term_frequency   = _series_with_name(term_frequency, 'term_frequency')
