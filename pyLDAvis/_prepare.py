@@ -277,10 +277,12 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
         Determines the interstep distance in the grid of lambda values over
         which to iterate when computing relevance.
         Default is 0.01. Recommended to be between 0.01 and 0.1.
-    mds : function
+    mds : function or a string representation of function
         A function that takes `topic_term_dists` as an input and outputs a
         `n_topics` by `2`  distance matrix. The output approximates the distance
         between topics. See :func:`js_PCoA` for details on the default function.
+        A string representation currently accepts `pcoa` (or upper case variant)
+        and `tsne` (or upper case variant) if sklearn package is installed.
     n_jobs: int
         The number of cores to be used to do the computations. The regular
         joblib conventions are followed so `-1`, which is the default, will
