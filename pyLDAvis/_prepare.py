@@ -26,12 +26,7 @@ try:
     sklearn_present = True
 except ImportError:
     sklearn_present = False
-try:
-    # for python3, define basestring using builtins module (basestring ~ bytes & str)
-    from builtins import str as basestring
-except ImportError:
-    # for python2, there is no builtins package, keep default basestring
-    pass
+from past.builtins import basestring
 from .utils import NumPyEncoder
 
 
