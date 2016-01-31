@@ -3,7 +3,15 @@
 History
 -------
 
-1.3.5 (2015-12-18)
+1.4.0 (2016-01-31)
+---------------------
+
+* Updated to newest version of skibio for PCoA mds.
+* requirements.txt cleanup
+* New 'tsne' option for prepare, see docs and notebook for more info.
+
+
+ 1.3.5 (2015-12-18)
 ---------------------
 
 * Add explicit version info for scikit-bio since the API has changed.
