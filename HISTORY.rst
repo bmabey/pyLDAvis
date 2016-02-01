@@ -3,6 +3,11 @@
 History
 -------
 
+1.4.1 (2016-01-31)
+---------------------
+
+* Included requirements.txt in MANIFEST to (hopefully) fix bad release.
+
 1.4.0 (2016-01-31)
 ---------------------
 
