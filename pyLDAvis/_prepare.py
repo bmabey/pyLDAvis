@@ -329,13 +329,21 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
    R = min(R, len(vocab))
 
    topic_freq       = (doc_topic_dists.T * doc_lengths).T.sum()
+   # topic_freq       = np.dot(doc_topic_dists.T, doc_lengths)
    topic_proportion = (topic_freq / topic_freq.sum()).sort_values(ascending=False)
    topic_order      = topic_proportion.index
    # reorder all data based on new ordering of topics
    topic_freq       = topic_freq[topic_order]
    topic_term_dists = topic_term_dists.ix[topic_order]
    doc_topic_dists  = doc_topic_dists[topic_order]
-
+   
+   ## Quick fix for red bar width bug.  We calculate the 
+   ## term frequencies internally, using the topic term distributions and the 
+   ## topic frequencies, rather than using the user-supplied term frequencies.
+   ## For a detailed discussion, see: https://github.com/cpsievert/LDAvis/pull/41
+   term_frequency = np.dot(topic_term_dists.T, topic_freq)
+   term_frequency = _series_with_name(np.floor(term_frequency), 'term_frequency')
+   ## End Quick fix
 
    # token counts for each term-topic combination (widths of red bars)
    term_topic_freq    = _term_topic_freq(topic_term_dists, topic_freq, term_frequency)
