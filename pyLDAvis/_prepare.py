@@ -187,6 +187,9 @@ def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_f
                                       'Category': 'Default'}). \
       sort_values(by='saliency', ascending=False). \
       head(R).drop('saliency', 1)
+   # Rounding Freq and Total to integer values to match LDAvis code:
+   default_term_info['Freq'] = np.floor(default_term_info['Freq'])
+   default_term_info['Total'] = np.floor(default_term_info['Total'])
    ranks = np.arange(R, 0, -1)
    default_term_info['logprob'] = default_term_info['loglift'] = ranks
 
@@ -236,7 +239,7 @@ def _token_table(topic_info, term_topic_freq, vocab, term_frequency):
    token_table['Freq'] = token_table.Freq / term_frequency[token_table.index]
    return token_table.sort_values(by=['Term', 'Topic'])
 
-
+# Ths method is now deprecated and replaced by code in the prepare method.
 def _term_topic_freq(topic_term_dists, topic_freq, term_frequency):
    term_topic_freq = (topic_term_dists.T  * topic_freq).T
    # adjust to match term frequencies exactly (get rid of rounding error)
@@ -337,16 +340,19 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
    topic_term_dists = topic_term_dists.ix[topic_order]
    doc_topic_dists  = doc_topic_dists[topic_order]
    
+   # token counts for each term-topic combination (widths of red bars)
+   ## Moving this line from _term_topic_freq method, which is deprecated since
+   ## we no longer need to adjust to match term frequencies exactly by avoiding
+   ## rounding error.
+   term_topic_freq = (topic_term_dists.T * topic_freq).T
    ## Quick fix for red bar width bug.  We calculate the 
    ## term frequencies internally, using the topic term distributions and the 
    ## topic frequencies, rather than using the user-supplied term frequencies.
    ## For a detailed discussion, see: https://github.com/cpsievert/LDAvis/pull/41
-   term_frequency = np.dot(topic_term_dists.T, topic_freq)
-   term_frequency = _series_with_name(np.floor(term_frequency), 'term_frequency')
-   ## End Quick fix
+   term_frequency = np.sum(term_topic_freq, axis=0)
 
-   # token counts for each term-topic combination (widths of red bars)
-   term_topic_freq    = _term_topic_freq(topic_term_dists, topic_freq, term_frequency)
+   # Removing call to _term_topic_freq.  See note above about term_topic_freq.
+   #term_topic_freq    = _term_topic_freq(topic_term_dists, topic_freq, term_frequency)
    topic_info         = _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_freq, vocab, lambda_step, R, n_jobs)
    token_table        = _token_table(topic_info, term_topic_freq, vocab, term_frequency)
    topic_coordinates = _topic_coordinates(mds, topic_term_dists, topic_proportion)
