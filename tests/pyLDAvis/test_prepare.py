@@ -1,5 +1,6 @@
 from __future__ import division
 
+import hashlib
 import json
 import os.path as path
 
@@ -28,6 +29,18 @@ def load_dataset(name):
 def remove_col_suffixes(df):
     df.columns = [w.split('_')[0] for w in df.columns]
     return df
+
+def file_md5(fname):
+    hash = hashlib.md5()
+    with open(fname, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash.update(chunk)
+    return hash.hexdigest()
+
+def test_sanity_check_data_file():
+    output_md5 = file_md5(path.join(DATA_DIR, 'movie_reviews_output.json'))
+    assert output_md5 == 'f053ede2c0e70382c88cd2909be39615'
+
 
 def test_end_to_end_with_R_examples():
     data_input, expected = load_dataset('movie_reviews')
