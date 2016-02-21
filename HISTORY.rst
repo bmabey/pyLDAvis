@@ -3,6 +3,26 @@
 History
 -------
 
+1.5.0 (2016-02-20)
+---------------------
+
+* Red Bar Width bug fix
+
+ In some cases, the widths of the red topic-term bars did not decrease (as they should have) from term \#1 to
+ term \#R under the relevance ranking with $\lambda = 1$. In other words, when $\lambda = 1$, there were topics
+ in which a narrow red bar was displayed above a wider red bar, which should never happen. The issue had to do
+ with the way topic-term bar widths are computed, and is discussed in detail in #32.
+
+
+In the end, we implemented a quick fix in which we compute term frequencies implicitly, rather than using those
+supplied in the createJSON() function. The upside is that the red bar widths are now explicitly controlled to
+produce the correct visualization. The downside is that the blue bar widths do not necessarily match the
+user-supplied term frequencies exactly -- in fact, the new version of LDAvis ignores the user-supplied term
+frequencies entirely. In a few experiments, the differences are small, and decrease (as a proportion of the true
+term frequencies) as the true term frequencies increase.
+
+
+
 1.4.1 (2016-01-31)
 ---------------------
 
