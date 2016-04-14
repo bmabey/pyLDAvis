@@ -242,7 +242,7 @@ def _token_table(topic_info, term_topic_freq, vocab, term_frequency):
 
 def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequency, \
             R=30, lambda_step=0.01, mds=js_PCoA, n_jobs=-1, \
-            plot_opts={'xlab': 'PC1', 'ylab': 'PC2'}):
+            plot_opts={'xlab': 'PC1', 'ylab': 'PC2'},sort_topics=True):
    """Transforms the topic model distributions and related corpus data into
    the data structures needed for the visualization.
 
@@ -280,6 +280,8 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
         use all cores.
     plot_opts : dict, with keys 'xlab' and `ylab`
         Dictionary of plotting options, right now only used for the axis labels.
+    sort_topics : sort topics by topic proportion (percentage of tokens covered). Set to false to 
+        to keep original topic order.
 
     Returns
     -------
@@ -326,7 +328,11 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
 
    topic_freq       = (doc_topic_dists.T * doc_lengths).T.sum()
    # topic_freq       = np.dot(doc_topic_dists.T, doc_lengths)
-   topic_proportion = (topic_freq / topic_freq.sum()).sort_values(ascending=False)
+   if (sort_topics):
+    topic_proportion = (topic_freq / topic_freq.sum()).sort_values(ascending=False)
+   else:
+    topic_proportion = (topic_freq / topic_freq.sum())
+
    topic_order      = topic_proportion.index
    # reorder all data based on new ordering of topics
    topic_freq       = topic_freq[topic_order]
