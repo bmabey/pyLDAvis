@@ -3,6 +3,12 @@
 History
 -------
 
+1.5.1 (2016-04-15)
+---------------------
+
+* Add sort_topics option to prepare function to allow disabling of topic re-ordering.
+
+
 1.5.0 (2016-02-20)
 ---------------------
 

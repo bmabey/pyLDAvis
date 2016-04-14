@@ -55,7 +55,7 @@ test_requirements = [
 
 setup(
     name='pyLDAvis',
-    version='1.5.0',
+    version='1.5.1',
     description="Interactive topic model visualization. Port of the R package.",
     long_description=readme + '\n\n' + history,
     author="Ben Mabey",
