@@ -43,7 +43,7 @@ def prepare(docs, vect, lda, **kwargs):
     Example
     --------
     For example usage please see this notebook:
-    http://nbviewer.ipython.org/github/bmabey/pyLDAvis/blob/master/notebooks/Gensim%20Newsgroup.ipynb
+    http://nbviewer.ipython.org/github/bmabey/pyLDAvis/blob/master/notebooks/sklearn.ipynb
 
     See
     ------
