@@ -50,7 +50,8 @@ else:
 
 test_requirements = [
     'pytest',
-    'funcy'
+    'funcy',
+    'gensim'
 ]
 
 setup(

@@ -31,7 +31,7 @@ from .utils import NumPyEncoder
 
 
 def __num_dist_rows__(array, ndigits=2):
-   return int(pd.DataFrame(array).sum(axis=1).map(lambda x: round(x, ndigits)).sum())
+   return array.shape[0] - int((pd.DataFrame(array).sum(axis=1) < 0.999).sum())
 
 
 class ValidationError(ValueError):

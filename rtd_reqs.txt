@@ -2,3 +2,4 @@ jinja2==2.7.2
 numpydoc>=0.4
 pytest
 future
+gensim
