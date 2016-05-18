@@ -33,14 +33,26 @@ def _extract_data(topic_model, corpus, dictionary, doc_topic_dists=None):
    assert doc_lengths.shape[0] == len(corpus), 'Document lengths and corpus have different sizes {} != {}'.format(doc_lengths.shape[0], len(corpus))
 
    if doc_topic_dists is None:
-      gamma, _ = topic_model.inference(corpus)
+      # If its an HDP model.
+      if hasattr(topic_model, 'lda_beta'):
+          gamma = topic_model.inference(corpus)
+      else:
+          gamma, _ = topic_model.inference(corpus)
       doc_topic_dists = gamma / gamma.sum(axis=1)[:, None]
 
-   assert doc_topic_dists.shape[1] == topic_model.num_topics, 'Document topics and number of topics do not match {} != {}'.format(doc_topic_dists.shape[0], topic_model.num_topics)
+   if hasattr(topic_model, 'lda_alpha'):
+       num_topics = len(topic_model.lda_alpha)
+   else:
+       num_topics = topic_model.num_topics
+
+   assert doc_topic_dists.shape[1] == num_topics, 'Document topics and number of topics do not match {} != {}'.format(doc_topic_dists.shape[0], num_topics)
 
    # get the topic-term distribution straight from gensim without
    # iterating over tuples
-   topic = topic_model.state.get_lambda()
+   if hasattr(topic_model, 'lda_beta'):
+       topic = topic_model.lda_beta
+   else:
+       topic = topic_model.state.get_lambda()
    topic = topic / topic.sum(axis=1)[:, None]
    topic_term_dists = topic[:, fnames_argsort]
 
