@@ -81,7 +81,7 @@ def prepare(lda_model, dtm, vectorizer, **kwargs):
     Example
     --------
     For example usage please see this notebook:
-    http://nbviewer.ipython.org/github/bmabey/pyLDAvis/blob/master/notebooks/pyLDAvis_sklearn.ipynb
+    http://nbviewer.ipython.org/github/bmabey/pyLDAvis/blob/master/notebooks/sklearn.ipynb
 
     See
     ------
