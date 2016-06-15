@@ -1,35 +1,73 @@
-import pandas as pd
+"""
+pyLDAvis sklearn
+===============
+Helper functions to visualize sklearn's LatentDirichletAllocation models
+"""
+
+from __future__ import absolute_import
 import funcy as fp
 from . import prepare as vis_prepare
 
-def _extract_data(docs, vect, lda):
-  
-    #LDA scikit-learn implementation seems to have buggy code.
-    #Topic_term_dists and doc_topic_dists isn't accummulated to 1.
-    #Hence norm function implemented to normalize the distributions.
-    norm = lambda data: pd.DataFrame(data).div(data.sum(1),axis=0).values
-    vected = vect.fit_transform(docs)
-    doc_topic_dists = norm(lda.fit_transform(vected))
-  
-    return lda,vect, dict(
-                      doc_lengths = docs.str.len(),
-                      vocab = vect.get_feature_names(),
-                      term_frequency = vected.sum(axis=0).tolist()[0],
-                      topic_term_dists = norm(lda.components_),
-                      doc_topic_dists = doc_topic_dists)
 
-def prepare(docs, vect, lda, **kwargs):
-    """Create Prepared Data from sklearn's vectorizer and Latent Dirichlet
-    Application.
+def _get_doc_lengths(dtm):
+    return dtm.sum(axis=1).getA1()
+
+
+def _get_term_freqs(dtm):
+    return dtm.sum(axis=0).getA1()
+
+
+def _get_vocab(vectorizer):
+    return vectorizer.get_feature_names()
+
+
+def _row_norm(dists):
+    # row normalization function required
+    # for doc_topic_dists and topic_term_dists
+    return dists / dists.sum(axis=1)[:, None]
+
+
+def _get_doc_topic_dists(lda_model, dtm):
+    return _row_norm(lda_model.transform(dtm))
+
+
+def _get_topic_term_dists(lda_model):
+    return _row_norm(lda_model.components_)
+
+
+def _extract_data(lda_model, dtm, vectorizer):
+    vocab = _get_vocab(vectorizer)
+    doc_lengths = _get_doc_lengths(dtm)
+    term_freqs = _get_term_freqs(dtm)
+    topic_term_dists = _get_topic_term_dists(lda_model)
+
+    assert term_freqs.shape[0] == len(vocab), \
+        ('Term frequencies and vocabulary are of different sizes, {} != {}.'
+         .format(term_freqs.shape[0], len(vocab)))
+
+    assert topic_term_dists.shape[1] == dtm.shape[1], \
+        ('Topic-term distributions and document-term matrix have different number of columns, {} != {}.'
+         .format(topic_term_dists.shape[1], len(vocab)))
+
+    # column dimensions of document-term matrix and topic-term distributions
+    # must match first before transforming to document-topic distributions
+    doc_topic_dists = _get_doc_topic_dists(lda_model, dtm)
+  
+    return {'topic_term_dists': topic_term_dists, 'doc_topic_dists': doc_topic_dists,
+           'doc_lengths': doc_lengths, 'vocab': vocab, 'term_frequency': term_freqs}
+
+
+def prepare(lda_model, dtm, vectorizer, **kwargs):
+    """Create Prepared Data from sklearn's Vectorizer and Latent Dirichlet Allocation.
 
     Parameters
     ----------
-    docs : Pandas Series.
-        Documents to be passed as an input.
-    vect : Scikit-Learn Vectorizer (CountVectorizer,TfIdfVectorizer).
-        vectorizer to convert documents into matrix sparser
-    lda  : sklearn.decomposition.LatentDirichletAllocation.
-        Latent Dirichlet Allocation
+    lda_model : sklearn.decomposition.LatentDirichletAllocation.
+        Latent Dirichlet Allocation model from sklearn fitted with `dtm`
+    dtm : array-like or sparse matrix, shape=(n_samples, n_features)
+        Document-term matrix used to fit on LatentDirichletAllocation model (`lda_model`)
+    vectorizer : sklearn.feature_extraction.text.VectorizerMixin (CountVectorizer,TfIdfVectorizer).
+        vectorizer used to convert raw documents to document-term matrix (`dtm`)
 
     **kwargs: Keyword argument to be passed to pyLDAvis.prepare()
 
@@ -43,13 +81,11 @@ def prepare(docs, vect, lda, **kwargs):
     Example
     --------
     For example usage please see this notebook:
-    http://nbviewer.ipython.org/github/bmabey/pyLDAvis/blob/master/notebooks/sklearn.ipynb
+    http://nbviewer.ipython.org/github/bmabey/pyLDAvis/blob/master/notebooks/pyLDAvis_sklearn.ipynb
 
     See
     ------
     See `pyLDAvis.prepare` for **kwargs.
     """
-  
-    opts = fp.merge(_extract_data(docs, vect, lda)[2], kwargs)
-
+    opts = fp.merge(_extract_data(lda_model, dtm, vectorizer), kwargs)
     return vis_prepare(**opts)
