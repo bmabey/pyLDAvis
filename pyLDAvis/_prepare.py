@@ -4,6 +4,7 @@ pyLDAvis Prepare
 Main transformation functions for preparing LDAdata to the visualization's data structures
 """
 
+from __future__ import absolute_import
 from collections import namedtuple
 import json
 import logging
@@ -12,6 +13,8 @@ import numpy as np
 import pandas as pd
 import scipy.spatial.distance as dist
 from scipy.stats import entropy
+from sklearn.manifold import (MDS, TSNE)
+from sklearn.metrics import pairwise_distances
 try:
     # scikit-bio naming before 0.30
     from skbio.stats.ordination import PCoA
@@ -21,11 +24,6 @@ except ImportError:
     from skbio.stats.ordination import pcoa
     skbio_old = False
 from skbio.stats.distance import DistanceMatrix
-try:
-    from sklearn.manifold import TSNE
-    sklearn_present = True
-except ImportError:
-    sklearn_present = False
 from past.builtins import basestring
 from .utils import NumPyEncoder
 
@@ -78,6 +76,38 @@ def _jensen_shannon(_P, _Q):
     return 0.5 * (entropy(_P, _M) + entropy(_Q, _M))
 
 
+def _cmds(pair_dists, n_components=2):
+    """Classical Multidimensional Scaling
+    """
+    # code referenced from skbio.stats.ordination.pcoa
+    # https://github.com/biocore/scikit-bio/blob/0.5.0/skbio/stats/ordination/_principal_coordinate_analysis.py
+
+    # pairwise distance matrix is assumed symmetric
+    pair_dists = np.asarray(pair_dists, np.float64)
+
+    # perform SVD on double centred distance matrix
+    n = pair_dists.shape[0]
+    H = np.eye(n) - np.ones((n, n)) / n
+    B = - H.dot(pair_dists ** 2).dot(H) / 2
+    eigvals, eigvecs = np.linalg.eig(B)
+
+    # Take first n_components of eigenvalues and eigenvectors
+    # sorted in decreasing order
+    ix = eigvals.argsort()[::-1][:n_components]
+    eigvals = eigvals[ix]
+    eigvecs = eigvecs[:, ix]
+
+    # replace any remaining negative eigenvalues and associated eigenvectors with zeroes
+    # at least 1 eigenvalue must be zero
+    eigvals[np.isclose(eigvals, 0)] = 0
+    if np.any(eigvals < 0):
+        ix_neg = eigvals < 0
+        eigvals[ix_neg] = np.zeros(eigvals[ix_neg].shape)
+        eigvecs[:, ix_neg] = np.zeros(eigvecs[:, ix_neg].shape)
+
+    return np.sqrt(eigvals) * eigvecs
+
+
 def js_PCoA(distributions):
    """Dimension reduction via Jensen-Shannon Divergence & Principal Components
 
@@ -98,6 +128,39 @@ def js_PCoA(distributions):
        return pcoa(dist_matrix).samples.values[:, 0:2]
 
 
+def js_CMDS(distributions):
+    """Dimension reduction via Jensen-Shannon Divergence & Classical Multidimensional Scaling
+
+    Parameters
+    ----------
+    distributions : array-like, shape (`n_dists`, `k`)
+        Matrix of distributions probabilities.
+
+    Returns
+    -------
+    cmds : array, shape (`n_dists`, 2)
+    """
+    dist_matrix = pairwise_distances(distributions, metric=_jensen_shannon)
+    return _cmds(dist_matrix)
+
+
+def js_MMDS(distributions):
+    """Dimension reduction via Jensen-Shannon Divergence & Metric Multidimensional Scaling
+
+    Parameters
+    ----------
+    distributions : array-like, shape (`n_dists`, `k`)
+        Matrix of distributions probabilities.
+
+    Returns
+    -------
+    mmds : array, shape (`n_dists`, 2)
+    """
+    dist_matrix = pairwise_distances(distributions, metric=_jensen_shannon)
+    model = MDS(n_components=2, random_state=0, dissimilarity='precomputed')
+    return model.fit_transform(dist_matrix)
+
+
 def js_TSNE(distributions):
     """Dimension reduction via Jensen-Shannon Divergence & t-distributed Stochastic Neighbor Embedding
 
@@ -108,11 +171,11 @@ def js_TSNE(distributions):
 
     Returns
     -------
-    t-SNE : array, shape (`n_dists`, 2)
+    tsne : array, shape (`n_dists`, 2)
     """
-    dist_matrix = DistanceMatrix(dist.squareform(dist.pdist(distributions.values, _jensen_shannon)))
+    dist_matrix = pairwise_distances(distributions, metric=_jensen_shannon)
     model = TSNE(n_components=2, random_state=0, metric='precomputed')
-    return model.fit_transform(dist_matrix.data)
+    return model.fit_transform(dist_matrix)
 
 
 def _df_with_names(data, index_name, columns_name):
@@ -280,7 +343,7 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
         use all cores.
     plot_opts : dict, with keys 'xlab' and `ylab`
         Dictionary of plotting options, right now only used for the axis labels.
-    sort_topics : sort topics by topic proportion (percentage of tokens covered). Set to false to 
+    sort_topics : sort topics by topic proportion (percentage of tokens covered). Set to false to
         to keep original topic order.
 
     Returns
@@ -310,13 +373,10 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
       if mds.lower() == 'pcoa':
          mds = js_PCoA
       elif mds.lower() == 'tsne':
-         if sklearn_present:
-            mds = js_TSNE
-         else:
-            logging.warning('sklearn not present, switch from t-SNE to PCoA')
+         mds = js_TSNE
       else:
-         mds = js_PCoA
          logging.warning('Unknown mds `%s`, switch to PCoA' % mds)
+         mds = js_PCoA
 
    topic_term_dists = _df_with_names(topic_term_dists, 'topic', 'term')
    doc_topic_dists  = _df_with_names(doc_topic_dists, 'doc', 'topic')
