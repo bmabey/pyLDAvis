@@ -4,6 +4,7 @@ pyLDAvis Prepare
 Main transformation functions for preparing LDAdata to the visualization's data structures
 """
 
+from __future__ import absolute_import
 from collections import namedtuple
 import json
 import logging
@@ -12,6 +13,8 @@ import numpy as np
 import pandas as pd
 import scipy.spatial.distance as dist
 from scipy.stats import entropy
+from sklearn.manifold import (MDS, TSNE)
+from sklearn.metrics import pairwise_distances
 try:
     # scikit-bio naming before 0.30
     from skbio.stats.ordination import PCoA
@@ -21,11 +24,6 @@ except ImportError:
     from skbio.stats.ordination import pcoa
     skbio_old = False
 from skbio.stats.distance import DistanceMatrix
-try:
-    from sklearn.manifold import TSNE
-    sklearn_present = True
-except ImportError:
-    sklearn_present = False
 from past.builtins import basestring
 from .utils import NumPyEncoder
 
@@ -98,6 +96,40 @@ def js_PCoA(distributions):
        return pcoa(dist_matrix).samples.values[:, 0:2]
 
 
+def js_MDS(distributions):
+    """Dimension reduction via Jensen-Shannon Divergence & Metric Multidimensional Scaling
+
+    Parameters
+    ----------
+    distributions : array-like, shape (`n_dists`, `k`)
+        Matrix of distributions probabilities.
+
+    Returns
+    -------
+    mds : array, shape (`n_dists`, 2)
+    """
+    dist_matrix = pairwise_distances(distributions, metric=_jensen_shannon)
+    model = MDS(n_components=2, random_state=0, dissimilarity='precomputed')
+    return model.fit_transform(dist_matrix)
+
+
+def js_NMDS(distributions):
+    """Dimension reduction via Jensen-Shannon Divergence & Non-metric Multidimensional Scaling
+
+    Parameters
+    ----------
+    distributions : array-like, shape (`n_dists`, `k`)
+        Matrix of distributions probabilities.
+
+    Returns
+    -------
+    mds : array, shape (`n_dists`, 2)
+    """
+    dist_matrix = pairwise_distances(distributions, metric=_jensen_shannon)
+    model = MDS(n_components=2, metric=False, random_state=0, dissimilarity='precomputed')
+    return model.fit_transform(dist_matrix)
+
+
 def js_TSNE(distributions):
     """Dimension reduction via Jensen-Shannon Divergence & t-distributed Stochastic Neighbor Embedding
 
@@ -110,9 +142,9 @@ def js_TSNE(distributions):
     -------
     t-SNE : array, shape (`n_dists`, 2)
     """
-    dist_matrix = DistanceMatrix(dist.squareform(dist.pdist(distributions.values, _jensen_shannon)))
+    dist_matrix = pairwise_distances(distributions, metric=_jensen_shannon)
     model = TSNE(n_components=2, random_state=0, metric='precomputed')
-    return model.fit_transform(dist_matrix.data)
+    return model.fit_transform(dist_matrix)
 
 
 def _df_with_names(data, index_name, columns_name):
@@ -280,7 +312,7 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
         use all cores.
     plot_opts : dict, with keys 'xlab' and `ylab`
         Dictionary of plotting options, right now only used for the axis labels.
-    sort_topics : sort topics by topic proportion (percentage of tokens covered). Set to false to 
+    sort_topics : sort topics by topic proportion (percentage of tokens covered). Set to false to
         to keep original topic order.
 
     Returns
