@@ -76,6 +76,35 @@ def _jensen_shannon(_P, _Q):
     return 0.5 * (entropy(_P, _M) + entropy(_Q, _M))
 
 
+def _cmds(pair_dists, n_components=2):
+    """Classical Multidimensional Scaling
+    """
+    # pairwise distance matrix is assumed symmetric
+    pair_dists = np.asarray(pair_dists, np.float64)
+
+    # perform SVD on double centred squared distance matrix
+    n = pair_dists.shape[0]
+    H = np.eye(n) - np.ones((n, n)) / n
+    B = - H.dot(pair_dists ** 2).dot(H) / 2
+    eigvals, eigvecs = np.linalg.eig(B)
+
+    # Take first n_components of eigenvalues and eigenvectors
+    # sorted in decreasing order
+    ix = eigvals.argsort()[::-1][:n_components]
+    eigvals = eigvals[ix]
+    eigvecs = eigvecs[:, ix]
+
+    # replace any remaining negative eigenvalues and associated eigenvectors with zeroes
+    # at least 1 eigenvalue must be zero
+    eigvals[np.isclose(eigvals, 0)] = 0
+    if np.any(eigvals < 0):
+        ix_neg = eigvals < 0
+        eigvals[ix_neg] = np.zeros(eigvals[ix_neg].shape)
+        eigvecs[:, ix_neg] = np.zeros(eigvecs[:, ix_neg].shape)
+
+    return np.sqrt(eigvals) * eigvecs
+
+
 def js_PCoA(distributions):
    """Dimension reduction via Jensen-Shannon Divergence & Principal Components
 
@@ -96,6 +125,22 @@ def js_PCoA(distributions):
        return pcoa(dist_matrix).samples.values[:, 0:2]
 
 
+def js_CMDS(distributions):
+    """Dimension reduction via Jensen-Shannon Divergence & Classical Multidimensional Scaling
+
+    Parameters
+    ----------
+    distributions : array-like, shape (`n_dists`, `k`)
+        Matrix of distributions probabilities.
+
+    Returns
+    -------
+    cmds : array, shape (`n_dists`, 2)
+    """
+    dist_matrix = pairwise_distances(distributions, metric=_jensen_shannon)
+    return _cmds(dist_matrix)
+
+
 def js_MDS(distributions):
     """Dimension reduction via Jensen-Shannon Divergence & Metric Multidimensional Scaling
 
@@ -110,23 +155,6 @@ def js_MDS(distributions):
     """
     dist_matrix = pairwise_distances(distributions, metric=_jensen_shannon)
     model = MDS(n_components=2, random_state=0, dissimilarity='precomputed')
-    return model.fit_transform(dist_matrix)
-
-
-def js_NMDS(distributions):
-    """Dimension reduction via Jensen-Shannon Divergence & Non-metric Multidimensional Scaling
-
-    Parameters
-    ----------
-    distributions : array-like, shape (`n_dists`, `k`)
-        Matrix of distributions probabilities.
-
-    Returns
-    -------
-    mds : array, shape (`n_dists`, 2)
-    """
-    dist_matrix = pairwise_distances(distributions, metric=_jensen_shannon)
-    model = MDS(n_components=2, metric=False, random_state=0, dissimilarity='precomputed')
     return model.fit_transform(dist_matrix)
 
 
@@ -342,13 +370,10 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
       if mds.lower() == 'pcoa':
          mds = js_PCoA
       elif mds.lower() == 'tsne':
-         if sklearn_present:
-            mds = js_TSNE
-         else:
-            logging.warning('sklearn not present, switch from t-SNE to PCoA')
+         mds = js_TSNE
       else:
-         mds = js_PCoA
          logging.warning('Unknown mds `%s`, switch to PCoA' % mds)
+         mds = js_PCoA
 
    topic_term_dists = _df_with_names(topic_term_dists, 'topic', 'term')
    doc_topic_dists  = _df_with_names(doc_topic_dists, 'doc', 'topic')
