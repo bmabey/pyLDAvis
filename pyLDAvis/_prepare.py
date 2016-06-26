@@ -5,27 +5,21 @@ Main transformation functions for preparing LDAdata to the visualization's data 
 """
 
 from __future__ import absolute_import
+from past.builtins import basestring
 from collections import namedtuple
 import json
 import logging
 from joblib import Parallel, delayed, cpu_count
 import numpy as np
 import pandas as pd
-import scipy.spatial.distance as dist
 from scipy.stats import entropy
-from sklearn.manifold import (MDS, TSNE)
-from sklearn.metrics import pairwise_distances
-try:
-    # scikit-bio naming before 0.30
-    from skbio.stats.ordination import PCoA
-    skbio_old = True
-except ImportError:
-    # scikit-bio naming after 0.30
-    from skbio.stats.ordination import pcoa
-    skbio_old = False
-from skbio.stats.distance import DistanceMatrix
-from past.builtins import basestring
+from scipy.spatial.distance import pdist, squareform
 from .utils import NumPyEncoder
+try:
+    from sklearn.manifold import MDS, TSNE
+    sklearn_present = True
+except ImportError:
+    sklearn_present = False
 
 
 def __num_dist_rows__(array, ndigits=2):
@@ -76,8 +70,9 @@ def _jensen_shannon(_P, _Q):
     return 0.5 * (entropy(_P, _M) + entropy(_Q, _M))
 
 
-def _cmds(pair_dists, n_components=2):
-    """Classical Multidimensional Scaling
+def _pcoa(pair_dists, n_components=2):
+    """Principal Coordinate Analysis,
+    aka Classical Multidimensional Scaling
     """
     # code referenced from skbio.stats.ordination.pcoa
     # https://github.com/biocore/scikit-bio/blob/0.5.0/skbio/stats/ordination/_principal_coordinate_analysis.py
@@ -109,7 +104,8 @@ def _cmds(pair_dists, n_components=2):
 
 
 def js_PCoA(distributions):
-   """Dimension reduction via Jensen-Shannon Divergence & Principal Components
+    """Dimension reduction via Jensen-Shannon Divergence & Principal Coordinate Analysis
+    (aka Classical Multidimensional Scaling)
 
     Parameters
     ----------
@@ -119,32 +115,12 @@ def js_PCoA(distributions):
     Returns
     -------
     pcoa : array, shape (`n_dists`, 2)
-   """
-   dist_matrix = DistanceMatrix(dist.squareform(dist.pdist(distributions.values, _jensen_shannon)))
-   if skbio_old:
-       data = PCoA(dist_matrix).scores()
-       return data.site[:,0:2]
-   else:
-       return pcoa(dist_matrix).samples.values[:, 0:2]
-
-
-def js_CMDS(distributions):
-    """Dimension reduction via Jensen-Shannon Divergence & Classical Multidimensional Scaling
-
-    Parameters
-    ----------
-    distributions : array-like, shape (`n_dists`, `k`)
-        Matrix of distributions probabilities.
-
-    Returns
-    -------
-    cmds : array, shape (`n_dists`, 2)
     """
-    dist_matrix = pairwise_distances(distributions, metric=_jensen_shannon)
-    return _cmds(dist_matrix)
+    dist_matrix = squareform(pdist(distributions, metric=_jensen_shannon))
+    return _pcoa(dist_matrix)
 
 
-def js_MMDS(distributions):
+def js_MMDS(distributions, **kwargs):
     """Dimension reduction via Jensen-Shannon Divergence & Metric Multidimensional Scaling
 
     Parameters
@@ -152,16 +128,18 @@ def js_MMDS(distributions):
     distributions : array-like, shape (`n_dists`, `k`)
         Matrix of distributions probabilities.
 
+    **kwargs : Keyword argument to be passed to `sklearn.manifold.MDS()`
+
     Returns
     -------
     mmds : array, shape (`n_dists`, 2)
     """
-    dist_matrix = pairwise_distances(distributions, metric=_jensen_shannon)
-    model = MDS(n_components=2, random_state=0, dissimilarity='precomputed')
+    dist_matrix = squareform(pdist(distributions, metric=_jensen_shannon))
+    model = MDS(n_components=2, random_state=0, dissimilarity='precomputed', **kwargs)
     return model.fit_transform(dist_matrix)
 
 
-def js_TSNE(distributions):
+def js_TSNE(distributions, **kwargs):
     """Dimension reduction via Jensen-Shannon Divergence & t-distributed Stochastic Neighbor Embedding
 
     Parameters
@@ -169,12 +147,14 @@ def js_TSNE(distributions):
     distributions : array-like, shape (`n_dists`, `k`)
         Matrix of distributions probabilities.
 
+    **kwargs : Keyword argument to be passed to `sklearn.manifold.TSNE()`
+
     Returns
     -------
     tsne : array, shape (`n_dists`, 2)
     """
-    dist_matrix = pairwise_distances(distributions, metric=_jensen_shannon)
-    model = TSNE(n_components=2, random_state=0, metric='precomputed')
+    dist_matrix = squareform(pdist(distributions, metric=_jensen_shannon))
+    model = TSNE(n_components=2, random_state=0, metric='precomputed', **kwargs)
     return model.fit_transform(dist_matrix)
 
 
@@ -305,7 +285,7 @@ def _token_table(topic_info, term_topic_freq, vocab, term_frequency):
 
 def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequency, \
             R=30, lambda_step=0.01, mds=js_PCoA, n_jobs=-1, \
-            plot_opts={'xlab': 'PC1', 'ylab': 'PC2'},sort_topics=True):
+            plot_opts={'xlab': 'PC1', 'ylab': 'PC2'}, sort_topics=True):
    """Transforms the topic model distributions and related corpus data into
    the data structures needed for the visualization.
 
@@ -335,9 +315,10 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
         A function that takes `topic_term_dists` as an input and outputs a
         `n_topics` by `2`  distance matrix. The output approximates the distance
         between topics. See :func:`js_PCoA` for details on the default function.
-        A string representation currently accepts `pcoa` (or upper case variant)
-        and `tsne` (or upper case variant) if sklearn package is installed.
-    n_jobs: int
+        A string representation currently accepts `pcoa` (or upper case variant),
+        `mmds` (or upper case variant) and `tsne` (or upper case variant),
+        if `sklearn` package is installed for the latter two.
+    n_jobs : int
         The number of cores to be used to do the computations. The regular
         joblib conventions are followed so `-1`, which is the default, will
         use all cores.
@@ -370,10 +351,16 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
    """
    # parse mds
    if isinstance(mds, basestring):
-      if mds.lower() == 'pcoa':
+      mds = mds.lower()
+      if mds == 'pcoa':
          mds = js_PCoA
-      elif mds.lower() == 'tsne':
-         mds = js_TSNE
+      elif mds in ('mmds', 'tsne'):
+         if sklearn_present:
+            mds_opts = {'mmds': js_MMDS, 'tsne': js_TSNE}
+            mds = mds_opts[mds]
+         else:
+            logging.warning('sklearn not present, switch to PCoA')
+            mds = js_PCoA
       else:
          logging.warning('Unknown mds `%s`, switch to PCoA' % mds)
          mds = js_PCoA
