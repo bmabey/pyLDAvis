@@ -11,19 +11,9 @@ import logging
 from joblib import Parallel, delayed, cpu_count
 import numpy as np
 import pandas as pd
-import scipy.spatial.distance as dist
 from scipy.stats import entropy
 from sklearn.manifold import (MDS, TSNE)
 from sklearn.metrics import pairwise_distances
-try:
-    # scikit-bio naming before 0.30
-    from skbio.stats.ordination import PCoA
-    skbio_old = True
-except ImportError:
-    # scikit-bio naming after 0.30
-    from skbio.stats.ordination import pcoa
-    skbio_old = False
-from skbio.stats.distance import DistanceMatrix
 from past.builtins import basestring
 from .utils import NumPyEncoder
 
@@ -76,8 +66,9 @@ def _jensen_shannon(_P, _Q):
     return 0.5 * (entropy(_P, _M) + entropy(_Q, _M))
 
 
-def _cmds(pair_dists, n_components=2):
-    """Classical Multidimensional Scaling
+def _pcoa(pair_dists, n_components=2):
+    """Principal Coordinate Analysis,
+    aka Classical Multidimensional Scaling
     """
     # code referenced from skbio.stats.ordination.pcoa
     # https://github.com/biocore/scikit-bio/blob/0.5.0/skbio/stats/ordination/_principal_coordinate_analysis.py
@@ -109,7 +100,8 @@ def _cmds(pair_dists, n_components=2):
 
 
 def js_PCoA(distributions):
-   """Dimension reduction via Jensen-Shannon Divergence & Principal Components
+    """Dimension reduction via Jensen-Shannon Divergence & Principal Coordinate Analysis
+    (oka Classical Multidimensional Scaling)
 
     Parameters
     ----------
@@ -119,29 +111,9 @@ def js_PCoA(distributions):
     Returns
     -------
     pcoa : array, shape (`n_dists`, 2)
-   """
-   dist_matrix = DistanceMatrix(dist.squareform(dist.pdist(distributions.values, _jensen_shannon)))
-   if skbio_old:
-       data = PCoA(dist_matrix).scores()
-       return data.site[:,0:2]
-   else:
-       return pcoa(dist_matrix).samples.values[:, 0:2]
-
-
-def js_CMDS(distributions):
-    """Dimension reduction via Jensen-Shannon Divergence & Classical Multidimensional Scaling
-
-    Parameters
-    ----------
-    distributions : array-like, shape (`n_dists`, `k`)
-        Matrix of distributions probabilities.
-
-    Returns
-    -------
-    cmds : array, shape (`n_dists`, 2)
     """
     dist_matrix = pairwise_distances(distributions, metric=_jensen_shannon)
-    return _cmds(dist_matrix)
+    return _pcoa(dist_matrix)
 
 
 def js_MMDS(distributions):
@@ -305,7 +277,7 @@ def _token_table(topic_info, term_topic_freq, vocab, term_frequency):
 
 def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequency, \
             R=30, lambda_step=0.01, mds=js_PCoA, n_jobs=-1, \
-            plot_opts={'xlab': 'PC1', 'ylab': 'PC2'},sort_topics=True):
+            plot_opts={'xlab': 'PC1', 'ylab': 'PC2'}, sort_topics=True):
    """Transforms the topic model distributions and related corpus data into
    the data structures needed for the visualization.
 
@@ -335,9 +307,9 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
         A function that takes `topic_term_dists` as an input and outputs a
         `n_topics` by `2`  distance matrix. The output approximates the distance
         between topics. See :func:`js_PCoA` for details on the default function.
-        A string representation currently accepts `pcoa` (or upper case variant)
-        and `tsne` (or upper case variant) if sklearn package is installed.
-    n_jobs: int
+        A string representation currently accepts `pcoa` (or upper case variant),
+        `mmds` (or upper case variant) and `tsne` (or upper case variant).
+    n_jobs : int
         The number of cores to be used to do the computations. The regular
         joblib conventions are followed so `-1`, which is the default, will
         use all cores.
@@ -369,11 +341,11 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
     :func:`enable_notebook` : automatically embed visualizations in IPython notebook
    """
    # parse mds
+   mds_opts = {'pcoa': js_PCoA, 'mmds': js_MMDS, 'tsne': js_TSNE}
    if isinstance(mds, basestring):
-      if mds.lower() == 'pcoa':
-         mds = js_PCoA
-      elif mds.lower() == 'tsne':
-         mds = js_TSNE
+      mds = mds.lower()
+      if mds in mds_opts:
+         mds = mds_opts[mds]
       else:
          logging.warning('Unknown mds `%s`, switch to PCoA' % mds)
          mds = js_PCoA
