@@ -79,10 +79,13 @@ def _jensen_shannon(_P, _Q):
 def _cmds(pair_dists, n_components=2):
     """Classical Multidimensional Scaling
     """
+    # code referenced from skbio.stats.ordination.pcoa
+    # https://github.com/biocore/scikit-bio/blob/0.5.0/skbio/stats/ordination/_principal_coordinate_analysis.py
+
     # pairwise distance matrix is assumed symmetric
     pair_dists = np.asarray(pair_dists, np.float64)
 
-    # perform SVD on double centred squared distance matrix
+    # perform SVD on double centred distance matrix
     n = pair_dists.shape[0]
     H = np.eye(n) - np.ones((n, n)) / n
     B = - H.dot(pair_dists ** 2).dot(H) / 2
@@ -141,7 +144,7 @@ def js_CMDS(distributions):
     return _cmds(dist_matrix)
 
 
-def js_MDS(distributions):
+def js_MMDS(distributions):
     """Dimension reduction via Jensen-Shannon Divergence & Metric Multidimensional Scaling
 
     Parameters
@@ -151,7 +154,7 @@ def js_MDS(distributions):
 
     Returns
     -------
-    mds : array, shape (`n_dists`, 2)
+    mmds : array, shape (`n_dists`, 2)
     """
     dist_matrix = pairwise_distances(distributions, metric=_jensen_shannon)
     model = MDS(n_components=2, random_state=0, dissimilarity='precomputed')
@@ -168,7 +171,7 @@ def js_TSNE(distributions):
 
     Returns
     -------
-    t-SNE : array, shape (`n_dists`, 2)
+    tsne : array, shape (`n_dists`, 2)
     """
     dist_matrix = pairwise_distances(distributions, metric=_jensen_shannon)
     model = TSNE(n_components=2, random_state=0, metric='precomputed')
