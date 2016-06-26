@@ -42,4 +42,4 @@ __all__ = ["__version__",
 __version__ = '1.5.1'
 
 from ._display import *
-from ._prepare import prepare, js_PCoA, js_PCoA, js_MMDS, js_TSNE, PreparedData
+from ._prepare import prepare, js_PCoA, js_MMDS, js_TSNE, PreparedData
