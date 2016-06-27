@@ -4,9 +4,8 @@ pyLDAvis sklearn
 Helper functions to visualize sklearn's LatentDirichletAllocation models
 """
 
-from __future__ import absolute_import
 import funcy as fp
-from . import prepare as vis_prepare
+import pyLDAvis
 
 
 def _get_doc_lengths(dtm):
@@ -53,20 +52,25 @@ def _extract_data(lda_model, dtm, vectorizer):
     # must match first before transforming to document-topic distributions
     doc_topic_dists = _get_doc_topic_dists(lda_model, dtm)
   
-    return {'topic_term_dists': topic_term_dists, 'doc_topic_dists': doc_topic_dists,
-           'doc_lengths': doc_lengths, 'vocab': vocab, 'term_frequency': term_freqs}
+    return {'vocab': vocab,
+            'doc_lengths': doc_lengths.tolist(),
+            'term_frequency': term_freqs.tolist(),
+            'doc_topic_dists': doc_topic_dists.tolist(),
+            'topic_term_dists': topic_term_dists.tolist()}
 
 
 def prepare(lda_model, dtm, vectorizer, **kwargs):
-    """Create Prepared Data from sklearn's Vectorizer and Latent Dirichlet Allocation.
+    """Create Prepared Data from sklearn's LatentDirichletAllocation and CountVectorizer.
 
     Parameters
     ----------
     lda_model : sklearn.decomposition.LatentDirichletAllocation.
         Latent Dirichlet Allocation model from sklearn fitted with `dtm`
+
     dtm : array-like or sparse matrix, shape=(n_samples, n_features)
         Document-term matrix used to fit on LatentDirichletAllocation model (`lda_model`)
-    vectorizer : sklearn.feature_extraction.text.VectorizerMixin (CountVectorizer,TfIdfVectorizer).
+
+    vectorizer : sklearn.feature_extraction.text.(CountVectorizer, TfIdfVectorizer).
         vectorizer used to convert raw documents to document-term matrix (`dtm`)
 
     **kwargs: Keyword argument to be passed to pyLDAvis.prepare()
@@ -88,4 +92,4 @@ def prepare(lda_model, dtm, vectorizer, **kwargs):
     See `pyLDAvis.prepare` for **kwargs.
     """
     opts = fp.merge(_extract_data(lda_model, dtm, vectorizer), kwargs)
-    return vis_prepare(**opts)
+    return pyLDAvis.prepare(**opts)
