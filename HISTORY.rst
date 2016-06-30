@@ -3,6 +3,14 @@
 History
 -------
 
+2.0.0 (2016-06-30)
+---------------------
+
+* Removed dependency on `scikit-bio` by adding an internal PCoA implementation.
+* Added helper functions for scikit-learn LDA model! See the new notebook for details.
+* Extended gensim helper functions to work with HDP models.
+* Added scikit-learn's Multi-dimensional scaling as another MDS option when scikit-learn is installed.
+
 1.5.1 (2016-04-15)
 ---------------------
 
