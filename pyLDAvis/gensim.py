@@ -14,12 +14,12 @@ from . import prepare as vis_prepare
 
 def _extract_data(topic_model, corpus, dictionary, doc_topic_dists=None):
    import gensim
-   
+
    if not gensim.matutils.ismatrix(corpus):
       corpus_csc = gensim.matutils.corpus2csc(corpus)
    else:
       corpus_csc = corpus
-   
+
    vocab = list(dictionary.token2id.keys())
    # TODO: add the hyperparam to smooth it out? no beta in online LDA impl.. hmm..
    # for now, I'll just make sure we don't ever get zeros...
@@ -45,7 +45,7 @@ def _extract_data(topic_model, corpus, dictionary, doc_topic_dists=None):
    else:
        num_topics = topic_model.num_topics
 
-   assert doc_topic_dists.shape[1] == num_topics, 'Document topics and number of topics do not match {} != {}'.format(doc_topic_dists.shape[0], num_topics)
+   assert doc_topic_dists.shape[1] == num_topics, 'Document topics and number of topics do not match {} != {}'.format(doc_topic_dists.shape[1], num_topics)
 
    # get the topic-term distribution straight from gensim without
    # iterating over tuples
