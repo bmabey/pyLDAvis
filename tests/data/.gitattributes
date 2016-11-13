@@ -1,2 +1,0 @@
-movie_reviews_input.json filter=lfs diff=lfs merge=lfs -crlf
-movie_reviews_output.json filter=lfs diff=lfs merge=lfs -crlf
