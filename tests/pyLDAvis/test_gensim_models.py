@@ -59,3 +59,4 @@ def test_hdp():
 if __name__ == "__main__":
     test_lda()
     test_hdp()
+    
