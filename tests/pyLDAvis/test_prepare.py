@@ -81,3 +81,4 @@ def test_end_to_end_with_R_examples():
     most_likely_map.index.names = ['Topic_o', 'Topic_e']
     df = pd.DataFrame(most_likely_map).reset_index()
     assert_array_equal(df['Topic_o'].values, df['Topic_e'].values)
+    
