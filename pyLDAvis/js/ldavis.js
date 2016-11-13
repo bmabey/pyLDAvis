@@ -1376,10 +1376,10 @@ var LDAvis = function(to_select, data_or_file_name_list) {
 
     }
 
-    if (typeof data_or_file_name_list[0] === 'string')
-        d3.json(data_or_file_name_list[0], function(error, data) {visualize(data);});
+    if (typeof data_or_file_name_list === 'string')
+        d3.json(data_or_file_name_list, function(error, data) {visualize(data);});
     else
-        visualize(data_or_file_name_list[0]);
+        visualize(data_or_file_name_list);
 
     // var current_clicked = {
     //     what: "nothing",
