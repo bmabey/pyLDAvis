@@ -110,27 +110,6 @@ var LDAvis = function(to_select, data_or_file_name_list) {
 
 
     function visualize(data) {
- 
-        // topic/lambda selection names are specific to *this* vis
-        // var topic_select = to_select + "-topic";
-        // var lambda_select = to_select + "-lambda";
-
-        // // get rid of the # in the to_select (useful) for setting ID values
-        // var visID = to_select.replace("#", "");
-        // var topicID = visID + "-topic";
-        // var lambdaID = visID + "-lambda";
-        // var termID = visID + "-term";
-        // var topicDown = topicID + "-down";
-        // var topicUp = topicID + "-up";
-        // var topicClear = topicID + "-clear";
-
-        // var leftPanelID = visID + "-leftpanel";
-        // var barFreqsID = visID + "-bar-freqs";
-        // var topID = visID + "-top";
-        // var lambdaInputID = visID + "-lambdaInput";
-        // var lambdaZeroID = visID + "-lambdaZero";
-        // var sliderDivID = visID + "-sliderdiv";
-        // var lambdaLabelID = visID + "-lamlabel";
 
         // set the number of topics to global variable K:
         K = data['mdsDat'].x.length;
