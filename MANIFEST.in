@@ -1,0 +1,16 @@
+include AUTHORS.rst
+include CONTRIBUTING.rst
+include HISTORY.rst
+include LICENSE
+include README.rst
+include requirements.txt
+
+recursive-include tests *.py
+recursive-include notebooks *.ipynb
+recursive-exclude notebooks/.ipynb_checkpoints *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+include tests/data/movie_reviews_input.json tests/data/movie_reviews_output.json tests/data/export_data.R
+
+recursive-include docs *.rst conf.py Makefile make.bat
+recursive-include pyLDAvis *.py *.js *.css
