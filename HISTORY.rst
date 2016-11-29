@@ -3,6 +3,12 @@
 History
 -------
 
+2.1.0 (2016-06-30)
+---------------------
+
+* Added missing dependency on `scipy`.
+* Fixed term sorting that was incompatible with pandas 0.19.x.
+
 2.0.0 (2016-06-30)
 ---------------------
 
