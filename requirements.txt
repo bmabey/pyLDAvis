@@ -1,5 +1,6 @@
 wheel>=0.23.0
 numpy>=1.9.2
+scipy>=0.18.0
 pandas>=0.17.0
 joblib>=0.8.4
 jinja2>=2.7.2
