@@ -19,6 +19,8 @@ def _extract_data(topic_model, corpus, dictionary, doc_topic_dists=None):
       corpus_csc = gensim.matutils.corpus2csc(corpus)
    else:
       corpus_csc = corpus
+      # Need corpus to be a streaming gensim list corpus for len and inference functions below:
+      corpus = gensim.matutils.Sparse2corpus(corpus_csc)
 
    vocab = list(dictionary.token2id.keys())
    # TODO: add the hyperparam to smooth it out? no beta in online LDA impl.. hmm..
