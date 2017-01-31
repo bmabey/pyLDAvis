@@ -181,11 +181,11 @@ def prepared_data_to_html(data, d3_url=None, ldavis_url=None, ldavis_css_url=Non
 
 
 
-    return template.render(visid=visid_json_list[1],
-                           visid_raw=visid_list[1],
+    return template.render(visid=visid_json_list[0],
+                           visid_raw=visid_list[0],
                            d3_url=d3_url,
                            ldavis_url=ldavis_url,
-                           vis_json= data_json_list[1],
+                           vis_json= data_json_list,
                            ldavis_css_url=ldavis_css_url)
 
 def display(data, local=False, **kwargs):

@@ -6,42 +6,81 @@
 
 //var LDAvis = function(to_select, data_or_file_name_a, data_or_file_name_b) {
 var LDAvis = function(to_select, data_or_file_name_list) {
-
+    console.log(to_select);
 
     // This section sets up the logic for event handling
     var current_clicked = {
         what: "nothing",
         element: undefined
     },
-        current_hover = {
-            what: "nothing",
-            element: undefined
-        },
-        old_winning_state = {
-            what: "nothing",
-            element: undefined
-        },
-        vis_state = {
-            lambda: 1,
-            topic: 0,
-            term: ""
-        };
+    current_hover = {
+        what: "nothing",
+        element: undefined
+    },
+    old_winning_state = {
+        what: "nothing",
+        element: undefined
+    },
+    vis_state = {
+        lambda: 1,
+        topic: 0,
+        term: ""
+    };
+
+    var current_clicked2 = {
+        what: "nothing",
+        element: undefined
+    },
+    current_hover2 = {
+        what: "nothing",
+        element: undefined
+    },
+    old_winning_state2 = {
+        what: "nothing",
+        element: undefined
+    },
+    vis_state2 = {
+        lambda: 1,
+        topic: 0,
+        term: ""
+    };
 
     // Set up a few 'global' variables to hold the data:
     var K, // number of topics
+
         R, // number of terms to display in bar chart
+
+        K2, // number of topics for model 2
+
+        R2, // number of terms to display in bar chart for model 2
+
         mdsData, // (x,y) locations and topic proportions
+
+        mdsData2, // (x,y) locations and topic proportions for model 2
+
+
         mdsData3, // topic proportions for all terms in the viz
+
+        mdsData4, // topic proportions for all terms in the viz for model 2
+
         lamData, // all terms that are among the top-R most relevant for all topics, lambda values
+
+        lamData2, // all terms that are among the top-R most relevant for all topics, lambda values for model 2
+
         lambda = {
             old: 1,
             current: 1
         },
-        // color1 = "#1f77b4", // baseline color for default topic circles and overall term frequencies
-        // color2 = "#d62728", // 'highlight' color for selected topics and term-topic frequencies
+
+        lambda2 = {
+            old: 1,
+            current: 1
+        },
+        colour1 = "#1f77b4", // baseline color for default topic circles and overall term frequencies
+        colour2 = "#d62728", // 'highlight' color for selected topics and term-topic frequencies
         
-        color1 = "#31A354", // baseline color for default topic circles and overall term frequencies for topic 2
-        color2 = "#F7FCB9"; // 'highlight' color for selected topics and term-topic frequencies for for topic 2
+        colour3 = "#31A354", // baseline color for default topic circles and overall term frequencies for topic 2
+        colour4 = "#F7FCB9"; // 'highlight' color for selected topics and term-topic frequencies for for topic 2
 
     // Set the duration of each half of the transition:
     var duration = 750;
@@ -71,26 +110,91 @@ var LDAvis = function(to_select, data_or_file_name_list) {
     var base_opacity = 0.2,
         highlight_opacity = 0.6;
 
-    // topic/lambda selection names are specific to *this* vis
-    var topic_select = to_select + "-topic";
-    var lambda_select = to_select + "-lambda";
 
-    // get rid of the # in the to_select (useful) for setting ID values
-    var visID = to_select.replace("#", "");
-    var topicID = visID + "-topic";
-    var lambdaID = visID + "-lambda";
-    var termID = visID + "-term";
-    var topicDown = topicID + "-down";
-    var topicUp = topicID + "-up";
-    var topicClear = topicID + "-clear";
 
-    var leftPanelID = visID + "-leftpanel";
-    var barFreqsID = visID + "-bar-freqs";
-    var topID = visID + "-top";
-    var lambdaInputID = visID + "-lambdaInput";
-    var lambdaZeroID = visID + "-lambdaZero";
-    var sliderDivID = visID + "-sliderdiv";
-    var lambdaLabelID = visID + "-lamlabel";
+
+
+    var to_select_1 = "#ldavis_el3389246726170402318094997";
+    var to_select_2 = "#ldavis_el3389246726170402318094999";
+
+
+    // Create new svg element (that will contain everything):
+    var svg = d3.select(to_select).append("svg")
+            .attr("width", mdswidth + barwidth + margin.left + termwidth + margin.right)
+            .attr("height", mdsheight + 2 * margin.top + margin.bottom + 2 * rMax);
+
+
+      
+    var guide_leftpanel = "guide-leftpanel"
+      
+          // new definitions based on fixing the sum of the areas of the default topic circles:
+        var newSmall = Math.sqrt(0.02*mdsarea*circle_prop/Math.PI);
+        var newMedium = Math.sqrt(0.05*mdsarea*circle_prop/Math.PI);
+        var newLarge = Math.sqrt(0.10*mdsarea*circle_prop/Math.PI);
+        var cx = 10 + newLarge,
+            cx2 = cx + 1.5 * newLarge;
+
+        // circle guide inspired from
+        // http://www.nytimes.com/interactive/2012/02/13/us/politics/2013-budget-proposal-graphic.html?_r=0
+        var circleGuide = function(rSize, size) {
+            d3.select("#" + guide_leftpanel).append("circle")
+                .attr('class', "circleGuide" + size)
+                .attr('r', rSize)
+                .attr('cx', cx)
+                .attr('cy', mdsheight + rSize)
+                .style('fill', 'none')
+                .style('stroke-dasharray', '2 2')
+                .style('stroke', '#999');
+            d3.select("#" + guide_leftpanel).append("line")
+                .attr('class', "lineGuide" + size)
+                .attr("x1", cx)
+                .attr("x2", cx2)
+                .attr("y1", mdsheight + 2 * rSize)
+                .attr("y2", mdsheight + 2 * rSize)
+                .style("stroke", "gray")
+                .style("opacity", 0.3);
+        };
+
+        circleGuide(newSmall, "Small");
+        circleGuide(newMedium, "Medium");
+        circleGuide(newLarge, "Large");
+
+        var defaultLabelSmall = "2%";
+        var defaultLabelMedium = "5%";
+        var defaultLabelLarge = "10%";
+
+        d3.select("#" + guide_leftpanel).append("text")
+            .attr("x", 10)
+            .attr("y", mdsheight - 10)
+            .attr('class', "circleGuideTitle")
+            .style("text-anchor", "left")
+            .style("fontWeight", "bold")
+            .text("Marginal topic distribution");
+        d3.select("#" + guide_leftpanel).append("text")
+            .attr("x", cx2 + 10)
+            .attr("y", mdsheight + 2 * newSmall)
+            .attr('class', "circleGuideLabelSmall")
+            .style("text-anchor", "start")
+            .text(defaultLabelSmall);
+        d3.select("#" + guide_leftpanel).append("text")
+            .attr("x", cx2 + 10)
+            .attr("y", mdsheight + 2 * newMedium)
+            .attr('class', "circleGuideLabelMedium")
+            .style("text-anchor", "start")
+            .text(defaultLabelMedium);
+        d3.select("#" + guide_leftpanel).append("text")
+            .attr("x", cx2 + 10)
+            .attr("y", mdsheight + 2 * newLarge)
+            .attr('class', "circleGuideLabelLarge")
+            .style("text-anchor", "start")
+            .text(defaultLabelLarge);
+
+
+    
+
+    
+
+
 
     //////////////////////////////////////////////////////////////////////////////
 
@@ -109,7 +213,50 @@ var LDAvis = function(to_select, data_or_file_name_list) {
     }
 
 
-    function visualize(data) {
+    var colour1 = "#1f77b4", // baseline color for default topic circles and overall term frequencies
+        colour2 = "#d62728", // 'highlight' color for selected topics and term-topic frequencies
+        
+        colour3 = "#31A354", // baseline color for default topic circles and overall term frequencies for topic 2
+        colour4 = "#F7FCB9"; // 'highlight' color for selected topics and term-topic frequencies for for topic 2
+
+        // visualize(JSON.parse(data_or_file_name_list[0]), JSON.parse(data_or_file_name_list[1]),
+        //                      to_select_list[0], to_select_list[1],
+        //                      colour1, colour2, colour3, colour4);
+
+//function visualize(data, data2, to_select, to_select2, colour1, colour2, colour3, colour4){      
+
+
+function visualize(data, to_select, color1, color2) {
+
+
+    console.log(to_select);
+    // topic/lambda selection names are specific to *this* vis //model 1
+   
+    var topic_select = to_select + "-topic";
+    console.log(topic_select);
+    var lambda_select = to_select + "-lambda";
+
+    // get rid of the # in the to_select (useful) for setting ID values
+    var visID = to_select.replace("#", "");
+    var topicID = visID + "-topic";
+    var lambdaID = visID + "-lambda";
+
+    var modelID = visID + "-lambda"; // Trying to add something new
+
+    var termID = visID + "-term";
+    var topicDown = topicID + "-down";
+    var topicUp = topicID + "-up";
+    var topicClear = topicID + "-clear";
+
+    var leftPanelID = visID + "-leftpanel";
+    var barFreqsID = visID + "-bar-freqs";
+    var topID = visID + "-top";
+    var lambdaInputID = visID + "-lambdaInput";
+    var lambdaZeroID = visID + "-lambdaZero";
+    var sliderDivID = visID + "-sliderdiv";
+    var lambdaLabelID = visID + "-lamlabel";
+
+
 
         // set the number of topics to global variable K:
         K = data['mdsDat'].x.length;
@@ -261,17 +408,12 @@ var LDAvis = function(to_select, data_or_file_name_list) {
                     .domain([yrange[0] - ypad * ydiff, yrange[1] + ypad * ydiff]);
         }
 
-        // Create new svg element (that will contain everything):
-        var svg = d3.select(to_select).append("svg")
-                .attr("width", mdswidth + barwidth + margin.left + termwidth + margin.right)
-                .attr("height", mdsheight + 2 * margin.top + margin.bottom + 2 * rMax);
-
-        // Create a group for the mds plot
+          // Create a group for the mds plot
         var mdsplot = svg.append("g")
                 .attr("id", leftPanelID)
                 .attr("class", "points")
                 .attr("transform", "translate(" + margin.left + "," + 2 * margin.top + ")");
-
+       
         // Clicking on the mdsplot should clear the selection
         mdsplot
             .append("rect")
@@ -312,68 +454,11 @@ var LDAvis = function(to_select, data_or_file_name_list) {
             .text(data['plot.opts'].ylab)
             .attr("fill", "gray");
 
-        // new definitions based on fixing the sum of the areas of the default topic circles:
-        var newSmall = Math.sqrt(0.02*mdsarea*circle_prop/Math.PI);
-        var newMedium = Math.sqrt(0.05*mdsarea*circle_prop/Math.PI);
-        var newLarge = Math.sqrt(0.10*mdsarea*circle_prop/Math.PI);
-        var cx = 10 + newLarge,
-            cx2 = cx + 1.5 * newLarge;
 
-        // circle guide inspired from
-        // http://www.nytimes.com/interactive/2012/02/13/us/politics/2013-budget-proposal-graphic.html?_r=0
-        var circleGuide = function(rSize, size) {
-            d3.select("#" + leftPanelID).append("circle")
-                .attr('class', "circleGuide" + size)
-                .attr('r', rSize)
-                .attr('cx', cx)
-                .attr('cy', mdsheight + rSize)
-                .style('fill', 'none')
-                .style('stroke-dasharray', '2 2')
-                .style('stroke', '#999');
-            d3.select("#" + leftPanelID).append("line")
-                .attr('class', "lineGuide" + size)
-                .attr("x1", cx)
-                .attr("x2", cx2)
-                .attr("y1", mdsheight + 2 * rSize)
-                .attr("y2", mdsheight + 2 * rSize)
-                .style("stroke", "gray")
-                .style("opacity", 0.3);
-        };
 
-        circleGuide(newSmall, "Small");
-        circleGuide(newMedium, "Medium");
-        circleGuide(newLarge, "Large");
 
-        var defaultLabelSmall = "2%";
-        var defaultLabelMedium = "5%";
-        var defaultLabelLarge = "10%";
 
-        d3.select("#" + leftPanelID).append("text")
-            .attr("x", 10)
-            .attr("y", mdsheight - 10)
-            .attr('class', "circleGuideTitle")
-            .style("text-anchor", "left")
-            .style("fontWeight", "bold")
-            .text("Marginal topic distribution");
-        d3.select("#" + leftPanelID).append("text")
-            .attr("x", cx2 + 10)
-            .attr("y", mdsheight + 2 * newSmall)
-            .attr('class', "circleGuideLabelSmall")
-            .style("text-anchor", "start")
-            .text(defaultLabelSmall);
-        d3.select("#" + leftPanelID).append("text")
-            .attr("x", cx2 + 10)
-            .attr("y", mdsheight + 2 * newMedium)
-            .attr('class', "circleGuideLabelMedium")
-            .style("text-anchor", "start")
-            .text(defaultLabelMedium);
-        d3.select("#" + leftPanelID).append("text")
-            .attr("x", cx2 + 10)
-            .attr("y", mdsheight + 2 * newLarge)
-            .attr('class', "circleGuideLabelLarge")
-            .style("text-anchor", "start")
-            .text(defaultLabelLarge);
-
+      
         // bind mdsData to the points in the left panel:
         var points = mdsplot.selectAll("points")
                 .data(mdsData)
@@ -1374,12 +1459,18 @@ var LDAvis = function(to_select, data_or_file_name_list) {
             state_save(true);
         }
 
-    }
+}
+    console.log(to_select[0]);
+    console.log(to_select[1]);
 
-    if (typeof data_or_file_name_list === 'string')
-        d3.json(data_or_file_name_list, function(error, data) {visualize(data);});
-    else
-        visualize(data_or_file_name_list);
+    // if (typeof data_or_file_name_list === 'string')
+    //     d3.json(data_or_file_name_list, function(error, data) {visualize(data);});
+
+    visualize(JSON.parse(data_or_file_name_list[0]), to_select_1, colour1, colour2);
+    visualize(JSON.parse(data_or_file_name_list[1]), to_select_2, colour3, colour4);
+
+
+
 
     // var current_clicked = {
     //     what: "nothing",
