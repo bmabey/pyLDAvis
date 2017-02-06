@@ -16,7 +16,7 @@ def _extract_data(topic_model, corpus, dictionary, doc_topic_dists=None):
    import gensim
 
    if not gensim.matutils.ismatrix(corpus):
-      corpus_csc = gensim.matutils.corpus2csc(corpus)
+      corpus_csc = gensim.matutils.corpus2csc(corpus, num_terms=len(dictionary))
    else:
       corpus_csc = corpus
       # Need corpus to be a streaming gensim list corpus for len and inference functions below:
