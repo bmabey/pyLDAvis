@@ -56,13 +56,13 @@ test_requirements = [
 
 setup(
     name='pyLDAvis',
-    version='2.1.0',
+    version='2.1.1',
     description="Interactive topic model visualization. Port of the R package.",
     long_description=readme + '\n\n' + history,
     author="Ben Mabey",
     author_email='ben@benmabey.com',
     url='https://github.com/bmabey/pyLDAvis',
-    download_url = 'https://github.com/bmabey/pyLDAvis/tarball/2.1.0',
+    download_url = 'https://github.com/bmabey/pyLDAvis/tarball/2.1.1',
     packages=[
         'pyLDAvis',
     ],
