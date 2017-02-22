@@ -41,7 +41,6 @@ def _extract_data(topic_model, corpus, dictionary, doc_topic_dists=None):
        num_topics = topic_model.num_topics
 
    if doc_topic_dists is None:
-      print("doc_topic_dists is None")
       # If its an HDP model.
       if hasattr(topic_model, 'lda_beta'):
           gamma = topic_model.inference(corpus)
@@ -49,12 +48,9 @@ def _extract_data(topic_model, corpus, dictionary, doc_topic_dists=None):
           gamma, _ = topic_model.inference(corpus)
       doc_topic_dists = gamma / gamma.sum(axis=1)[:, None]
    else:
-      print("inside _extract_data", type(doc_topic_dists), issparse(doc_topic_dists))
       if isinstance(doc_topic_dists, list):
-         print("doc_topic_dists is list!")
          doc_topic_dists = gensim.matutils.corpus2dense(doc_topic_dists, num_topics).T
       elif issparse(doc_topic_dists):
-         print("doc_topic_dists is csc_matrix!", doc_topic_dists.shape)
          doc_topic_dists = doc_topic_dists.T.todense()
       doc_topic_dists = doc_topic_dists / doc_topic_dists.sum(axis=1)
 
