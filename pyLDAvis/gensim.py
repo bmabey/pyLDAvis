@@ -8,6 +8,7 @@ from __future__ import absolute_import
 import funcy as fp
 import numpy as np
 import pandas as pd
+from scipy.sparse import issparse
 from past.builtins import xrange
 from . import prepare as vis_prepare
 
@@ -34,18 +35,28 @@ def _extract_data(topic_model, corpus, dictionary, doc_topic_dists=None):
    assert term_freqs.shape[0] == len(dictionary), 'Term frequencies and dictionary have different shape {} != {}'.format(term_freqs.shape[0], len(dictionary))
    assert doc_lengths.shape[0] == len(corpus), 'Document lengths and corpus have different sizes {} != {}'.format(doc_lengths.shape[0], len(corpus))
 
+   if hasattr(topic_model, 'lda_alpha'):
+       num_topics = len(topic_model.lda_alpha)
+   else:
+       num_topics = topic_model.num_topics
+
    if doc_topic_dists is None:
+      print("doc_topic_dists is None")
       # If its an HDP model.
       if hasattr(topic_model, 'lda_beta'):
           gamma = topic_model.inference(corpus)
       else:
           gamma, _ = topic_model.inference(corpus)
       doc_topic_dists = gamma / gamma.sum(axis=1)[:, None]
-
-   if hasattr(topic_model, 'lda_alpha'):
-       num_topics = len(topic_model.lda_alpha)
    else:
-       num_topics = topic_model.num_topics
+      print("inside _extract_data", type(doc_topic_dists), issparse(doc_topic_dists))
+      if isinstance(doc_topic_dists, list):
+         print("doc_topic_dists is list!")
+         doc_topic_dists = gensim.matutils.corpus2dense(doc_topic_dists, num_topics).T
+      elif issparse(doc_topic_dists):
+         print("doc_topic_dists is csc_matrix!", doc_topic_dists.shape)
+         doc_topic_dists = doc_topic_dists.T.todense()
+      doc_topic_dists = doc_topic_dists / doc_topic_dists.sum(axis=1)
 
    assert doc_topic_dists.shape[1] == num_topics, 'Document topics and number of topics do not match {} != {}'.format(doc_topic_dists.shape[1], num_topics)
 
