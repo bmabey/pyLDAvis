@@ -49,7 +49,7 @@ def _extract_data(topic_model, corpus, dictionary, doc_topic_dists=None):
         doc_topic_dists = gamma / gamma.sum(axis=1)[:, None]
     else:
         if isinstance(doc_topic_dists, list):
-            doc_topic_dists = gensim.matutils.corpus2dense(doc_topic_dists, num_topics).T
+            doc_topic_dists = np.matrix(gensim.matutils.corpus2dense(doc_topic_dists, num_topics).T)
         elif issparse(doc_topic_dists):
             doc_topic_dists = doc_topic_dists.T.todense()
         doc_topic_dists = doc_topic_dists / doc_topic_dists.sum(axis=1)
