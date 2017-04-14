@@ -87,6 +87,14 @@ var LDAvis = function(to_select, data_or_file_name) {
     var sliderDivID = visID + "-sliderdiv";
     var lambdaLabelID = visID + "-lamlabel";
 
+    var topicTagID = visID + "-topic-tag";
+    var topicNameInit = topicTagID + "-init";
+    var topicNameLoad = topicTagID + "-load";
+    var topicNameSave = topicTagID + "-save";
+    var fileInputTag = topicTagID + "-file"
+
+    var inferredTopicNames = new Array()
+
     //////////////////////////////////////////////////////////////////////////////
 
     // sort array according to a specified object key name
@@ -108,6 +116,9 @@ var LDAvis = function(to_select, data_or_file_name) {
 
         // set the number of topics to global variable K:
         K = data['mdsDat'].x.length;
+
+        //create a array of size K-topics
+        inferredTopicNames = new Array(K)
 
         // R is the number of top relevant (or salient) words whose bars we display
         R = Math.min(data['R'], 30);
@@ -149,7 +160,7 @@ var LDAvis = function(to_select, data_or_file_name) {
         // Create the topic input & lambda slider forms. Inspired from:
         // http://bl.ocks.org/d3noob/10632804
         // http://bl.ocks.org/d3noob/10633704
-        init_forms(topicID, lambdaID, visID);
+        init_forms(topicID, lambdaID, visID, topicTagID);
 
         // When the value of lambda changes, update the visualization
         console.log('lambda_select', lambda_select);
@@ -184,6 +195,7 @@ var LDAvis = function(to_select, data_or_file_name) {
                 topic_off(document.getElementById(topicID + value_old));
                 topic_on(document.getElementById(topicID + value_new));
                 vis_state.topic = value_new;
+                document.getElementById(topicTagID).value = inferredTopicNames[value_new];
                 state_save(true);
             });
 
@@ -200,6 +212,7 @@ var LDAvis = function(to_select, data_or_file_name) {
                 topic_off(document.getElementById(topicID + value_old));
                 topic_on(document.getElementById(topicID + value_new));
                 vis_state.topic = value_new;
+                document.getElementById(topicTagID).value = inferredTopicNames[value_new];
                 state_save(true);
             });
 
@@ -211,6 +224,7 @@ var LDAvis = function(to_select, data_or_file_name) {
                 vis_state.term = "";
                 topic_off(document.getElementById(topicID + vis_state.topic));
                 var value_new = document.getElementById(topicID).value;
+                document.getElementById(topicTagID).value = inferredTopicNames[value_new];
                 if (!isNaN(value_new) && value_new > 0) {
                     value_new = Math.min(K, Math.max(1, value_new));
                     topic_on(document.getElementById(topicID + value_new));
@@ -225,6 +239,62 @@ var LDAvis = function(to_select, data_or_file_name) {
                 state_reset();
                 state_save(true);
             });
+
+        function handleFileSelect(evt) {
+            var files = evt.target.files; // FileList object
+            var jasonFile = files[0];
+            var reader = new FileReader();
+
+            // Closure to capture the file information.
+            reader.onload = (function(theFile) {
+                return function(e) {
+                    inferredTopicNames = JSON.parse(e.target.result);
+                };
+            })(jasonFile);
+
+            reader.readAsText(jasonFile);
+        }
+
+        document.getElementById(fileInputTag).addEventListener('change', handleFileSelect, false);
+        document.getElementById(fileInputTag).style.display = 'none';
+
+        //TODO: infer from the data and use top two words
+        d3.select("#" + topicNameInit)
+            .on("click", function() {
+                for (i=0; i<=K; i++) {
+                    inferredTopicNames[i] = "topic-" + i
+                }
+            })
+
+        d3.select("#" + topicNameLoad)
+            .on("click", function() {
+
+                // Check for the various File API support.
+                if (window.File && window.FileReader && window.FileList && window.Blob) {
+                    // Great success! All the File APIs are supported.
+                    document.getElementById(fileInputTag).click()
+                } else {
+                    alert('The File APIs are not fully supported in this browser.');
+                }
+
+            })
+
+        d3.select("#" + topicNameSave)
+            .on("click", function() {
+                var topicNameMappingsJson = JSON.stringify(inferredTopicNames);
+
+                var blob = new Blob([topicNameMappingsJson], {type: "text/plain;charset=utf-8"});
+                saveAs(blob, "lda-topic-names.json");
+            })
+
+
+        d3.select("#" + topicTagID)
+            .on("keyup", function() {
+                var value_new = document.getElementById(topicID).value;
+                var topic_new =  document.getElementById(topicTagID).value;
+                //>>>>
+                inferredTopicNames[value_new] = topic_new;
+            })
 
         // create linear scaling to pixels (and add some padding on outer region of scatterplot)
         var xrange = d3.extent(mdsData, function(d) {
@@ -428,6 +498,7 @@ var LDAvis = function(to_select, data_or_file_name) {
                 }
                 // make sure topic input box value and fragment reflects clicked selection
                 document.getElementById(topicID).value = vis_state.topic = d.topics;
+                document.getElementById(topicTagID).value = inferredTopicNames[d.topics];
                 state_save(true);
                 topic_on(this);
             })
@@ -594,7 +665,7 @@ var LDAvis = function(to_select, data_or_file_name) {
             .call(xAxis);
 
         // dynamically create the topic and lambda input forms at the top of the page:
-        function init_forms(topicID, lambdaID, visID) {
+        function init_forms(topicID, lambdaID, visID, topicTagID) {
 
             // create container div for topic and lambda input:
             var inputDiv = document.createElement("div");
@@ -640,6 +711,49 @@ var LDAvis = function(to_select, data_or_file_name) {
             clear.setAttribute("style", "margin-left: 5px");
             clear.innerHTML = "Clear Topic";
             topicDiv.appendChild(clear);
+
+
+            // topic tag input container:
+            var topicTagIDDiv = document.createElement("div");
+            //TODO fix the style
+            topicTagIDDiv.setAttribute("style", "padding: 5px; background-color: #e8e8e8; display: inline-block; width: " + 520 + "px; height: 30px; float: left");
+            topicDiv.appendChild(topicTagIDDiv);
+
+            var topicTagIDLabel = document.createElement("label");
+            topicTagIDLabel.setAttribute("for", "mages");
+            topicTagIDLabel.setAttribute("style", "font-family: sans-serif; font-size: 14px");
+            topicTagIDLabel.innerHTML = "Topic Name: <span id='" + "manual-tag" + "-value'></span>";
+            topicTagIDDiv.appendChild(topicTagIDLabel);
+
+            var topicTagIDInput = document.createElement("input");
+            topicTagIDInput.setAttribute("style", "width: 150px");
+            topicTagIDInput.type = "text";
+            topicTagIDInput.value = ""; // a value of 0 indicates no topic is selected
+            topicTagIDInput.id = topicTagID;
+            topicTagIDDiv.appendChild(topicTagIDInput);
+
+            var init = document.createElement("button");
+            init.setAttribute("id", topicNameInit);
+            init.setAttribute("style", "margin-left: 5px");
+            init.innerHTML = "Init";
+            topicTagIDDiv.appendChild(init);
+
+            var load = document.createElement("button");
+            load.setAttribute("id", topicNameLoad);
+            load.setAttribute("style", "margin-left: 5px");
+            load.innerHTML = "Load";
+            topicTagIDDiv.appendChild(load);
+
+            var save = document.createElement("button");
+            save.setAttribute("id", topicNameSave);
+            save.setAttribute("style", "margin-left: 5px");
+            save.innerHTML = "Save";
+            topicTagIDDiv.appendChild(save);
+
+            var fileInput = document.createElement("input");
+            fileInput.type = "file"
+            fileInput.id = fileInputTag
+            topicTagIDDiv.appendChild(fileInput);
 
             // lambda inputs
             //var lambdaDivLeft = 8 + mdswidth + margin.left + termwidth;
@@ -1366,6 +1480,7 @@ var LDAvis = function(to_select, data_or_file_name) {
             }
             vis_state.term = "";
             document.getElementById(topicID).value = vis_state.topic = 0;
+            document.getElementById(topicTagID).value = ""
             state_save(true);
         }
 
