@@ -100,8 +100,10 @@ if(typeof(LDAvis) !== "undefined"){
 }else{
     // require.js not available: dynamically load d3 & LDAvis
     LDAvis_load_lib("{{ d3_url }}", function(){
-         LDAvis_load_lib("{{ ldavis_url }}", function(){
-                 new LDAvis("#" + {{ visid }}, {{ visid_raw }}_data);
+         LDAvis_load_lib("{{ file_saver_url }}", function(){
+                 LDAvis_load_lib("{{ ldavis_url }}", function () {
+                 	new LDAvis("#" + {{ visid }}, {{ visid_raw }}_data);
+		})
             })
          });
 }
@@ -112,7 +114,7 @@ TEMPLATE_DICT = {"simple": SIMPLE_HTML,
                  "notebook": REQUIREJS_HTML,
                  "general": GENERAL_HTML}
 
-def prepared_data_to_html(data, d3_url=None, ldavis_url=None, ldavis_css_url=None,
+def prepared_data_to_html(data, d3_url=None, ldavis_url=None, file_saver_url=None, ldavis_css_url=None,
                           template_type="general", visid=None, use_http=False):
     """Output HTML with embedded visualization
 
@@ -160,6 +162,7 @@ def prepared_data_to_html(data, d3_url=None, ldavis_url=None, ldavis_css_url=Non
 
     d3_url = d3_url or urls.D3_URL
     ldavis_url = ldavis_url or urls.LDAVIS_URL
+    file_saver_url = file_saver_url or urls.FILE_SAVER_URL
     ldavis_css_url = ldavis_css_url or urls.LDAVIS_CSS_URL
 
     if use_http:
@@ -175,6 +178,7 @@ def prepared_data_to_html(data, d3_url=None, ldavis_url=None, ldavis_css_url=Non
                            visid_raw=visid,
                            d3_url=d3_url,
                            ldavis_url=ldavis_url,
+                           file_saver_url=file_saver_url,
                            vis_json=data.to_json(),
                            ldavis_css_url=ldavis_css_url)
 
@@ -214,10 +218,10 @@ def display(data, local=False, **kwargs):
     from IPython.display import HTML
 
     if local:
-        if 'ldavis_url' in kwargs or 'd3_url' in kwargs:
+        if 'ldavis_url' in kwargs or 'd3_url' in kwargs or 'file_saver' in kwargs:
             warnings.warn(
                 "display: specified urls are ignored when local=True")
-        kwargs['d3_url'], kwargs['ldavis_url'], kwargs['ldavis_css_url'] = write_ipynb_local_js()
+        kwargs['d3_url'], kwargs['ldavis_url'], kwargs['file_saver_url'], kwargs['ldavis_css_url'] = write_ipynb_local_js()
 
     return HTML(prepared_data_to_html(data, **kwargs))
 
@@ -255,6 +259,7 @@ def show(data, ip='127.0.0.1', port=8888, n_retries=50,
     if local:
         kwargs['ldavis_url'] = '/LDAvis.js'
         kwargs['d3_url'] = '/d3.js'
+        kwargs['file_saver_url'] = '/FileSaver.js'
         kwargs['ldavis_css_url'] = '/LDAvis.css'
         files = {'/LDAvis.js': ["text/javascript",
                                open(urls.LDAVIS_LOCAL, 'r').read()],
@@ -302,10 +307,10 @@ def enable_notebook(local=False, **kwargs):
         raise ImportError('This feature requires IPython 1.0+')
 
     if local:
-        if 'ldavis_url' in kwargs or 'd3_url' in kwargs:
+        if 'ldavis_url' in kwargs or 'd3_url' in kwargs or 'file_saver' in kwargs:
             warnings.warn(
                 "enable_notebook: specified urls are ignored when local=True")
-        kwargs['d3_url'], kwargs['ldavis_url'], kwargs['ldavis_css_url'] = write_ipynb_local_js()
+        kwargs['d3_url'], kwargs['ldavis_url'], kwargs['file_saver_url'], kwargs['ldavis_css_url'] = write_ipynb_local_js()
 
     ip = get_ipython()
     formatter = ip.display_formatter.formatters['text/html']
