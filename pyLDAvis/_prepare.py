@@ -384,7 +384,7 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
    topic_order      = topic_proportion.index
    # reorder all data based on new ordering of topics
    topic_freq       = topic_freq[topic_order]
-   topic_term_dists = topic_term_dists.ix[topic_order]
+   topic_term_dists = topic_term_dists.iloc[topic_order]
    doc_topic_dists  = doc_topic_dists[topic_order]
 
    # token counts for each term-topic combination (widths of red bars)
