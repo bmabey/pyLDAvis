@@ -2,7 +2,7 @@ pyLDAvis
 ========
 
 Python library for interactive topic model visualization.
-This is a port of the fabulous `R package <https://github.com/cpsievert/LDAvis>`__ by Carson Sievert and Kenny Shirley.
+This is a port of the fabulous `R package <https://github.com/cpsievert/LDAvis>`_ by `Carson Sievert <https://cpsievert.me/>`__ and `Kenny Shirley <http://www.kennyshirley.com/>`__.
 
 .. figure:: http://www.kennyshirley.com/figures/ldavis-pic.png
    :alt: LDAvis icon
@@ -46,7 +46,7 @@ Ben Mabey walked through the visualization in this short talk using a Hacker New
 -  `Slide deck <https://speakerdeck.com/bmabey/visualizing-topic-models>`__
 
 
-Carson Sievert created a video demoing the R package. The visualization is the same and so it applies equally to pyLDAvis:
+`Carson Sievert <https://cpsievert.me/>` created a video demoing the R package. The visualization is the same and so it applies equally to pyLDAvis:
 
 -  `Visualizing & Exploring the Twenty Newsgroup Data <http://stat-graphics.org/movies/ldavis.html>`__
 
