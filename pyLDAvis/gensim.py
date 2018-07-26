@@ -52,7 +52,7 @@ def _extract_data(topic_model, corpus, dictionary, doc_topic_dists=None):
          doc_topic_dists = gensim.matutils.corpus2dense(doc_topic_dists, num_topics).T
       elif issparse(doc_topic_dists):
          doc_topic_dists = doc_topic_dists.T.todense()
-      doc_topic_dists = doc_topic_dists / doc_topic_dists.sum(axis=1)
+      doc_topic_dists = doc_topic_dists / doc_topic_dists.sum(axis=1)[:, None]
 
    assert doc_topic_dists.shape[1] == num_topics, 'Document topics and number of topics do not match {} != {}'.format(doc_topic_dists.shape[1], num_topics)
 
