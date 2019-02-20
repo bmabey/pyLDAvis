@@ -3,12 +3,12 @@
 language: python
 
 python:
-  # - "3.4"
-  # - "3.3"
+  - "3.6"
+  - "3.5"
   - "2.7"
 
 env:
-  - DEPS="pandas jinja2=2.7.2 scipy joblib=0.8.4 numexpr pytest"
+  - DEPS="pandas jinja2>=2.7.2 scipy joblib>=0.8.4 numexpr pytest"
 
 before_install:
   # conda instructions from http://conda.pydata.org/docs/travis.html
@@ -27,6 +27,7 @@ before_install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
+  - export BOTO_CONFIG=/dev/null
 install:
   - conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION
   - source activate testenv
