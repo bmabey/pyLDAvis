@@ -8,7 +8,7 @@ python:
   - "2.7"
 
 env:
-  - DEPS="pandas jinja2>=2.7.2 scipy joblib>=0.8.4 numexpr pytest"
+  - DEPS="pandas<0.24.0a jinja2>=2.7.2 scipy joblib>=0.8.4 numexpr pytest"
 
 before_install:
   # conda instructions from http://conda.pydata.org/docs/travis.html

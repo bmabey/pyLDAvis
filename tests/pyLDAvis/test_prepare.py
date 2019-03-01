@@ -48,7 +48,10 @@ def test_end_to_end_with_R_examples():
 
 
     eddf = etinfo.query('Category == "Default"')
+    eddf = eddf.reindex(sorted(eddf.columns), axis=1)
+
     oddf = otinfo.query('Category == "Default"')
+    oddf = oddf.reindex(sorted(oddf.columns), axis=1)
     assert_frame_equal(eddf, oddf)
 
     joined = pd.merge(otinfo, etinfo, how='inner', on=['Term', 'Category'], suffixes=['_o', '_e'])
@@ -67,7 +70,8 @@ def test_end_to_end_with_R_examples():
         return df
 
     emds, omds = both(lambda r: abs_basis(pd.DataFrame(r['mdsDat'])))
-    assert_frame_equal(emds, omds, check_less_precise=True)
+    assert_frame_equal(emds.reindex(sorted(oddf.columns), axis=1),
+                       omds.reindex(sorted(oddf.columns), axis=1), check_less_precise=True)
 
     def rounded_token_table(r):
        tt = pd.DataFrame(r['token.table'])
