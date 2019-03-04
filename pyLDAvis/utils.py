@@ -9,7 +9,6 @@ import os
 import re
 import shutil
 import warnings
-from functools import wraps
 import numpy as np
 from . import urls
 
@@ -125,7 +124,9 @@ def write_ipynb_local_js(location=None, d3_src=None, ldavis_src=None, ldavis_css
         ldavis_dest = os.path.join(location, ldavisjs)
         ldavis_css_dest = os.path.join(location, ldaviscss)
 
-        for src, dest in [(d3_src, d3_dest), (ldavis_src, ldavis_dest), (ldavis_css, ldavis_css_dest)]:
+        for src, dest in [(d3_src, d3_dest),
+                          (ldavis_src, ldavis_dest),
+                          (ldavis_css, ldavis_css_dest)]:
             try:
                 shutil.copyfile(src, dest)
             except IOError:
@@ -134,8 +135,8 @@ def write_ipynb_local_js(location=None, d3_src=None, ldavis_src=None, ldavis_css
                     os.remove(dest)
                 shutil.copyfile(src, dest)
 
-
     return prefix + d3js, prefix + ldavisjs, prefix + ldaviscss
+
 
 class NumPyEncoder(json.JSONEncoder):
     def default(self, obj):

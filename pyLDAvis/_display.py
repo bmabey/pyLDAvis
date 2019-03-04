@@ -5,9 +5,7 @@ import warnings
 import random
 import json
 import jinja2
-import numpy
 import re
-import os
 from ._server import serve
 from .utils import get_id, write_ipynb_local_js, NumPyEncoder
 from ._prepare import PreparedData
@@ -112,6 +110,7 @@ TEMPLATE_DICT = {"simple": SIMPLE_HTML,
                  "notebook": REQUIREJS_HTML,
                  "general": GENERAL_HTML}
 
+
 def prepared_data_to_html(data, d3_url=None, ldavis_url=None, ldavis_css_url=None,
                           template_type="general", visid=None, use_http=False):
     """Output HTML with embedded visualization
@@ -178,6 +177,7 @@ def prepared_data_to_html(data, d3_url=None, ldavis_url=None, ldavis_css_url=Non
                            vis_json=data.to_json(),
                            ldavis_css_url=ldavis_css_url)
 
+
 def display(data, local=False, **kwargs):
     """Display visualization in IPython notebook via the HTML display hook
 
@@ -221,6 +221,7 @@ def display(data, local=False, **kwargs):
 
     return HTML(prepared_data_to_html(data, **kwargs))
 
+
 def show(data, ip='127.0.0.1', port=8888, n_retries=50,
          local=True, open_browser=True, http_server=None, **kwargs):
     """Starts a local webserver and opens the visualization in a browser.
@@ -257,7 +258,7 @@ def show(data, ip='127.0.0.1', port=8888, n_retries=50,
         kwargs['d3_url'] = '/d3.js'
         kwargs['ldavis_css_url'] = '/LDAvis.css'
         files = {'/LDAvis.js': ["text/javascript",
-                               open(urls.LDAVIS_LOCAL, 'r').read()],
+                 open(urls.LDAVIS_LOCAL, 'r').read()],
                  '/LDAvis.css': ["text/css",
                                  open(urls.LDAVIS_CSS_LOCAL, 'r').read()],
                  '/d3.js': ["text/javascript",
