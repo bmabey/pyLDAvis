@@ -1,9 +1,9 @@
 from __future__ import division
 
 import json
-import os.path as path
+from os import path
 
-import funcy as fp
+from funcy import compose
 
 
 from numpy.testing import assert_array_equal
@@ -13,7 +13,7 @@ from pandas.util.testing import assert_frame_equal
 
 from pyLDAvis import prepare
 
-roundtrip = fp.compose(json.loads, lambda d: d.to_json(), prepare)
+roundtrip = compose(json.loads, lambda d: d.to_json(), prepare)
 
 DATA_DIR = path.join(path.dirname(path.realpath(__file__)), "../data/")
 

@@ -4,7 +4,7 @@ pyLDAvis sklearn
 Helper functions to visualize sklearn's LatentDirichletAllocation models
 """
 
-import funcy as fp
+from funcy import merge
 import pyLDAvis
 
 
@@ -91,5 +91,5 @@ def prepare(lda_model, dtm, vectorizer, **kwargs):
     ------
     See `pyLDAvis.prepare` for **kwargs.
     """
-    opts = fp.merge(_extract_data(lda_model, dtm, vectorizer), kwargs)
+    opts = merge(_extract_data(lda_model, dtm, vectorizer), kwargs)
     return pyLDAvis.prepare(**opts)

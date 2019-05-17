@@ -5,7 +5,7 @@ import warnings
 import random
 import json
 import jinja2
-import re
+from re import search
 from ._server import serve
 from .utils import get_id, write_ipynb_local_js, NumPyEncoder
 from ._prepare import PreparedData
@@ -167,7 +167,7 @@ def prepared_data_to_html(data, d3_url=None, ldavis_url=None, ldavis_css_url=Non
 
     if visid is None:
         visid = 'ldavis_' + get_id(data) + str(int(random.random() * 1E10))
-    elif re.search('\s', visid):
+    elif search('\s', visid):
         raise ValueError("visid must not contain spaces")
 
     return template.render(visid=json.dumps(visid),

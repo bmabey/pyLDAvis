@@ -6,16 +6,16 @@ Helper functions to visualize GraphLab Create's TopicModel (an implementation of
 
 from __future__ import absolute_import
 
-import funcy as fp
-import numpy as np
-import pandas as pd
+from funcy import merge
+from numpy import vstack, array
+from pandas import DataFrame
 import graphlab as gl
 import pyLDAvis
 
 
 def _topics_as_df(topic_model):
     tdf = topic_model['topics'].to_dataframe()
-    return pd.DataFrame(np.vstack(tdf['topic_probabilities'].values), index=tdf['vocabulary'])
+    return DataFrame(vstack(tdf['topic_probabilities'].values), index=tdf['vocabulary'])
 
 
 def _sum_sarray_dicts(sarray):
@@ -27,7 +27,7 @@ def _sum_sarray_dicts(sarray):
 
 
 def _extract_doc_data(docs):
-    doc_lengths = list(docs.apply(lambda d: np.array(d.values()).sum()))
+    doc_lengths = list(docs.apply(lambda d: array(d.values()).sum()))
     term_freqs_dict = _sum_sarray_dicts(docs)
 
     vocab = term_freqs_dict.keys()
@@ -37,7 +37,7 @@ def _extract_doc_data(docs):
 
 
 def _extract_model_data(topic_model, docs, vocab):
-    doc_topic_dists = np.vstack(topic_model.predict(docs, output_type='probabilities'))
+    doc_topic_dists = vstack(topic_model.predict(docs, output_type='probabilities'))
 
     topics = _topics_as_df(topic_model)
     topic_term_dists = topics.T[vocab].values
@@ -74,5 +74,5 @@ def prepare(topic_model, docs, **kargs):
     For example usage please see this notebook:
     http://nbviewer.ipython.org/github/bmabey/pyLDAvis/blob/master/notebooks/GraphLab.ipynb
     """
-    opts = fp.merge(_extract_data(topic_model, docs), kargs)
+    opts = merge(_extract_data(topic_model, docs), kargs)
     return pyLDAvis.prepare(**opts)

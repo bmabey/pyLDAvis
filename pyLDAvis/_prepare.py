@@ -7,11 +7,11 @@ Main transformation functions for preparing LDAdata to the visualization's data 
 from __future__ import absolute_import
 from past.builtins import basestring
 from collections import namedtuple
-import json
-import logging
+from json import dumps
+from logging import warning
 from joblib import Parallel, delayed, cpu_count
 import numpy as np
-import pandas as pd
+from pandas import DataFrame, Series, concat
 from scipy.stats import entropy
 from scipy.spatial.distance import pdist, squareform
 from .utils import NumPyEncoder
@@ -23,7 +23,7 @@ except ImportError:
 
 
 def __num_dist_rows__(array, ndigits=2):
-    return array.shape[0] - int((pd.DataFrame(array).sum(axis=1) < 0.999).sum())
+    return array.shape[0] - int((DataFrame(array).sum(axis=1) < 0.999).sum())
 
 
 class ValidationError(ValueError):
@@ -169,30 +169,30 @@ def js_TSNE(distributions, **kwargs):
 
 
 def _df_with_names(data, index_name, columns_name):
-    if type(data) == pd.DataFrame:
+    if type(data) == DataFrame:
         # we want our index to be numbered
-        df = pd.DataFrame(data.values)
+        df = DataFrame(data.values)
     else:
-        df = pd.DataFrame(data)
+        df = DataFrame(data)
     df.index.name = index_name
     df.columns.name = columns_name
     return df
 
 
 def _series_with_name(data, name):
-    if type(data) == pd.Series:
+    if type(data) == Series:
         data.name = name
         # ensures a numeric index
         return data.reset_index()[name]
     else:
-        return pd.Series(data, name=name)
+        return Series(data, name=name)
 
 
 def _topic_coordinates(mds, topic_term_dists, topic_proportion):
     K = topic_term_dists.shape[0]
     mds_res = mds(topic_term_dists)
     assert mds_res.shape == (K, 2)
-    mds_df = pd.DataFrame({'x': mds_res[:, 0], 'y': mds_res[:, 1], 'topics': range(1, K + 1),
+    mds_df = DataFrame({'x': mds_res[:, 0], 'y': mds_res[:, 1], 'topics': range(1, K + 1),
                           'cluster': 1, 'Freq': topic_proportion * 100})
     # note: cluster (should?) be deprecated soon. See: https://github.com/cpsievert/LDAvis/issues/26
     return mds_df
@@ -220,7 +220,7 @@ def _find_relevance(log_ttd, log_lift, R, lambda_):
 
 
 def _find_relevance_chunks(log_ttd, log_lift, R, lambda_seq):
-    return pd.concat([_find_relevance(log_ttd, log_lift, R, l) for l in lambda_seq])
+    return concat([_find_relevance(log_ttd, log_lift, R, l) for l in lambda_seq])
 
 
 def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_freq,
@@ -235,7 +235,7 @@ def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_f
     distinctiveness = kernel.sum()
     saliency = term_proportion * distinctiveness
     # Order the terms for the "default" view by decreasing saliency:
-    default_term_info = pd.DataFrame({
+    default_term_info = DataFrame({
         'saliency': saliency,
         'Term': vocab,
         'Freq': term_frequency,
@@ -257,18 +257,18 @@ def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_f
     def topic_top_term_df(tup):
         new_topic_id, (original_topic_id, topic_terms) = tup
         term_ix = topic_terms.unique()
-        return pd.DataFrame({'Term': vocab[term_ix],
+        return DataFrame({'Term': vocab[term_ix],
                              'Freq': term_topic_freq.loc[original_topic_id, term_ix],
                              'Total': term_frequency[term_ix],
                              'logprob': log_ttd.loc[original_topic_id, term_ix].round(4),
                              'loglift': log_lift.loc[original_topic_id, term_ix].round(4),
                              'Category': 'Topic%d' % new_topic_id})
 
-    top_terms = pd.concat(Parallel(n_jobs=n_jobs)
+    top_terms = concat(Parallel(n_jobs=n_jobs)
                           (delayed(_find_relevance_chunks)(log_ttd, log_lift, R, ls)
                           for ls in _job_chunks(lambda_seq, n_jobs)))
     topic_dfs = map(topic_top_term_df, enumerate(top_terms.T.iterrows(), 1))
-    return pd.concat([default_term_info] + list(topic_dfs), sort=True)
+    return concat([default_term_info] + list(topic_dfs), sort=True)
 
 
 def _token_table(topic_info, term_topic_freq, vocab, term_frequency):
@@ -287,7 +287,7 @@ def _token_table(topic_info, term_topic_freq, vocab, term_frequency):
     top_topic_terms_freq.index.name = 'Topic'
 
     # we filter to Freq >= 0.5 to avoid sending too much data to the browser
-    token_table = pd.DataFrame({'Freq': top_topic_terms_freq.unstack()})\
+    token_table = DataFrame({'Freq': top_topic_terms_freq.unstack()})\
         .reset_index().set_index('term').query('Freq >= 0.5')
 
     token_table['Freq'] = token_table['Freq'].round()
@@ -377,10 +377,10 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
                 mds_opts = {'mmds': js_MMDS, 'tsne': js_TSNE}
                 mds = mds_opts[mds]
             else:
-                logging.warning('sklearn not present, switch to PCoA')
+                warning('sklearn not present, switch to PCoA')
                 mds = js_PCoA
         else:
-            logging.warning('Unknown mds `%s`, switch to PCoA' % mds)
+            warning('Unknown mds `%s`, switch to PCoA' % mds)
             mds = js_PCoA
 
     topic_term_dists = _df_with_names(topic_term_dists, 'topic', 'term')
@@ -427,7 +427,7 @@ class PreparedData(namedtuple('PreparedData', ['topic_coordinates', 'topic_info'
 
     def sorted_terms(self, topic=1, _lambda=1):
         """Retuns a dataframe using _lambda to calculate term relevance of a given topic."""
-        tdf = pd.DataFrame(self.topic_info[self.topic_info.Category == 'Topic' + str(topic)])
+        tdf = DataFrame(self.topic_info[self.topic_info.Category == 'Topic' + str(topic)])
         if _lambda < 0 or _lambda > 1:
             _lambda = 1
         stdf = tdf.assign(relevance=_lambda * tdf['logprob'] + (1 - _lambda) * tdf['loglift'])
@@ -443,4 +443,4 @@ class PreparedData(namedtuple('PreparedData', ['topic_coordinates', 'topic_info'
                 'topic.order': self.topic_order}
 
     def to_json(self):
-        return json.dumps(self.to_dict(), cls=NumPyEncoder)
+        return dumps(self.to_dict(), cls=NumPyEncoder)

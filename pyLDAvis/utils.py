@@ -4,7 +4,7 @@ pyLDAvis Utilities
 Utility routines for the pyLDAvis package
 """
 
-import json
+from json import JSONEncoder
 import os
 import re
 import shutil
@@ -138,10 +138,10 @@ def write_ipynb_local_js(location=None, d3_src=None, ldavis_src=None, ldavis_css
     return prefix + d3js, prefix + ldavisjs, prefix + ldaviscss
 
 
-class NumPyEncoder(json.JSONEncoder):
+class NumPyEncoder(JSONEncoder):
     def default(self, obj):
         if isinstance(obj, np.int64) or isinstance(obj, np.int32):
             return int(obj)
         if isinstance(obj, np.float64) or isinstance(obj, np.float32):
             return float(obj)
-        return json.JSONEncoder.default(self, obj)
+        return JSONEncoder.default(self, obj)
