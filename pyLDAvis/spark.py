@@ -1,18 +1,19 @@
 from __future__ import absolute_import
+import numpy as np
 from past.builtins import basestring
 from pyLDAvis._prepare import (
     _input_validate, _series_with_name, _df_with_names,
     js_PCoA , _token_table, _topic_info, _token_table,
-    PreparedData
-)
+    _topic_coordinates,PreparedData)
 
-def generate_topic_freq(doc_topic_dists, doc_length):
+
+def generate_topic_freq(doc_topic_dists, doc_lengths):
     """
     doc_topic_dists: Spark partitioned DataFrame object
 
         column name should be: "doc_id", "topic_dist"
 
-    doc_length: Length of each document in spark DataFrame
+    doc_lengths: Length of each document in spark DataFrame
         By counting number vocabs each document got after pre-processing stage.
         columns: "doc_id", "doc_length"
 
@@ -29,7 +30,8 @@ def generate_topic_freq(doc_topic_dists, doc_length):
 	.rdd\
 	.map(lambda x: [i*x["doc_length"] for i in x["topic_dist"]])\
 	.reduce(lambda dist1, dist2: [a+b for a,b in zip(dist1, dist2)])
-    return topic_freq
+    return np.array(topic_freq)
+
 
 def prepare(topic_freq, topic_term_dists, vocab,
             term_frequency, spark_context=None,
@@ -175,5 +177,3 @@ def prepare(topic_freq, topic_term_dists, vocab,
 
     return PreparedData(topic_coordinates, topic_info,
                         token_table, R, lambda_step, plot_opts, client_topic_order)
-
-
