@@ -2,10 +2,45 @@ from __future__ import absolute_import
 import numpy as np
 from past.builtins import basestring
 from pyLDAvis._prepare import (
-    _input_validate, _series_with_name, _df_with_names,
+    _series_with_name, _df_with_names,
     js_PCoA , _token_table, _topic_info, _token_table,
-    _topic_coordinates,PreparedData)
+    _topic_coordinates,PreparedData, __num_dist_rows__)
 
+
+def _input_validate(*args):
+    res = _input_check(*args)
+    if res:
+        raise ValidationError('\n' + '\n'.join([' * ' + s for s in res]))
+
+
+def _input_check(topic_term_dists, topic_freq, vocab, term_frequency):
+    ttds = topic_term_dists.shape
+    errors = []
+
+    def err(msg):
+        errors.append(msg)
+
+    if len(topic_freq) != ttds[0]:
+        err_msg = ('Number of rows of topic_term_dists does not match number of topics in topic_freq;'
+                   ' both should be equal to the number of topics in the model.')
+        err(err_msg)
+
+    W = len(vocab)
+    if ttds[1] != W:
+        err_msg = ('Number of terms in vocabulary does not match the number of columns of '
+                   'topic_term_dists (where each row of topic_term_dists is a probability '
+                   'distribution of terms for a given topic)')
+        err(err_msg)
+    if len(term_frequency) != W:
+        err_msg = ('Length of term_frequency not equal to the number of terms in the '
+                   'number of terms in the vocabulary (len of vocab)')
+        err(err_msg)
+
+    if __num_dist_rows__(topic_term_dists) != ttds[0]:
+        err('Not all rows (distributions) in topic_term_dists sum to 1.')
+
+    if len(errors) > 0:
+        return errors
 
 def generate_topic_freq(doc_topic_dists, doc_lengths):
     """
@@ -19,8 +54,6 @@ def generate_topic_freq(doc_topic_dists, doc_lengths):
 
 	Ensure `doc_length` size is same as number of documents in
 	`doc_topic_dists`
-
-    #spark: `pyspark.sql.SparkSession` object
 
     return: topic_freq, for each topic. In np.array format.
     """
@@ -140,16 +173,12 @@ def prepare(topic_freq, topic_term_dists, vocab,
             mds = js_PCoA
 
     topic_term_dists = _df_with_names(topic_term_dists, 'topic', 'term')
-    #doc_topic_dists = _df_with_names(doc_topic_dists, 'doc', 'topic')
-    topic_freq = _series_with_name(topic_freq, "topic_frequency")
+    topic_freq = _series_with_name(topic_freq, "topic_freq")
     term_frequency = _series_with_name(term_frequency, 'term_frequency')
-    #doc_lengths = _series_with_name(doc_lengths, 'doc_length')
     vocab = _series_with_name(vocab, 'vocab')
-    #_input_validate(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequency)
+    _input_validate(topic_term_dists, topic_freq, vocab, term_frequency)
     R = min(R, len(vocab))
 
-    #topic_freq = (doc_topic_dists.T * doc_lengths).T.sum()
-    # topic_freq       = np.dot(doc_topic_dists.T, doc_lengths)
     if (sort_topics):
         topic_proportion = (topic_freq / topic_freq.sum()).sort_values(ascending=False)
     else:
@@ -159,7 +188,6 @@ def prepare(topic_freq, topic_term_dists, vocab,
     # reorder all data based on new ordering of topics
     topic_freq = topic_freq[topic_order]
     topic_term_dists = topic_term_dists.iloc[topic_order]
-    #doc_topic_dists = doc_topic_dists[topic_order]
 
     # token counts for each term-topic combination (widths of red bars)
     term_topic_freq = (topic_term_dists.T * topic_freq).T
