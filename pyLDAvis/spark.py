@@ -41,8 +41,8 @@ def prepare(topic_freq, topic_term_dists, vocab,
     The ported the prepare to support the large document size and 100s of topics,
     with the help of apache spark.
 
-    If the documents size is in millions and topics in hundreds, then getting the
-    `doc_topic_dists` itself won't fit in memory, we may need very huge machiens.
+    If the documents size is in millions and #topics in hundreds, then getting the
+    `doc_topic_dists` itself won't fit in memory.
 
     Main bottleneck with the python implementation is finding the topic proption
     across entire corpus, ie; (doc_topic_dists.T * document_lenths)
@@ -51,21 +51,21 @@ def prepare(topic_freq, topic_term_dists, vocab,
 
     As `doc_topic_dists` and `doc_lengths` are only used to find the topic 
     distribution on entire corpuse we can make use of spark to do this metix-vector
-    multiplication.
+    multiplication and avoid loading the doc_topic_dists completely into memory at
+    once..
 
     Transforms the topic model distributions and related corpus data into
     the data structures needed for the visualization.
 
     Parameters
     ----------
+    topic_freq : Topic Frequency on entire corpus.
+        In default pyLDAVis this quantity was calculated from `doc_topic_dists`
+        and `doc_lengths`, in order to support the scale of millions of document
+        and hundereds of topics, this operation is kept outside with the help of
+        spark. Use the method `pyLDAVis.spark.generate_topic_freq` to generate it.
     topic_term_dists : array-like, shape (`n_topics`, `n_terms`)
         Matrix of topic-term probabilities. Where `n_terms` is `len(vocab)`.
-    doc_topic_dists : array-like, shape (`n_docs`, `n_topics`)
-        Matrix of document-topic probabilities.
-    doc_lengths : array-like, shape `n_docs`
-        The length of each document, i.e. the number of words in each document.
-        The order of the numbers should be consistent with the ordering of the
-        docs in `doc_topic_dists`.
     vocab : array-like, shape `n_terms`
         List of all the words in the corpus used to train the model.
     term_frequency : array-like, shape `n_terms`
