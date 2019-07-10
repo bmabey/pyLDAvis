@@ -20,6 +20,11 @@ try:
     sklearn_present = True
 except ImportError:
     sklearn_present = False
+try:
+    from umap import UMAP
+    umap_present = True
+except ImportError:
+    umap_present = False
 
 
 def __num_dist_rows__(array, ndigits=2):
@@ -165,6 +170,25 @@ def js_TSNE(distributions, **kwargs):
     """
     dist_matrix = squareform(pdist(distributions, metric=_jensen_shannon))
     model = TSNE(n_components=2, random_state=0, metric='precomputed', **kwargs)
+    return model.fit_transform(dist_matrix)
+
+
+def js_UMAP(distributions, **kwargs):
+    """Dimension reduction via Jensen-Shannon Divergence & Uniform Manifold Approximation and Projection
+
+    Parameters
+    ----------
+    distributions : array-like, shape (`n_dists`, `k`)
+        Matrix of distributions probabilities.
+
+    **kwargs : Keyword argument to be passed to `umap.UMAP()`
+
+    Returns
+    -------
+    umap : array, shape (`n_dists`, 2)
+    """
+    dist_matrix = squareform(pdist(distributions, metric=_jensen_shannon))
+    model = UMAP(n_components=2, random_state=0, metric='precomputed', **kwargs)
     return model.fit_transform(dist_matrix)
 
 
@@ -331,7 +355,9 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
         between topics. See :func:`js_PCoA` for details on the default function.
         A string representation currently accepts `pcoa` (or upper case variant),
         `mmds` (or upper case variant) and `tsne` (or upper case variant),
-        if `sklearn` package is installed for the latter two.
+        if `sklearn` package is installed for the latter two. Additionally if 
+        the `umap-learn` package is installed, `umap` (or upper case variant)
+        is accepted.
     n_jobs : int
         The number of cores to be used to do the computations. The regular
         joblib conventions are followed so `-1`, which is the default, will
@@ -378,6 +404,12 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
                 mds = mds_opts[mds]
             else:
                 logging.warning('sklearn not present, switch to PCoA')
+                mds = js_PCoA
+        elif mds in ('umap',):
+            if umap_present:
+                mds = js_UMAP
+            else:
+                logging.warning('umap-learn not present, switch to PCoA')
                 mds = js_PCoA
         else:
             logging.warning('Unknown mds `%s`, switch to PCoA' % mds)
