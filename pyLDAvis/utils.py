@@ -144,4 +144,6 @@ class NumPyEncoder(json.JSONEncoder):
             return int(obj)
         if isinstance(obj, np.float64) or isinstance(obj, np.float32):
             return float(obj)
+        if np.iscomplexobj(obj):
+            return abs(obj)
         return json.JSONEncoder.default(self, obj)
