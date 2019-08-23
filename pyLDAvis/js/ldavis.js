@@ -4,13 +4,13 @@
 
 'use strict';
 
-var LDAvis = function(to_select, data_or_file_name) {
+var LDAvis = function(to_select, data_or_file_name, color1, color2) {
 
     // This section sets up the logic for event handling
     var current_clicked = {
-        what: "nothing",
-        element: undefined
-    },
+            what: "nothing",
+            element: undefined
+        },
         current_hover = {
             what: "nothing",
             element: undefined
@@ -35,24 +35,23 @@ var LDAvis = function(to_select, data_or_file_name) {
             old: 1,
             current: 1
         },
-        color1 = "#1f77b4", // baseline color for default topic circles and overall term frequencies
-        color2 = "#d62728"; // 'highlight' color for selected topics and term-topic frequencies
-
+        color1 = typeof color1 !=='undefined' ? color1 : "#1f77b4", // baseline color for default topic circles and overall term frequencies
+        color2 = typeof color2 !=='undefined' ? color2: "#d62728"; // 'highlight' color for selected topics and term-topic frequencies
     // Set the duration of each half of the transition:
     var duration = 750;
 
     // Set global margins used for everything
     var margin = {
-        top: 30,
-        right: 30,
-        bottom: 70,
-        left: 30
-    },
+            top: 30,
+            right: 30,
+            bottom: 70,
+            left: 30},
+
         mdswidth = 530,
         mdsheight = 530,
         barwidth = 530,
         barheight = 530,
-        termwidth = 90, // width to add between two panels to display terms
+        termwidth = 90, // width to add between two panels to display terms,
         mdsarea = mdsheight * mdswidth;
     // controls how big the maximum circle can be
     // doesn't depend on data, only on mds width and height:
@@ -239,33 +238,33 @@ var LDAvis = function(to_select, data_or_file_name) {
             ypad = 0.05;
 
         if (xdiff > ydiff) {
-            var xScale = d3.scale.linear()
-                    .range([0, mdswidth])
-                    .domain([xrange[0] - xpad * xdiff, xrange[1] + xpad * xdiff]);
+            var xScale = d3.scaleLinear()
+                .range([0, mdswidth])
+                .domain([xrange[0] - xpad * xdiff, xrange[1] + xpad * xdiff]);
 
-            var yScale = d3.scale.linear()
-                    .range([mdsheight, 0])
-                    .domain([yrange[0] - 0.5*(xdiff - ydiff) - ypad*xdiff, yrange[1] + 0.5*(xdiff - ydiff) + ypad*xdiff]);
+            var yScale = d3.scaleLinear()
+                .range([mdsheight, 0])
+                .domain([yrange[0] - 0.5*(xdiff - ydiff) - ypad*xdiff, yrange[1] + 0.5*(xdiff - ydiff) + ypad*xdiff]);
         } else {
-            var xScale = d3.scale.linear()
-                    .range([0, mdswidth])
-                    .domain([xrange[0] - 0.5*(ydiff - xdiff) - xpad*ydiff, xrange[1] + 0.5*(ydiff - xdiff) + xpad*ydiff]);
+            var xScale = d3.scaleLinear()
+                .range([0, mdswidth])
+                .domain([xrange[0] - 0.5*(ydiff - xdiff) - xpad*ydiff, xrange[1] + 0.5*(ydiff - xdiff) + xpad*ydiff]);
 
-            var yScale = d3.scale.linear()
-                    .range([mdsheight, 0])
-                    .domain([yrange[0] - ypad * ydiff, yrange[1] + ypad * ydiff]);
+            var yScale = d3.scaleLinear()
+                .range([mdsheight, 0])
+                .domain([yrange[0] - ypad * ydiff, yrange[1] + ypad * ydiff]);
         }
 
         // Create new svg element (that will contain everything):
         var svg = d3.select(to_select).append("svg")
-                .attr("width", mdswidth + barwidth + margin.left + termwidth + margin.right)
-                .attr("height", mdsheight + 2 * margin.top + margin.bottom + 2 * rMax);
+            .attr("width", mdswidth + barwidth + margin.left + termwidth + margin.right)
+            .attr("height", mdsheight + 2 * margin.top + margin.bottom + 2 * rMax);
 
         // Create a group for the mds plot
         var mdsplot = svg.append("g")
-                .attr("id", leftPanelID)
-                .attr("class", "points")
-                .attr("transform", "translate(" + margin.left + "," + 2 * margin.top + ")");
+            .attr("id", leftPanelID)
+            .attr("class", "points")
+            .attr("transform", "translate(" + margin.left + "," + 2 * margin.top + ")");
 
         // Clicking on the mdsplot should clear the selection
         mdsplot
@@ -349,7 +348,7 @@ var LDAvis = function(to_select, data_or_file_name) {
             .attr('class', "circleGuideTitle")
             .style("text-anchor", "left")
             .style("fontWeight", "bold")
-            .text("Marginal topic distribution");
+            .text("Marginal topic distribtion");
         d3.select("#" + leftPanelID).append("text")
             .attr("x", cx2 + 10)
             .attr("y", mdsheight + 2 * newSmall)
@@ -371,8 +370,8 @@ var LDAvis = function(to_select, data_or_file_name) {
 
         // bind mdsData to the points in the left panel:
         var points = mdsplot.selectAll("points")
-                .data(mdsData)
-                .enter();
+            .data(mdsData)
+            .enter();
 
         // text to indicate topic
         points.append("text")
@@ -448,27 +447,26 @@ var LDAvis = function(to_select, data_or_file_name) {
             return d.Category == "Default";
         });
 
-        var y = d3.scale.ordinal()
-                .domain(barDefault2.map(function(d) {
-                    return d.Term;
-                }))
-                .rangeRoundBands([0, barheight], 0.15);
-        var x = d3.scale.linear()
-                .domain([1, d3.max(barDefault2, function(d) {
-                    return d.Total;
-                })])
-                .range([0, barwidth])
-                .nice();
-        var yAxis = d3.svg.axis()
-                .scale(y);
+        var y = d3.scaleBand()
+            .domain(barDefault2.map(function(d) {
+                return d.Term;
+            }))
+            .rangeRound([0, barheight]).padding(0.15);
+        var x = d3.scaleLinear()
+            .domain([1, d3.max(barDefault2, function(d) {
+                return d.Total;
+            })])
+            .range([0, barwidth])
+            .nice();
+        var yAxis = d3.axisLeft(y);
 
         // Add a group for the bar chart
         var chart = svg.append("g")
-                .attr("transform", "translate(" + +(mdswidth + margin.left + termwidth) + "," + 2 * margin.top + ")")
-                .attr("id", barFreqsID);
+            .attr("transform", "translate(" + +(mdswidth + margin.left + termwidth) + "," + 2 * margin.top + ")")
+            .attr("id", barFreqsID);
 
         // bar chart legend/guide:
-        var barguide = {"width": 100, "height": 15};
+        var barguide = {"width": 50, "height": 15};
         d3.select("#" + barFreqsID).append("rect")
             .attr("x", 0)
             .attr("y", mdsheight + 10)
@@ -517,8 +515,8 @@ var LDAvis = function(to_select, data_or_file_name) {
 
         // Bind 'default' data to 'default' bar chart
         var basebars = chart.selectAll(to_select + " .bar-totals")
-                .data(barDefault2)
-                .enter();
+            .data(barDefault2)
+            .enter();
 
         // Draw the gray background bars defining the overall frequency of each word
         basebars
@@ -528,7 +526,7 @@ var LDAvis = function(to_select, data_or_file_name) {
             .attr("y", function(d) {
                 return y(d.Term);
             })
-            .attr("height", y.rangeBand())
+            .attr("height", y.bandwidth())
             .attr("width", function(d) {
                 return x(d.Total);
             })
@@ -554,16 +552,16 @@ var LDAvis = function(to_select, data_or_file_name) {
             .on("mouseover", function() {
                 term_hover(this);
             })
-        // .on("click", function(d) {
-        //     var old_term = termID + vis_state.term;
-        //     if (vis_state.term != "" && old_term != this.id) {
-        //         term_off(document.getElementById(old_term));
-        //     }
-        //     vis_state.term = d.Term;
-        //     state_save(true);
-        //     term_on(this);
-        //     debugger;
-        // })
+            // .on("click", function(d) {
+            //     var old_term = termID + vis_state.term;
+            //     if (vis_state.term != "" && old_term != this.id) {
+            //         term_off(document.getElementById(old_term));
+            //     }
+            //     vis_state.term = d.Term;
+            //     state_save(true);
+            //     term_on(this);
+            //     debugger;
+            // })
             .on("mouseout", function() {
                 vis_state.term = "";
                 term_off(this);
@@ -571,12 +569,12 @@ var LDAvis = function(to_select, data_or_file_name) {
             });
 
         var title = chart.append("text")
-                .attr("x", barwidth/2)
-                .attr("y", -30)
-                .attr("class", "bubble-tool") //  set class so we can remove it when highlight_off is called
-                .style("text-anchor", "middle")
-                .style("font-size", "16px")
-                .text("Top-" + R + " Most Salient Terms");
+            .attr("x", barwidth/2)
+            .attr("y", -30)
+            .attr("class", "bubble-tool") //  set class so we can remove it when highlight_off is called
+            .style("text-anchor", "middle")
+            .style("font-size", "16px")
+            .text("Top-" + R + " Most Salient Terms");
 
         title.append("tspan")
             .attr("baseline-shift", "super")
@@ -584,11 +582,7 @@ var LDAvis = function(to_select, data_or_file_name) {
             .text("(1)");
 
         // barchart axis adapted from http://bl.ocks.org/mbostock/1166403
-        var xAxis = d3.svg.axis().scale(x)
-                .orient("top")
-                .tickSize(-barheight)
-                .tickSubdivide(true)
-                .ticks(6);
+        var xAxis = d3.axisTop(x).tickSize(-barheight).ticks(6);
 
         chart.attr("class", "xaxis")
             .call(xAxis);
@@ -654,18 +648,18 @@ var LDAvis = function(to_select, data_or_file_name) {
             lambdaZero.setAttribute("id", lambdaZeroID);
             lambdaDiv.appendChild(lambdaZero);
             var xx = d3.select("#" + lambdaZeroID)
-                    .append("text")
-                    .attr("x", 0)
-                    .attr("y", 0)
-                    .style("font-size", "14px")
-                    .text("Slide to adjust relevance metric:");
+                .append("text")
+                .attr("x", 0)
+                .attr("y", 0)
+                .style("font-size", "14px")
+                .text("Slide to adjust relevance metric:");
             var yy = d3.select("#" + lambdaZeroID)
-                    .append("text")
-                    .attr("x", 125)
-                    .attr("y", -5)
-                    .style("font-size", "10px")
-                    .style("position", "absolute")
-                    .text("(2)");
+                .append("text")
+                .attr("x", 125)
+                .attr("y", -5)
+                .style("font-size", "10px")
+                .style("position", "absolute")
+                .text("(2)");
 
             var sliderDiv = document.createElement("div");
             sliderDiv.setAttribute("id", sliderDivID);
@@ -692,27 +686,24 @@ var LDAvis = function(to_select, data_or_file_name) {
 
             // Create the svg to contain the slider scale:
             var scaleContainer = d3.select("#" + sliderDivID).append("svg")
-                    .attr("width", 250)
-                    .attr("height", 25);
+                .attr("width", 250)
+                .attr("height", 25);
 
-            var sliderScale = d3.scale.linear()
-                    .domain([0, 1])
-                    .range([7.5, 242.5])  // trimmed by 7.5px on each side to match the input type=range slider:
-                    .nice();
+            var sliderScale = d3.scaleLinear()
+                .domain([0, 1])
+                .range([7.5, 242.5])  // trimmed by 7.5px on each side to match the input type=range slider:
+                .nice();
 
             // adapted from http://bl.ocks.org/mbostock/1166403
-            var sliderAxis = d3.svg.axis()
-                    .scale(sliderScale)
-                    .orient("bottom")
-                    .tickSize(10)
-                    .tickSubdivide(true)
-                    .ticks(6);
+            var sliderAxis = d3.axisBottom(sliderScale)
+                .tickSize(10)
+                .ticks(6);
 
             // group to contain the elements of the slider axis:
             var sliderAxisGroup = scaleContainer.append("g")
-                    .attr("class", "slideraxis")
-                    .attr("margin-top", "-10px")
-                    .call(sliderAxis);
+                .attr("class", "slideraxis")
+                .attr("margin-top", "-10px")
+                .call(sliderAxis);
 
             // Another strategy for tick marks on the slider; simpler, but not labels
             // var sliderTicks = document.createElement("datalist");
@@ -747,102 +738,100 @@ var LDAvis = function(to_select, data_or_file_name) {
             // truncate to the top R tokens:
             var dat3 = dat2.slice(0, R);
 
-            var y = d3.scale.ordinal()
-                    .domain(dat3.map(function(d) {
-                        return d.Term;
-                    }))
-                    .rangeRoundBands([0, barheight], 0.15);
-            var x = d3.scale.linear()
-                    .domain([1, d3.max(dat3, function(d) {
-                        return d.Total;
-                    })])
-                    .range([0, barwidth])
-                    .nice();
+            var y = d3.scaleBand()
+                .domain(dat3.map(function(d) {
+                    return d.Term;
+                }))
+                .rangeRound([0, barheight]).padding(0.15);
+            var x = d3.scaleLinear()
+                .domain([1, d3.max(dat3, function(d) {
+                    return d.Total;
+                })])
+                .range([0, barwidth])
+                .nice();
 
             // Change Total Frequency bars
             var graybars = d3.select("#" + barFreqsID)
-                    .selectAll(to_select + " .bar-totals")
-                    .data(dat3, function(d) {
-                        return d.Term;
-                    });
+                .selectAll(to_select + " .bar-totals")
+                .data(dat3, function(d) {
+                    return d.Term;
+                });
 
             // Change word labels
             var labels = d3.select("#" + barFreqsID)
-                    .selectAll(to_select + " .terms")
-                    .data(dat3, function(d) {
-                        return d.Term;
-                    });
+                .selectAll(to_select + " .terms")
+                .data(dat3, function(d) {
+                    return d.Term;
+                });
 
             // Create red bars (drawn over the gray ones) to signify the frequency under the selected topic
             var redbars = d3.select("#" + barFreqsID)
-                    .selectAll(to_select + " .overlay")
-                    .data(dat3, function(d) {
-                        return d.Term;
-                    });
+                .selectAll(to_select + " .overlay")
+                .data(dat3, function(d) {
+                    return d.Term;
+                });
 
             // adapted from http://bl.ocks.org/mbostock/1166403
-            var xAxis = d3.svg.axis().scale(x)
-                    .orient("top")
-                    .tickSize(-barheight)
-                    .tickSubdivide(true)
-                    .ticks(6);
+            var xAxis = d3.axisTop(x)
+                .tickSize(-barheight)
+                .ticks(6);
 
             // New axis definition:
             var newaxis = d3.selectAll(to_select + " .xaxis");
 
             // define the new elements to enter:
             var graybarsEnter = graybars.enter().append("rect")
-                    .attr("class", "bar-totals")
-                    .attr("x", 0)
-                    .attr("y", function(d) {
-                        return y(d.Term) + barheight + margin.bottom + 2 * rMax;
-                    })
-                    .attr("height", y.rangeBand())
-                    .style("fill", color1)
-                    .attr("opacity", 0.4);
+                .attr("class", "bar-totals")
+                .attr("x", 0)
+                .attr("y", function(d) {
+                    return y(d.Term) + barheight + margin.bottom + 2 * rMax;
+                })
+                .attr("height", y.bandwidth())
+                .style("fill", color1)
+                .attr("opacity", 0.4);
 
             var labelsEnter = labels.enter()
-                    .append("text")
-                    .attr("x", -5)
-                    .attr("class", "terms")
-                    .attr("y", function(d) {
-                        return y(d.Term) + 12 + barheight + margin.bottom + 2 * rMax;
-                    })
-                    .attr("cursor", "pointer")
-                    .style("text-anchor", "end")
-                    .attr("id", function(d) {
-                        return (termID + d.Term);
-                    })
-                    .text(function(d) {
-                        return d.Term;
-                    })
-                    .on("mouseover", function() {
-                        term_hover(this);
-                    })
-            // .on("click", function(d) {
-            //     var old_term = termID + vis_state.term;
-            //     if (vis_state.term != "" && old_term != this.id) {
-            //     term_off(document.getElementById(old_term));
-            //     }
-            //     vis_state.term = d.Term;
-            //     state_save(true);
-            //     term_on(this);
-            // })
-                    .on("mouseout", function() {
-                        vis_state.term = "";
-                        term_off(this);
-                        state_save(true);
-                    });
+                .append("text")
+                .attr("x", -5)
+                .attr("class", "terms")
+                .attr("y", function(d) {
+                    return y(d.Term) + 12 + barheight + margin.bottom + 2 * rMax;
+                })
+                .attr("cursor", "pointer")
+                .style("text-anchor", "end")
+                .attr("id", function(d) {
+                    return (termID + d.Term);
+                })
+                .text(function(d) {
+                    return d.Term;
+                })
+                .on("mouseover", function() {
+                    term_hover(this);
+                })
+                // .on("click", function(d) {
+                //     var old_term = termID + vis_state.term;
+                //     if (vis_state.term != "" && old_term != this.id) {
+                //     term_off(document.getElementById(old_term));
+                //     }
+                //     vis_state.term = d.Term;
+                //     state_save(true);
+                //     term_on(this);
+                // })
+                .on("mouseout", function() {
+                    vis_state.term = "";
+                    term_off(this);
+                    state_save(true);
+                });
 
             var redbarsEnter = redbars.enter().append("rect")
-                    .attr("class", "overlay")
-                    .attr("x", 0)
-                    .attr("y", function(d) {
-                        return y(d.Term) + barheight + margin.bottom + 2 * rMax;
-                    })
-                    .attr("height", y.rangeBand())
-                    .style("fill", color2)
-                    .attr("opacity", 0.8);
+                .attr("class", "overlay")
+                .attr("x", 0)
+                .attr("y", function(d) {
+                    return y(d.Term) + barheight + margin.bottom + 2 * rMax;
+                })
+                .attr("height", y.bandwidth())
+                .style("fill", color2)
+                .attr("opacity", 0.8);
 
 
             if (increase) {
@@ -1048,17 +1037,17 @@ var LDAvis = function(to_select, data_or_file_name) {
             var dat3 = dat2.slice(0, R);
 
             // scale the bars to the top R terms:
-            var y = d3.scale.ordinal()
-                    .domain(dat3.map(function(d) {
-                        return d.Term;
-                    }))
-                    .rangeRoundBands([0, barheight], 0.15);
-            var x = d3.scale.linear()
-                    .domain([1, d3.max(dat3, function(d) {
-                        return d.Total;
-                    })])
-                    .range([0, barwidth])
-                    .nice();
+            var y = d3.scaleBand()
+                .domain(dat3.map(function(d) {
+                    return d.Term;
+                }))
+                .rangeRound([0, barheight]).padding(0.15);
+            var x = d3.scaleLinear()
+                .domain([1, d3.max(dat3, function(d) {
+                    return d.Total;
+                })])
+                .range([0, barwidth])
+                .nice();
 
             // remove the red bars if there are any:
             d3.selectAll(to_select + " .overlay").remove();
@@ -1070,7 +1059,7 @@ var LDAvis = function(to_select, data_or_file_name) {
                 .attr("y", function(d) {
                     return y(d.Term);
                 })
-                .attr("height", y.rangeBand())
+                .attr("height", y.bandwidth())
                 .attr("width", function(d) {
                     return x(d.Total);
                 })
@@ -1102,7 +1091,7 @@ var LDAvis = function(to_select, data_or_file_name) {
                 .attr("y", function(d) {
                     return y(d.Term);
                 })
-                .attr("height", y.rangeBand())
+                .attr("height", y.bandwidth())
                 .attr("width", function(d) {
                     return x(d.Freq);
                 })
@@ -1110,11 +1099,9 @@ var LDAvis = function(to_select, data_or_file_name) {
                 .attr("opacity", 0.8);
 
             // adapted from http://bl.ocks.org/mbostock/1166403
-            var xAxis = d3.svg.axis().scale(x)
-                    .orient("top")
-                    .tickSize(-barheight)
-                    .tickSubdivide(true)
-                    .ticks(6);
+            var xAxis = d3.axisTop(x)
+                .tickSize(-barheight)
+                .ticks(6);
 
             // redraw x-axis
             d3.selectAll(to_select + " .xaxis")
@@ -1130,7 +1117,7 @@ var LDAvis = function(to_select, data_or_file_name) {
             circle.style.fill = color1;
 
             var title = d3.selectAll(to_select + " .bubble-tool")
-                    .text("Top-" + R + " Most Salient Terms");
+                .text("Top-" + R + " Most Salient Terms");
             title.append("tspan")
                 .attr("baseline-shift", "super")
                 .attr("font-size", 12)
@@ -1144,17 +1131,17 @@ var LDAvis = function(to_select, data_or_file_name) {
                 return d.Category == "Default";
             });
 
-            var y = d3.scale.ordinal()
-                    .domain(dat2.map(function(d) {
-                        return d.Term;
-                    }))
-                    .rangeRoundBands([0, barheight], 0.15);
-            var x = d3.scale.linear()
-                    .domain([1, d3.max(dat2, function(d) {
-                        return d.Total;
-                    })])
-                    .range([0, barwidth])
-                    .nice();
+            var y = d3.scaleBand()
+                .domain(dat2.map(function(d) {
+                    return d.Term;
+                }))
+                .rangeRound([0, barheight]).padding(0.15);
+            var x = d3.scaleLinear()
+                .domain([1, d3.max(dat2, function(d) {
+                    return d.Total;
+                })])
+                .range([0, barwidth])
+                .nice();
 
             // Change Total Frequency bars
             d3.selectAll(to_select + " .bar-totals")
@@ -1163,7 +1150,7 @@ var LDAvis = function(to_select, data_or_file_name) {
                 .attr("y", function(d) {
                     return y(d.Term);
                 })
-                .attr("height", y.rangeBand())
+                .attr("height", y.bandwidth())
                 .attr("width", function(d) {
                     return x(d.Total);
                 })
@@ -1183,11 +1170,9 @@ var LDAvis = function(to_select, data_or_file_name) {
                 });
 
             // adapted from http://bl.ocks.org/mbostock/1166403
-            var xAxis = d3.svg.axis().scale(x)
-                    .orient("top")
-                    .tickSize(-barheight)
-                    .tickSubdivide(true)
-                    .ticks(6);
+            var xAxis = d3.axisTop(x)
+                .tickSize(-barheight)
+                .ticks(6);
 
             // redraw x-axis
             d3.selectAll(to_select + " .xaxis")
@@ -1236,7 +1221,7 @@ var LDAvis = function(to_select, data_or_file_name) {
             }
 
             var rScaleCond = d3.scale.sqrt()
-                    .domain([0, 1]).range([0, rMax]);
+                .domain([0, 1]).range([0, rMax]);
 
             // Change size of bubbles according to the word's distribution over topics
             d3.selectAll(to_select + " .dot")
