@@ -20,7 +20,10 @@ try:
     sklearn_present = True
 except ImportError:
     sklearn_present = False
-
+import sys
+joblib_backend = None
+if sys.platform == 'win32':
+    joblib_backend = 'multiprocessing'
 
 def __num_dist_rows__(array, ndigits=2):
     return array.shape[0] - int((pd.DataFrame(array).sum(axis=1) < 0.999).sum())
@@ -264,7 +267,7 @@ def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_f
                              'loglift': log_lift.loc[original_topic_id, term_ix].round(4),
                              'Category': 'Topic%d' % new_topic_id})
 
-    top_terms = pd.concat(Parallel(n_jobs=n_jobs)
+    top_terms = pd.concat(Parallel(n_jobs=n_jobs, backend=joblib_backend)
                           (delayed(_find_relevance_chunks)(log_ttd, log_lift, R, ls)
                           for ls in _job_chunks(lambda_seq, n_jobs)))
     topic_dfs = map(topic_top_term_df, enumerate(top_terms.T.iterrows(), 1))
