@@ -36,7 +36,8 @@ var LDAvis = function(to_select, data_or_file_name) {
             current: 1
         },
         color1 = "#1f77b4", // baseline color for default topic circles and overall term frequencies
-        color2 = "#d62728"; // 'highlight' color for selected topics and term-topic frequencies
+        color2 = "#d62728", // 'highlight' color for selected topics and term-topic frequencies
+        startIndex;
 
     // Set the duration of each half of the transition:
     var duration = 750;
@@ -132,6 +133,7 @@ var LDAvis = function(to_select, data_or_file_name) {
             }
             mdsData3.push(obj);
         }
+        startIndex = data['topic.order'][0];
 
         // large data for the widths of bars in bar-charts. 6 columns: Term, logprob, loglift, Freq, Total, Category
         // Contains all possible terms for topics in (1, 2, ..., k) and lambda in the user-supplied grid of lambda values
@@ -1222,7 +1224,7 @@ var LDAvis = function(to_select, data_or_file_name) {
                 radius[i] = 0;
             }
             for (i = 0; i < k; i++) {
-                radius[dat2[i].Topic - 1] = dat2[i].Freq;
+                radius[dat2[i].Topic - startIndex] = dat2[i].Freq;
             }
 
             var size = [];
@@ -1232,7 +1234,7 @@ var LDAvis = function(to_select, data_or_file_name) {
             for (i = 0; i < k; i++) {
                 // If we want to also re-size the topic number labels, do it here
                 // 11 is the default, so leaving this as 11 won't change anything.
-                size[dat2[i].Topic - 1] = 11;
+                size[dat2[i].Topic - startIndex] = 11;
             }
 
             var rScaleCond = d3.scale.sqrt()
