@@ -267,7 +267,7 @@ def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_f
     top_terms = pd.concat(Parallel(n_jobs=n_jobs)
                           (delayed(_find_relevance_chunks)(log_ttd, log_lift, R, ls)
                           for ls in _job_chunks(lambda_seq, n_jobs)))
-    topic_dfs = map(topic_top_term_df, enumerate(top_terms.T.iterrows(), start_index)) # TODO: This enumerate arg makes topic ids start at 1
+    topic_dfs = map(topic_top_term_df, enumerate(top_terms.T.iterrows(), start_index))
     return pd.concat([default_term_info] + list(topic_dfs), sort=True)
 
 
@@ -418,7 +418,7 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
                              term_frequency, term_topic_freq, vocab, lambda_step, R, n_jobs, start_index)
     token_table = _token_table(topic_info, term_topic_freq, vocab, term_frequency, start_index)
     topic_coordinates = _topic_coordinates(mds, topic_term_dists, topic_proportion, start_index)
-    client_topic_order = [x + start_index for x in topic_order]  # TODO: Get rid of +1 to have option of 0 index
+    client_topic_order = [x + start_index for x in topic_order]
 
     return PreparedData(topic_coordinates, topic_info,
                         token_table, R, lambda_step, plot_opts, client_topic_order)
