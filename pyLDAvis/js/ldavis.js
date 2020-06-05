@@ -219,7 +219,7 @@ var LDAvis = function(to_select, data_or_file_name) {
                 vis_state.term = "";
                 topic_off(document.getElementById(topicID + vis_state.topic));
                 var value_new = document.getElementById(topicID).value;
-                if (!isNaN(value_new) && value_new > startIndex - 1) {
+                if (value_new !== "" && !isNaN(value_new) && value_new > startIndex - 1) {
                     value_new = Math.min(K + startIndex - 1, Math.max(startIndex, value_new));
                     topic_on(document.getElementById(topicID + value_new));
                     vis_state.topic = value_new;
