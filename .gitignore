@@ -46,3 +46,6 @@ docs/_build
 
 #IPython
 .ipynb_checkpoints
+
+#JetBrains
+.idea
