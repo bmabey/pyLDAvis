@@ -19,11 +19,6 @@ var LDAvis = function(to_select, data_or_file_name) {
             what: "nothing",
             element: undefined
         };
-        // vis_state = {
-        //     lambda: 1,
-        //     topic: 0,
-        //     term: ""
-        // };
 
     // Set up a few 'global' variables to hold the data:
     var K, // number of topics
