@@ -192,7 +192,8 @@ def _topic_coordinates(mds, topic_term_dists, topic_proportion, start_index=1):
     K = topic_term_dists.shape[0]
     mds_res = mds(topic_term_dists)
     assert mds_res.shape == (K, 2)
-    mds_df = pd.DataFrame({'x': mds_res[:, 0], 'y': mds_res[:, 1], 'topics': range(start_index, K + start_index),
+    mds_df = pd.DataFrame({'x': mds_res[:, 0], 'y': mds_res[:, 1],
+                           'topics': range(start_index, K + start_index),
                           'cluster': 1, 'Freq': topic_proportion * 100})
     # note: cluster (should?) be deprecated soon. See: https://github.com/cpsievert/LDAvis/issues/26
     return mds_df
@@ -415,7 +416,8 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
     term_frequency = np.sum(term_topic_freq, axis=0)
 
     topic_info = _topic_info(topic_term_dists, topic_proportion,
-                             term_frequency, term_topic_freq, vocab, lambda_step, R, n_jobs, start_index)
+                             term_frequency, term_topic_freq, vocab, lambda_step, R,
+                             n_jobs, start_index)
     token_table = _token_table(topic_info, term_topic_freq, vocab, term_frequency, start_index)
     topic_coordinates = _topic_coordinates(mds, topic_term_dists, topic_proportion, start_index)
     client_topic_order = [x + start_index for x in topic_order]
