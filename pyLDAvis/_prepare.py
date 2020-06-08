@@ -188,11 +188,12 @@ def _series_with_name(data, name):
         return pd.Series(data, name=name)
 
 
-def _topic_coordinates(mds, topic_term_dists, topic_proportion):
+def _topic_coordinates(mds, topic_term_dists, topic_proportion, start_index=1):
     K = topic_term_dists.shape[0]
     mds_res = mds(topic_term_dists)
     assert mds_res.shape == (K, 2)
-    mds_df = pd.DataFrame({'x': mds_res[:, 0], 'y': mds_res[:, 1], 'topics': range(1, K + 1),
+    mds_df = pd.DataFrame({'x': mds_res[:, 0], 'y': mds_res[:, 1],
+                           'topics': range(start_index, K + start_index),
                           'cluster': 1, 'Freq': topic_proportion * 100})
     # note: cluster (should?) be deprecated soon. See: https://github.com/cpsievert/LDAvis/issues/26
     return mds_df
@@ -224,7 +225,7 @@ def _find_relevance_chunks(log_ttd, log_lift, R, lambda_seq):
 
 
 def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_freq,
-                vocab, lambda_step, R, n_jobs):
+                vocab, lambda_step, R, n_jobs, start_index=1):
     # marginal distribution over terms (width of blue bars)
     term_proportion = term_frequency / term_frequency.sum()
 
@@ -267,11 +268,11 @@ def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_f
     top_terms = pd.concat(Parallel(n_jobs=n_jobs)
                           (delayed(_find_relevance_chunks)(log_ttd, log_lift, R, ls)
                           for ls in _job_chunks(lambda_seq, n_jobs)))
-    topic_dfs = map(topic_top_term_df, enumerate(top_terms.T.iterrows(), 1))
+    topic_dfs = map(topic_top_term_df, enumerate(top_terms.T.iterrows(), start_index))
     return pd.concat([default_term_info] + list(topic_dfs), sort=True)
 
 
-def _token_table(topic_info, term_topic_freq, vocab, term_frequency):
+def _token_table(topic_info, term_topic_freq, vocab, term_frequency, start_index=1):
     # last, to compute the areas of the circles when a term is highlighted
     # we must gather all unique terms that could show up (for every combination
     # of topic and value of lambda) and compute its distribution over topics.
@@ -283,7 +284,7 @@ def _token_table(topic_info, term_topic_freq, vocab, term_frequency):
     top_topic_terms_freq = term_topic_freq[term_ix]
     # use the new ordering for the topics
     K = len(term_topic_freq)
-    top_topic_terms_freq.index = range(1, K + 1)
+    top_topic_terms_freq.index = range(start_index, K + start_index)
     top_topic_terms_freq.index.name = 'Topic'
 
     # we filter to Freq >= 0.5 to avoid sending too much data to the browser
@@ -299,7 +300,7 @@ def _token_table(topic_info, term_topic_freq, vocab, term_frequency):
 
 def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequency,
             R=30, lambda_step=0.01, mds=js_PCoA, n_jobs=-1,
-            plot_opts={'xlab': 'PC1', 'ylab': 'PC2'}, sort_topics=True):
+            plot_opts={'xlab': 'PC1', 'ylab': 'PC2'}, sort_topics=True, start_index=1):
     """Transforms the topic model distributions and related corpus data into
     the data structures needed for the visualization.
 
@@ -340,6 +341,8 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
         Dictionary of plotting options, right now only used for the axis labels.
     sort_topics : sort topics by topic proportion (percentage of tokens covered). Set to false to
         to keep original topic order.
+    start_index: how to number topics for prepared data. Defaults to one-based indexing.
+        Set to 0 for zero-based indexing.
 
     Returns
     -------
@@ -413,10 +416,11 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
     term_frequency = np.sum(term_topic_freq, axis=0)
 
     topic_info = _topic_info(topic_term_dists, topic_proportion,
-                             term_frequency, term_topic_freq, vocab, lambda_step, R, n_jobs)
-    token_table = _token_table(topic_info, term_topic_freq, vocab, term_frequency)
-    topic_coordinates = _topic_coordinates(mds, topic_term_dists, topic_proportion)
-    client_topic_order = [x + 1 for x in topic_order]
+                             term_frequency, term_topic_freq, vocab, lambda_step, R,
+                             n_jobs, start_index)
+    token_table = _token_table(topic_info, term_topic_freq, vocab, term_frequency, start_index)
+    topic_coordinates = _topic_coordinates(mds, topic_term_dists, topic_proportion, start_index)
+    client_topic_order = [x + start_index for x in topic_order]
 
     return PreparedData(topic_coordinates, topic_info,
                         token_table, R, lambda_step, plot_opts, client_topic_order)
