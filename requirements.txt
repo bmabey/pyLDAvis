@@ -1,10 +1,10 @@
 wheel>=0.23.0
 numpy>=1.9.2
 scipy>=0.18.0
-pandas>=0.17.0,<0.24.0a
+pandas>=0.17.0,<0.24.0a; python_version <= "3.5"
+pandas>=0.17.0; python_version > "3.5"
 joblib>=0.8.4
 jinja2>=2.7.2
 numexpr
-pytest
 future
 funcy
