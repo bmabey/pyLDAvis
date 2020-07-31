@@ -6,5 +6,5 @@ joblib>=0.8.4
 jinja2>=2.7.2
 numexpr
 pytest
-future
+future; python_version < '3'
 funcy
