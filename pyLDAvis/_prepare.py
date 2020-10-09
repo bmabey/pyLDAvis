@@ -300,7 +300,7 @@ def _token_table(topic_info, term_topic_freq, vocab, term_frequency, start_index
 
 def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequency,
             R=30, lambda_step=0.01, mds=js_PCoA, n_jobs=-1,
-            plot_opts={'xlab': 'PC1', 'ylab': 'PC2'}, sort_topics=True, start_index=1):
+            plot_opts={'xlab': 'PC1', 'ylab': 'PC2'}, sort_topics=False, start_index=1):
     """Transforms the topic model distributions and related corpus data into
     the data structures needed for the visualization.
 
