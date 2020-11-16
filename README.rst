@@ -11,7 +11,7 @@ This is a port of the fabulous `R package <https://github.com/cpsievert/LDAvis>`
 
 The visualization is intended to be used within an IPython notebook but can also be saved to a stand-alone HTML file for easy sharing.
 
-Note: LDA stands for [latent Dirichlet allocation](https://en.wikipedia.org/wiki/Latent_Dirichlet_allocation).
+Note: LDA stands for `latent Dirichlet allocation <https://en.wikipedia.org/wiki/Latent_Dirichlet_allocation>`_.
 
 |version status| |build status| |docs|
 
