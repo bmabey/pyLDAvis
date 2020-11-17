@@ -68,16 +68,19 @@ def write_ipynb_local_js(location=None, d3_src=None, ldavis_src=None, ldavis_css
     d3_url, ldavis_url : string
         The URLs to be used for loading these js files.
     """
+    nbextension = False
     if location is None:
         try:
-            from IPython.html import install_nbextension
-        except ImportError:
-            location = os.getcwd()
-            nbextension = False
-        else:
+            # Later IPython versions
+            from notebook.nbextensions import install_nbextension
             nbextension = True
-    else:
-        nbextension = False
+        except ImportError:
+            try:
+                # Older IPython versions
+                from IPython.html import install_nbextension
+                nbextension = True
+            except ImportError:
+                location = os.getcwd()
 
     if d3_src is None:
         d3_src = urls.D3_LOCAL
