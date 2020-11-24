@@ -188,12 +188,11 @@ def _series_with_name(data, name):
         return pd.Series(data, name=name)
 
 
-def _topic_coordinates(mds, topic_term_dists, topic_proportion, start_index=1):
+def _topic_coordinates(mds, topic_term_dists, topic_proportion):
     K = topic_term_dists.shape[0]
     mds_res = mds(topic_term_dists)
     assert mds_res.shape == (K, 2)
-    mds_df = pd.DataFrame({'x': mds_res[:, 0], 'y': mds_res[:, 1],
-                           'topics': range(start_index, K + start_index),
+    mds_df = pd.DataFrame({'x': mds_res[:, 0], 'y': mds_res[:, 1], 'topics': range(1, K + 1),
                           'cluster': 1, 'Freq': topic_proportion * 100})
     # note: cluster (should?) be deprecated soon. See: https://github.com/cpsievert/LDAvis/issues/26
     return mds_df
@@ -217,7 +216,7 @@ def _job_chunks(l, n_jobs):
 
 def _find_relevance(log_ttd, log_lift, R, lambda_):
     relevance = lambda_ * log_ttd + (1 - lambda_) * log_lift
-    return relevance.T.apply(lambda topic: topic.nlargest(R).index)
+    return relevance.T.apply(lambda s: s.sort_values(ascending=False).index).head(R)
 
 
 def _find_relevance_chunks(log_ttd, log_lift, R, lambda_seq):
@@ -225,16 +224,14 @@ def _find_relevance_chunks(log_ttd, log_lift, R, lambda_seq):
 
 
 def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_freq,
-                vocab, lambda_step, R, n_jobs, start_index=1):
+                vocab, lambda_step, R, n_jobs):
     # marginal distribution over terms (width of blue bars)
     term_proportion = term_frequency / term_frequency.sum()
 
     # compute the distinctiveness and saliency of the terms:
     # this determines the R terms that are displayed when no topic is selected
-    tt_sum = topic_term_dists.sum()
-    topic_given_term = pd.eval("topic_term_dists / tt_sum")
-    log_1 = np.log(pd.eval("(topic_given_term.T / topic_proportion)"))
-    kernel = pd.eval("topic_given_term * log_1.T")
+    topic_given_term = topic_term_dists / topic_term_dists.sum()
+    kernel = (topic_given_term * np.log((topic_given_term.T / topic_proportion).T))
     distinctiveness = kernel.sum()
     saliency = term_proportion * distinctiveness
     # Order the terms for the "default" view by decreasing saliency:
@@ -251,37 +248,30 @@ def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_f
     default_term_info['Total'] = np.floor(default_term_info['Total'])
     ranks = np.arange(R, 0, -1)
     default_term_info['logprob'] = default_term_info['loglift'] = ranks
-    default_term_info = default_term_info.reindex(columns=[
-        "Term", "Freq", "Total", "Category", "logprob", "loglift"
-    ])
 
     # compute relevance and top terms for each topic
-    log_lift = np.log(pd.eval("topic_term_dists / term_proportion")).astype("float64")
-    log_ttd = np.log(topic_term_dists).astype("float64")
+    log_lift = np.log(topic_term_dists / term_proportion)
+    log_ttd = np.log(topic_term_dists)
     lambda_seq = np.arange(0, 1 + lambda_step, lambda_step)
 
     def topic_top_term_df(tup):
         new_topic_id, (original_topic_id, topic_terms) = tup
         term_ix = topic_terms.unique()
-        df = pd.DataFrame({'Term': vocab[term_ix],
-                           'Freq': term_topic_freq.loc[original_topic_id, term_ix],
-                           'Total': term_frequency[term_ix],
-                           'Category': 'Topic%d' % new_topic_id,
-                           'logprob': log_ttd.loc[original_topic_id, term_ix].round(4),
-                           'loglift': log_lift.loc[original_topic_id, term_ix].round(4),
-                         })
-        return df.reindex(columns=[
-            "Term", "Freq", "Total", "Category", "logprob", "loglift"
-        ])
+        return pd.DataFrame({'Term': vocab[term_ix],
+                             'Freq': term_topic_freq.loc[original_topic_id, term_ix],
+                             'Total': term_frequency[term_ix],
+                             'logprob': log_ttd.loc[original_topic_id, term_ix].round(4),
+                             'loglift': log_lift.loc[original_topic_id, term_ix].round(4),
+                             'Category': 'Topic%d' % new_topic_id})
 
     top_terms = pd.concat(Parallel(n_jobs=n_jobs)
                           (delayed(_find_relevance_chunks)(log_ttd, log_lift, R, ls)
                           for ls in _job_chunks(lambda_seq, n_jobs)))
-    topic_dfs = map(topic_top_term_df, enumerate(top_terms.T.iterrows(), start_index))
-    return pd.concat([default_term_info] + list(topic_dfs))
+    topic_dfs = map(topic_top_term_df, enumerate(top_terms.T.iterrows(), 1))
+    return pd.concat([default_term_info] + list(topic_dfs), sort=True)
 
 
-def _token_table(topic_info, term_topic_freq, vocab, term_frequency, start_index=1):
+def _token_table(topic_info, term_topic_freq, vocab, term_frequency):
     # last, to compute the areas of the circles when a term is highlighted
     # we must gather all unique terms that could show up (for every combination
     # of topic and value of lambda) and compute its distribution over topics.
@@ -293,7 +283,7 @@ def _token_table(topic_info, term_topic_freq, vocab, term_frequency, start_index
     top_topic_terms_freq = term_topic_freq[term_ix]
     # use the new ordering for the topics
     K = len(term_topic_freq)
-    top_topic_terms_freq.index = range(start_index, K + start_index)
+    top_topic_terms_freq.index = range(1, K + 1)
     top_topic_terms_freq.index.name = 'Topic'
 
     # we filter to Freq >= 0.5 to avoid sending too much data to the browser
@@ -309,7 +299,7 @@ def _token_table(topic_info, term_topic_freq, vocab, term_frequency, start_index
 
 def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequency,
             R=30, lambda_step=0.01, mds=js_PCoA, n_jobs=-1,
-            plot_opts=None, sort_topics=True, start_index=1):
+            plot_opts={'xlab': 'PC1', 'ylab': 'PC2'}, sort_topics=True):
     """Transforms the topic model distributions and related corpus data into
     the data structures needed for the visualization.
 
@@ -350,8 +340,6 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
         Dictionary of plotting options, right now only used for the axis labels.
     sort_topics : sort topics by topic proportion (percentage of tokens covered). Set to false to
         to keep original topic order.
-    start_index: how to number topics for prepared data. Defaults to one-based indexing.
-        Set to 0 for zero-based indexing.
 
     Returns
     -------
@@ -379,9 +367,6 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
     :func:`display` : embed figure within the IPython notebook
     :func:`enable_notebook` : automatically embed visualizations in IPython notebook
    """
-    if plot_opts is None:
-        plot_opts = {'xlab': 'PC1', 'ylab': 'PC2'}
-
     # parse mds
     if isinstance(mds, basestring):
         mds = mds.lower()
@@ -398,16 +383,6 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
             logging.warning('Unknown mds `%s`, switch to PCoA' % mds)
             mds = js_PCoA
 
-    # Conceptually, the items in `topic_term_dists` end up as individual rows in the
-    # DataFrame, but we can speed up ingestion by treating them as columns and
-    # transposing at the end. (This is especially true when the number of terms far
-    # exceeds the number of topics.)
-    topic_term_dist_cols = [
-        pd.Series(topic_term_dist, dtype="float64")
-        for topic_term_dist in topic_term_dists
-    ]
-    topic_term_dists = pd.concat(topic_term_dist_cols, axis=1).T
-
     topic_term_dists = _df_with_names(topic_term_dists, 'topic', 'term')
     doc_topic_dists = _df_with_names(doc_topic_dists, 'doc', 'topic')
     term_frequency = _series_with_name(term_frequency, 'term_frequency')
@@ -416,7 +391,7 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
     _input_validate(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequency)
     R = min(R, len(vocab))
 
-    topic_freq = doc_topic_dists.mul(doc_lengths, axis="index").sum()
+    topic_freq = (doc_topic_dists.T * doc_lengths).T.sum()
     # topic_freq       = np.dot(doc_topic_dists.T, doc_lengths)
     if (sort_topics):
         topic_proportion = (topic_freq / topic_freq.sum()).sort_values(ascending=False)
@@ -427,7 +402,7 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
     # reorder all data based on new ordering of topics
     topic_freq = topic_freq[topic_order]
     topic_term_dists = topic_term_dists.iloc[topic_order]
-    # Unused: doc_topic_dists = doc_topic_dists[topic_order]
+    doc_topic_dists = doc_topic_dists[topic_order]
 
     # token counts for each term-topic combination (widths of red bars)
     term_topic_freq = (topic_term_dists.T * topic_freq).T
@@ -438,11 +413,10 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
     term_frequency = np.sum(term_topic_freq, axis=0)
 
     topic_info = _topic_info(topic_term_dists, topic_proportion,
-                             term_frequency, term_topic_freq, vocab, lambda_step, R,
-                             n_jobs, start_index)
-    token_table = _token_table(topic_info, term_topic_freq, vocab, term_frequency, start_index)
-    topic_coordinates = _topic_coordinates(mds, topic_term_dists, topic_proportion, start_index)
-    client_topic_order = [x + start_index for x in topic_order]
+                             term_frequency, term_topic_freq, vocab, lambda_step, R, n_jobs)
+    token_table = _token_table(topic_info, term_topic_freq, vocab, term_frequency)
+    topic_coordinates = _topic_coordinates(mds, topic_term_dists, topic_proportion)
+    client_topic_order = [x + 1 for x in topic_order]
 
     return PreparedData(topic_coordinates, topic_info,
                         token_table, R, lambda_step, plot_opts, client_topic_order)
