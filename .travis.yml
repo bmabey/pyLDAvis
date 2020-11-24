@@ -9,7 +9,7 @@ python:
   - "2.7"
 
 env:
-  - DEPS="pytest gensim" PY27_DEPS="pytest gensim==3.4.0 pytz"
+  - DEPS="pytest gensim smart_open==2.0.0" PY27_DEPS="pytest gensim==3.4.0 pytz smart_open==2.0.0"
 
 before_install:
   # conda instructions from http://conda.pydata.org/docs/travis.html
