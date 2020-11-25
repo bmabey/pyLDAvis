@@ -36,7 +36,7 @@ install:
   # Python 2.7 needs a pinned version of gensim and a few other things with Conda
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
       conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION $PY27_DEPS;
-    elif [[ "$TRAVIS_PYTHON_VERSION" == "3.5"; then
+    elif [[ "$TRAVIS_PYTHON_VERSION" == "3.5" ]]; then
       conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION $PY35_DEPS;
     else
       conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION $DEPS;
