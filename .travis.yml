@@ -9,7 +9,7 @@ python:
   - "2.7"
 
 env:
-  - DEPS="pytest gensim smart_open==2.0.0" PY27_DEPS="pytest gensim==3.4.0 pytz smart_open==2.0.0"
+  - DEPS="pytest gensim smart_open==2.0.0" PY35_DEPS="pytest gensim" PY27_DEPS="pytest gensim==3.4.0 pytz"
 
 before_install:
   # conda instructions from http://conda.pydata.org/docs/travis.html
@@ -36,6 +36,8 @@ install:
   # Python 2.7 needs a pinned version of gensim and a few other things with Conda
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
       conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION $PY27_DEPS;
+    elif [[ "$TRAVIS_PYTHON_VERSION" == "3.5"; then
+      conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION $PY35_DEPS;
     else
       conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION $DEPS;
     fi
