@@ -194,7 +194,7 @@ def _topic_coordinates(mds, topic_term_dists, topic_proportion, start_index=1):
     assert mds_res.shape == (K, 2)
     mds_df = pd.DataFrame({'x': mds_res[:, 0], 'y': mds_res[:, 1],
                            'topics': range(start_index, K + start_index),
-                          'cluster': 1, 'Freq': topic_proportion * 100})
+                           'cluster': 1, 'Freq': topic_proportion * 100})
     # note: cluster (should?) be deprecated soon. See: https://github.com/cpsievert/LDAvis/issues/26
     return mds_df
 
@@ -452,7 +452,7 @@ class PreparedData(namedtuple('PreparedData', ['topic_coordinates', 'topic_info'
                                                'R', 'lambda_step', 'plot_opts', 'topic_order'])):
 
     def sorted_terms(self, topic=1, _lambda=1):
-        """Retuns a dataframe using _lambda to calculate term relevance of a given topic."""
+        """Returns a dataframe using _lambda to calculate term relevance of a given topic."""
         tdf = pd.DataFrame(self.topic_info[self.topic_info.Category == 'Topic' + str(topic)])
         if _lambda < 0 or _lambda > 1:
             _lambda = 1

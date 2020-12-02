@@ -6,6 +6,7 @@ import random
 import json
 import jinja2
 import re
+import os
 from ._server import serve
 from .utils import get_id, write_ipynb_local_js, NumPyEncoder
 from ._prepare import PreparedData
@@ -254,15 +255,15 @@ def show(data, ip='127.0.0.1', port=8888, n_retries=50,
     :func:`enable_notebook` : automatically embed visualizations in IPython notebook
     """
     if local:
-        kwargs['ldavis_url'] = '/LDAvis.js'
-        kwargs['d3_url'] = '/d3.js'
-        kwargs['ldavis_css_url'] = '/LDAvis.css'
+        kwargs['ldavis_url'] = urls.LDAVIS_URL
+        kwargs['d3_url'] = urls.D3_URL
+        kwargs['ldavis_css_url'] = urls.LDAVIS_CSS_URL
         files = {'/LDAvis.js': ["text/javascript",
                  open(urls.LDAVIS_LOCAL, 'r').read()],
                  '/LDAvis.css': ["text/css",
-                                 open(urls.LDAVIS_CSS_LOCAL, 'r').read()],
+                                 open(urls.LDAVIS_CSS_URL, 'r').read()],
                  '/d3.js': ["text/javascript",
-                            open(urls.D3_LOCAL, 'r').read()]}
+                            open(urls.D3_URL, 'r').read()]}
     else:
         files = None
 
