@@ -18,13 +18,13 @@ else:
 
 setup(
     name='pyLDAvis',
-    version='2.1.4',
+    version='3.0.0',
     description="Interactive topic model visualization. Port of the R package.",
     long_description=readme + '\n\n' + history,
     author="Ben Mabey",
     author_email='ben@benmabey.com',
     url='https://github.com/bmabey/pyLDAvis',
-    download_url = 'https://github.com/bmabey/pyLDAvis/tarball/2.1.2',
+    download_url = 'https://github.com/bmabey/pyLDAvis/tarball/3.0.0',
     packages=[
         'pyLDAvis',
     ],
