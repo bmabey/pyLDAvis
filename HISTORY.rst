@@ -3,6 +3,10 @@
 History
 -------
 
+3.1.0 (2021-02-07)
+--------------------
+* Replaces rawgit CDN since it has been sunset.
+
 3.0.0 (2021-02-06)
 ---------------------
 
