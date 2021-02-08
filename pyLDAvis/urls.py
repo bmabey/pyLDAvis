@@ -17,8 +17,8 @@ LOCAL_JS_DIR = os.path.join(__path__[0], "js")
 D3_LOCAL = os.path.join(LOCAL_JS_DIR, "d3.v5.min.js")
 
 
+WWW_JS_DIR = "https://raw.githubusercontent.com/bmabey/pyLDAvis/master/pyLDAvis/js/"
 if DEV:
-    WWW_JS_DIR = "https://rawgit.com/bmabey/pyLDAvis/master/pyLDAvis/js/"
     LDAVIS_URL = WWW_JS_DIR + "ldavis.js"
     LDAVIS_CSS_URL = WWW_JS_DIR + "ldavis.css"
 
@@ -26,7 +26,6 @@ if DEV:
 
     LDAVIS_CSS_LOCAL = os.path.join(LOCAL_JS_DIR, "ldavis.css")
 else:
-    WWW_JS_DIR = "https://cdn.rawgit.com/bmabey/pyLDAvis/files/"
     JS_VERSION = '1.0.0'
     if not DEV and int(__version__[0]) >= 3:
         JS_VERSION = '3.0.0'
