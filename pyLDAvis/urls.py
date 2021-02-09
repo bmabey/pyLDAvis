@@ -7,8 +7,8 @@ URLs and filepaths for the LDAvis javascript libraries
 import os
 from . import __path__, __version__
 
-__all__ = ["D3_URL", "LDAVIS_URL", "LDAVISMIN_URL", "LDAVIS_CSS_URL",
-           "D3_LOCAL", "LDAVIS_LOCAL", "LDAVISMIN_LOCAL", "LDAVIS_CSS_LOCAL"]
+__all__ = ["D3_URL", "LDAVIS_URL", "LDAVIS_CSS_URL",
+           "D3_LOCAL", "LDAVIS_LOCAL", "LDAVIS_CSS_LOCAL"]
 
 D3_URL = "https://d3js.org/d3.v5.js"
 
@@ -16,14 +16,13 @@ DEV = 'git' in __version__
 LOCAL_JS_DIR = os.path.join(__path__[0], "js")
 D3_LOCAL = os.path.join(LOCAL_JS_DIR, "d3.v5.min.js")
 
-
 WWW_JS_DIR = "https://raw.githubusercontent.com/bmabey/pyLDAvis/master/pyLDAvis/js/"
+
 if DEV:
     LDAVIS_URL = WWW_JS_DIR + "ldavis.js"
     LDAVIS_CSS_URL = WWW_JS_DIR + "ldavis.css"
 
     LDAVIS_LOCAL = os.path.join(LOCAL_JS_DIR, "ldavis.js")
-
     LDAVIS_CSS_LOCAL = os.path.join(LOCAL_JS_DIR, "ldavis.css")
 else:
     JS_VERSION = '1.0.0'
@@ -34,11 +33,5 @@ else:
     LDAVIS_URL = WWW_JS_DIR + "ldavis.v{0}.js".format(JS_VERSION)
     LDAVIS_CSS_URL = WWW_JS_DIR + "ldavis.v{0}.css".format(CSS_VERSION)
 
-    LDAVIS_LOCAL = os.path.join(LOCAL_JS_DIR,
-                                "ldavis.v{0}.js".format(JS_VERSION))
-
-    LDAVIS_CSS_LOCAL = os.path.join(LOCAL_JS_DIR,
-                                    "ldavis.v{0}.css".format(CSS_VERSION))
-
-LDAVISMIN_URL = LDAVIS_URL
-LDAVISMIN_LOCAL = LDAVIS_LOCAL
+    LDAVIS_LOCAL = os.path.join(LOCAL_JS_DIR, "ldavis.v{0}.js".format(JS_VERSION))
+    LDAVIS_CSS_LOCAL = os.path.join(LOCAL_JS_DIR, "ldavis.v{0}.css".format(CSS_VERSION))

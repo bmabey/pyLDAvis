@@ -44,8 +44,18 @@ output/*/index.html
 # Sphinx
 docs/_build
 
-#IPython
+# IPython
 .ipynb_checkpoints
 
 #JetBrains
+# JetBrains
 .idea
+pyvenv.cfg
+
+# MacOS
+.DS_store
+
+# Notebooks Data
+notebooks/data
+notebooks/ldavis_prepared_50.html
+notebooks/newsgroups*

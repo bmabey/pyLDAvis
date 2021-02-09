@@ -3,6 +3,10 @@
 History
 -------
 
+3.1.1 (2021-02-09)
+--------------------
+* Minor tweaks for unused globals, nits.
+
 3.1.0 (2021-02-07)
 --------------------
 * Replaces rawgit CDN since it has been sunset.
