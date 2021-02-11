@@ -17,7 +17,7 @@ LOCAL_JS_DIR = os.path.join(__path__[0], "js")
 D3_LOCAL = os.path.join(LOCAL_JS_DIR, "d3.v5.min.js")
 
 
-WWW_JS_DIR = "https://raw.githubusercontent.com/bmabey/pyLDAvis/master/pyLDAvis/js/"
+WWW_JS_DIR = "https://cdn.jsdelivr.net/gh/bmabey/pyLDAvis/pyLDAvis/js/"
 if DEV:
     LDAVIS_URL = WWW_JS_DIR + "ldavis.js"
     LDAVIS_CSS_URL = WWW_JS_DIR + "ldavis.css"
