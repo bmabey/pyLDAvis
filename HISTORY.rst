@@ -3,6 +3,10 @@
 History
 -------
 
+3.2.0 (2021-02-10)
+--------------------
+* Switches the CDN to cdn.jsdelivr to get accurate mime types.
+
 3.1.0 (2021-02-07)
 --------------------
 * Replaces rawgit CDN since it has been sunset.
