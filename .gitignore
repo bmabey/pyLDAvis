@@ -44,8 +44,11 @@ output/*/index.html
 # Sphinx
 docs/_build
 
-#IPython
+# IPython
 .ipynb_checkpoints
 
-#JetBrains
+# JetBrains
 .idea
+
+# Mac OS
+.DS_Store

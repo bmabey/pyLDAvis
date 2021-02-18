@@ -3,12 +3,21 @@
 History
 -------
 
+3.2.1 (2021-02-17)
+--------------------
+
+* Fix missing labels and other D3.V3 to D3.V5 issues.
+* Revert the indexing changes i.e. (startIndex - 1).
+* Removed some unused GLOBALs.
+
 3.2.0 (2021-02-10)
 --------------------
+
 * Switches the CDN to cdn.jsdelivr to get accurate mime types.
 
 3.1.0 (2021-02-07)
 --------------------
+
 * Replaces rawgit CDN since it has been sunset.
 
 3.0.0 (2021-02-06)

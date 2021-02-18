@@ -7,8 +7,8 @@ URLs and filepaths for the LDAvis javascript libraries
 import os
 from . import __path__, __version__
 
-__all__ = ["D3_URL", "LDAVIS_URL", "LDAVISMIN_URL", "LDAVIS_CSS_URL",
-           "D3_LOCAL", "LDAVIS_LOCAL", "LDAVISMIN_LOCAL", "LDAVIS_CSS_LOCAL"]
+__all__ = ["D3_URL", "LDAVIS_URL", "LDAVIS_CSS_URL",
+           "D3_LOCAL", "LDAVIS_LOCAL", "LDAVIS_CSS_LOCAL"]
 
 D3_URL = "https://d3js.org/d3.v5.js"
 
@@ -39,6 +39,3 @@ else:
 
     LDAVIS_CSS_LOCAL = os.path.join(LOCAL_JS_DIR,
                                     "ldavis.v{0}.css".format(CSS_VERSION))
-
-LDAVISMIN_URL = LDAVIS_URL
-LDAVISMIN_LOCAL = LDAVIS_LOCAL
