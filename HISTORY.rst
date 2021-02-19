@@ -3,6 +3,12 @@
 History
 -------
 
+3.2.2 (2021-02-19)
+--------------------
+
+* Fix browser caching of cdn.jsdelivr files.
+* update ldavis.js to match ldavis.3.0.0.js
+
 3.2.1 (2021-02-17)
 --------------------
 

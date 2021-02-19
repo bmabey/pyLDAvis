@@ -254,18 +254,15 @@ def show(data, ip='127.0.0.1', port=8888, n_retries=50,
     :func:`display` : embed visualization within the IPython notebook
     :func:`enable_notebook` : automatically embed visualizations in IPython notebook
     """
+    files = None
     if local:
         kwargs['ldavis_url'] = urls.LDAVIS_URL
         kwargs['d3_url'] = urls.D3_URL
         kwargs['ldavis_css_url'] = urls.LDAVIS_CSS_URL
-        files = {'/LDAvis.js': ["text/javascript",
-                 open(urls.LDAVIS_LOCAL, 'r').read()],
-                 '/LDAvis.css': ["text/css",
-                                 open(urls.LDAVIS_CSS_URL, 'r').read()],
-                 '/d3.js': ["text/javascript",
-                            open(urls.D3_URL, 'r').read()]}
-    else:
-        files = None
+        files = {'/LDAvis.js': ["text/javascript", open(urls.LDAVIS_LOCAL, 'r').read()],
+                 '/LDAvis.css': ["text/css", open(urls.LDAVIS_CSS_URL, 'r').read()],
+                 '/d3.js': ["text/javascript", open(urls.D3_URL, 'r').read()]}
+
 
     html = prepared_data_to_html(data, **kwargs)
     serve(html, ip=ip, port=port, n_retries=n_retries, files=files,
@@ -305,8 +302,7 @@ def enable_notebook(local=False, **kwargs):
 
     if local:
         if 'ldavis_url' in kwargs or 'd3_url' in kwargs:
-            warnings.warn(
-                "enable_notebook: specified urls are ignored when local=True")
+            warnings.warn("enable_notebook: specified urls are ignored when local=True")
         kwargs['d3_url'], kwargs['ldavis_url'], kwargs['ldavis_css_url'] = write_ipynb_local_js()
 
     ip = get_ipython()
