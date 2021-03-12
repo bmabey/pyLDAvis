@@ -254,7 +254,7 @@ def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_f
 
     # compute relevance and top terms for each topic
     epsilon = 1e-6
-    log_lift = np.log(pd.eval("topic_term_dists / term_proportion + epsilon")).astype("float64")
+    log_lift = np.log(topic_term_dists / term_proportion if term_proportion else epsilon).astype("float64")
     log_ttd = np.log(topic_term_dists + epsilon).astype("float64")
     lambda_seq = np.arange(0, 1 + lambda_step, lambda_step)
 
