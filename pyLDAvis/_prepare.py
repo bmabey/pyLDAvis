@@ -199,20 +199,20 @@ def _topic_coordinates(mds, topic_term_dists, topic_proportion, start_index=1):
     return mds_df
 
 
-def _chunks(l, n):
-    """ Yield successive n-sized chunks from l.
+def _chunks(lambda_seq, n):
+    """ Yield successive n-sized chunks from lambda_seq.
     """
-    for i in range(0, len(l), n):
-        yield l[i:i + n]
+    for i in range(0, len(lambda_seq), n):
+        yield lambda_seq[i:i + n]
 
 
-def _job_chunks(l, n_jobs):
+def _job_chunks(lambda_seq, n_jobs):
     n_chunks = n_jobs
     if n_jobs < 0:
         # so, have n chunks if we are using all n cores/cpus
         n_chunks = cpu_count() + 1 - n_jobs
 
-    return _chunks(l, n_chunks)
+    return _chunks(lambda_seq, n_chunks)
 
 
 def _find_relevance(log_ttd, log_lift, R, lambda_):
@@ -221,7 +221,7 @@ def _find_relevance(log_ttd, log_lift, R, lambda_):
 
 
 def _find_relevance_chunks(log_ttd, log_lift, R, lambda_seq):
-    return pd.concat([_find_relevance(log_ttd, log_lift, R, l) for l in lambda_seq])
+    return pd.concat([_find_relevance(log_ttd, log_lift, R, seq) for seq in lambda_seq])
 
 
 def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_freq,
@@ -231,9 +231,6 @@ def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_f
 
     # compute the distinctiveness and saliency of the terms:
     # this determines the R terms that are displayed when no topic is selected
-    tt_sum = topic_term_dists.sum()
-    topic_given_term = pd.eval("topic_term_dists / tt_sum")
-    log_1 = np.log(pd.eval("(topic_given_term.T / topic_proportion)"))
     kernel = pd.eval("topic_given_term * log_1.T")
     distinctiveness = kernel.sum()
     saliency = term_proportion * distinctiveness
@@ -256,8 +253,9 @@ def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_f
     ])
 
     # compute relevance and top terms for each topic
-    log_lift = np.log(pd.eval("topic_term_dists / term_proportion")).astype("float64")
-    log_ttd = np.log(topic_term_dists).astype("float64")
+    epsilon = 1e-6
+    log_lift = np.log(pd.eval("topic_term_dists / term_proportion + epsilon")).astype("float64")
+    log_ttd = np.log(topic_term_dists + epsilon).astype("float64")
     lambda_seq = np.arange(0, 1 + lambda_step, lambda_step)
 
     def topic_top_term_df(tup):
@@ -269,7 +267,7 @@ def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_f
                            'Category': 'Topic%d' % new_topic_id,
                            'logprob': log_ttd.loc[original_topic_id, term_ix].round(4),
                            'loglift': log_lift.loc[original_topic_id, term_ix].round(4),
-                         })
+                           })
         return df.reindex(columns=[
             "Term", "Freq", "Total", "Category", "logprob", "loglift"
         ])
