@@ -6,7 +6,6 @@ import random
 import json
 import jinja2
 import re
-import os
 from ._server import serve
 from .utils import get_id, write_ipynb_local_js, NumPyEncoder
 from ._prepare import PreparedData
@@ -168,7 +167,7 @@ def prepared_data_to_html(data, d3_url=None, ldavis_url=None, ldavis_css_url=Non
 
     if visid is None:
         visid = 'ldavis_' + get_id(data) + str(int(random.random() * 1E10))
-    elif re.search('\s', visid):
+    elif re.search(r'\s', visid):
         raise ValueError("visid must not contain spaces")
 
     return template.render(visid=json.dumps(visid),
@@ -262,8 +261,6 @@ def show(data, ip='127.0.0.1', port=8888, n_retries=50,
         files = {'/LDAvis.js': ["text/javascript", open(urls.LDAVIS_LOCAL, 'r').read()],
                  '/LDAvis.css': ["text/css", open(urls.LDAVIS_CSS_URL, 'r').read()],
                  '/d3.js': ["text/javascript", open(urls.D3_URL, 'r').read()]}
-
-
     html = prepared_data_to_html(data, **kwargs)
     serve(html, ip=ip, port=port, n_retries=n_retries, files=files,
           open_browser=open_browser, http_server=http_server)
