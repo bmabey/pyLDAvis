@@ -38,7 +38,7 @@ lint:
 	flake8 pyLDAvis tests
 
 test:
-	python setup.py test
+	pytest
 
 test-all:
 	tox
