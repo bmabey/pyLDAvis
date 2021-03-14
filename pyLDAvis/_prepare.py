@@ -230,7 +230,14 @@ def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_f
     term_proportion = term_frequency / term_frequency.sum()
 
     # compute the distinctiveness and saliency of the terms:
-    # this determines the R terms that are displayed when no topic is selected
+    # this determines the R terms that are displayed when no topic is selected.
+    tt_sum = topic_term_dists.sum()
+    topic_given_term = pd.eval("topic_term_dists / tt_sum")
+    # np.log(0): throws RuntimeWarning: divide by zero encountered in log.
+    epsilon = 1e-12
+    log_1 = np.log(
+        pd.eval("topic_given_term.T / topic_proportion").where(
+            pd.eval("topic_given_term.T / topic_proportion") != np.inf, epsilon))
     kernel = pd.eval("topic_given_term * log_1.T")
     distinctiveness = kernel.sum()
     saliency = term_proportion * distinctiveness
@@ -253,8 +260,9 @@ def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_f
     ])
 
     # compute relevance and top terms for each topic
-    epsilon = 1e-6
-    log_lift = np.log(topic_term_dists / term_proportion if term_proportion else epsilon).astype("float64")
+    log_lift = np.log(
+        pd.eval("topic_term_dists / term_proportion").where(
+            pd.eval("topic_term_dists / term_proportion") != np.inf, epsilon).astype("float64"))
     log_ttd = np.log(topic_term_dists + epsilon).astype("float64")
     lambda_seq = np.arange(0, 1 + lambda_step, lambda_step)
 
