@@ -572,8 +572,12 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
 
         // barchart axis adapted from http://bl.ocks.org/mbostock/1166403
         var xAxis = d3.axisTop(x)
-            .tickSize(-barheight)
+            .tickSize(0)
             .ticks(6);
+
+        chart.append("g")
+          .attr("x", "xaxis")
+          .call(xAxis);
 
         // dynamically create the topic and lambda input forms at the top of the page:
         function init_forms(topicID, lambdaID, visID) {
@@ -748,7 +752,7 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
 
             // adapted from http://bl.ocks.org/mbostock/1166403
             var xAxis = d3.axisTop(x)
-                .tickSize(-barheight)
+                .tickSize(0)
                 .ticks(6);
 
             // New axis definition:
@@ -1068,7 +1072,7 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
 
             // adapted from http://bl.ocks.org/mbostock/1166403
             var xAxis = d3.axisTop(x)
-                .tickSize(-barheight)
+                .tickSize(0)
                 .ticks(6);
 
             // redraw x-axis
@@ -1140,7 +1144,7 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
 
             // adapted from http://bl.ocks.org/mbostock/1166403
             var xAxis = d3.axisTop(x)
-                .tickSize(-barheight)
+                .tickSize(0)
                 .ticks(6);
 
             // redraw x-axis
