@@ -1,14 +1,16 @@
-#! /usr/bin/venv python
+#! /usr/bin/venv python3
+
+import os
 
 from gensim.models import LdaModel, HdpModel
 from gensim.corpora.dictionary import Dictionary
-import pyLDAvis.gensim
-import os
+
+import pyLDAvis
+import pyLDAvis.gensim_models as gensim_models
 
 
 def get_corpus_dictionary():
     """Crafts a toy corpus and the dictionary associated."""
-    # Toy corpus.
     corpus = [
         ['carrot', 'salad', 'tomato'],
         ['carrot', 'salad', 'dish'],
@@ -20,7 +22,6 @@ def get_corpus_dictionary():
         ['moto', 'break'],
         ['accident', 'moto', 'car']
     ]
-
     dictionary = Dictionary(corpus)
 
     # Transforming corpus with dictionary.
@@ -36,11 +37,9 @@ def get_corpus_dictionary():
 def test_lda():
     """Trains a LDA model and tests the html outputs."""
     corpus, dictionary = get_corpus_dictionary()
+    lda = LdaModel(corpus=corpus, num_topics=2)
 
-    lda = LdaModel(corpus=corpus,
-                   num_topics=2)
-
-    data = pyLDAvis.gensim.prepare(lda, corpus, dictionary)
+    data = gensim_models.prepare(lda, corpus, dictionary)
     pyLDAvis.save_html(data, 'index_lda.html')
     os.remove('index_lda.html')
 
@@ -48,10 +47,9 @@ def test_lda():
 def test_hdp():
     """Trains a HDP model and tests the html outputs."""
     corpus, dictionary = get_corpus_dictionary()
-
     hdp = HdpModel(corpus, dictionary.id2token)
 
-    data = pyLDAvis.gensim.prepare(hdp, corpus, dictionary)
+    data = gensim_models.prepare(hdp, corpus, dictionary)
     pyLDAvis.save_html(data, 'index_hdp.html')
     os.remove('index_hdp.html')
 
@@ -66,7 +64,7 @@ def test_sorted_terms():
     corpus, dictionary = get_corpus_dictionary()
     lda = LdaModel(corpus=corpus, num_topics=2)
 
-    data = pyLDAvis.gensim.prepare(lda, corpus, dictionary)
+    data = gensim_models.prepare(lda, corpus, dictionary)
     # https://nlp.stanford.edu/events/illvi2014/papers/sievert-illvi2014.pdf
     # lambda = 0 should rank the terms by loglift
     # lambda = 1 should rank them by logprob.
@@ -79,3 +77,4 @@ def test_sorted_terms():
 if __name__ == "__main__":
     test_lda()
     test_hdp()
+    test_sorted_terms()

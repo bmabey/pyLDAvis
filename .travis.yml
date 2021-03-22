@@ -3,24 +3,17 @@
 language: python
 
 python:
+  - "3.9"
+  - "3.8"
   - "3.7"
-  - "3.6"
-  - "3.5"
-  - "2.7"
 
 env:
-  - DEPS="pytest gensim smart_open==2.0.0" PY35_DEPS="pytest gensim" PY27_DEPS="pytest gensim==3.4.0 pytz"
+  - DEPS="pytest gensim smart_open==2.0.0"
 
 before_install:
   # conda instructions from http://conda.pydata.org/docs/travis.html
   - sudo apt-get update
-  # We do this conditionally because it saves us some downloading if the
-  # version is the same.
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
-    else
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-    fi
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
   - bash miniconda.sh -b -p $HOME/miniconda
   - source "$HOME/miniconda/etc/profile.d/conda.sh"
   - hash -r
@@ -33,17 +26,10 @@ install:
   # download JSON data from github since travis does not have git-lfs rolled out yet
   - (cd tests/data; curl -L -O https://github.com/bmabey/pyLDAvis/raw/master/tests/data/movie_reviews_input.json && curl -L -O https://github.com/bmabey/pyLDAvis/raw/master/tests/data/movie_reviews_output.json)
   - ls -la tests/data/
-  # Python 2.7 needs a pinned version of gensim and a few other things with Conda
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION $PY27_DEPS;
-    elif [[ "$TRAVIS_PYTHON_VERSION" == "3.5" ]]; then
-      conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION $PY35_DEPS;
-    else
-      conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION $DEPS;
-    fi
+  - conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION $DEPS
   - conda activate testenv
   - pip install .
 
-# command to run tests, e.g. python setup.py test
+# command to run tests, e.g. pytest
 script:
   - pytest

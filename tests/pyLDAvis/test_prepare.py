@@ -1,11 +1,8 @@
-from __future__ import division
+#! /usr/bin/venv python3
 
 import json
 import os.path as path
-
 import funcy as fp
-
-
 from numpy.testing import assert_array_equal
 import numpy as np
 import pandas as pd

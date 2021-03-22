@@ -6,10 +6,10 @@ import random
 import json
 import jinja2
 import re
-from ._server import serve
-from .utils import get_id, write_ipynb_local_js, NumPyEncoder
-from ._prepare import PreparedData
-from . import urls
+from pyLDAvis._server import serve
+from pyLDAvis.utils import get_id, write_ipynb_local_js, NumPyEncoder
+from pyLDAvis._prepare import PreparedData
+import pyLDAvis.urls as urls
 
 __all__ = ["prepared_data_to_html", "display",
            "show", "save_html", "save_json",

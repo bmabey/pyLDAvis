@@ -4,11 +4,10 @@ pyLDAvis Gensim
 Helper functions to visualize LDA models trained by Gensim
 """
 
-from __future__ import absolute_import
 import funcy as fp
 import numpy as np
 from scipy.sparse import issparse
-from . import prepare as vis_prepare
+import pyLDAvis._prepare
 
 
 def _extract_data(topic_model, corpus, dictionary, doc_topic_dists=None):
@@ -121,4 +120,4 @@ def prepare(topic_model, corpus, dictionary, doc_topic_dist=None, **kwargs):
     See `pyLDAvis.prepare` for **kwargs.
     """
     opts = fp.merge(_extract_data(topic_model, corpus, dictionary, doc_topic_dist), kwargs)
-    return vis_prepare(**opts)
+    return pyLDAvis.prepare(**opts)

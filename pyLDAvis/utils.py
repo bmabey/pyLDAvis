@@ -10,7 +10,7 @@ import re
 import shutil
 import warnings
 import numpy as np
-from . import urls
+import pyLDAvis.urls
 
 # Make sure that DeprecationWarning gets printed
 warnings.simplefilter("always", DeprecationWarning)
@@ -83,11 +83,11 @@ def write_ipynb_local_js(location=None, d3_src=None, ldavis_src=None, ldavis_css
                 location = os.getcwd()
 
     if d3_src is None:
-        d3_src = urls.D3_LOCAL
+        d3_src = pyLDAvis.urls.D3_LOCAL
     if ldavis_src is None:
-        ldavis_src = urls.LDAVIS_LOCAL
+        ldavis_src = pyLDAvis.urls.LDAVIS_LOCAL
     if ldavis_css is None:
-        ldavis_css = urls.LDAVIS_CSS_LOCAL
+        ldavis_css = pyLDAvis.urls.LDAVIS_CSS_LOCAL
 
     d3js = os.path.basename(d3_src)
     ldavisjs = os.path.basename(ldavis_src)

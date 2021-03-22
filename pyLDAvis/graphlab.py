@@ -4,8 +4,6 @@ pyLDAvis GraphLab
 Helper functions to visualize GraphLab Create's TopicModel (an implementation of LDA)
 """
 
-from __future__ import absolute_import
-
 import funcy as fp
 import numpy as np
 import pandas as pd

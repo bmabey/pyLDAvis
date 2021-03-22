@@ -3,6 +3,15 @@
 History
 -------
 
+3.3.0 (2021-03-16)
+--------------------
+
+* Python 3.7, 3.8, 3.9: dropped 2.7, 3.5, 3.6 support.
+* RuntimeWarning: divide by zero encountered in log #174
+* Deprecation warning due to invalid escape sequences #166
+* `python setup.py test` is deprecated
+* FutureWarning: pandas.util.testing is deprecated
+
 3.2.2 (2021-02-19)
 --------------------
 

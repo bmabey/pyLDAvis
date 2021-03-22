@@ -9,6 +9,7 @@ import webbrowser
 import socket
 import itertools
 import random
+from http import server
 
 IPYTHON_WARNING = """
 Note: if you're in the IPython notebook, pyLDAvis.show() is not the best command
@@ -17,13 +18,6 @@ Note: if you're in the IPython notebook, pyLDAvis.show() is not the best command
 
 You must interrupt the kernel to end this command
 """
-
-try:
-    # Python 2.x
-    import BaseHTTPServer as server
-except ImportError:
-    # Python 3.x
-    from http import server
 
 
 def generate_handler(html, files=None):

@@ -4,7 +4,6 @@ pyLDAvis Prepare
 Main transformation functions for preparing LDAdata to the visualization's data structures
 """
 
-from __future__ import absolute_import
 from past.builtins import basestring
 from collections import namedtuple
 import json
@@ -14,7 +13,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import entropy
 from scipy.spatial.distance import pdist, squareform
-from .utils import NumPyEncoder
+from pyLDAvis.utils import NumPyEncoder
 try:
     from sklearn.manifold import MDS, TSNE
     sklearn_present = True

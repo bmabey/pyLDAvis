@@ -1,8 +1,6 @@
 import os
 
-from setuptools import setup, find_packages
-
-setup(name='reproducer', version='0.0.1', packages=find_packages(exclude=['tests']))
+from setuptools import setup
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
@@ -20,32 +18,28 @@ else:
 
 setup(
     name='pyLDAvis',
-    version='3.2.2',
-    description="Interactive topic model visualization. Port of the R package.",
+    version='3.3.0',
+    description='Interactive topic model visualization. Port of the R package.',
     long_description=readme,
-    author="Ben Mabey",
+    author='Ben Mabey',
     author_email='ben@benmabey.com',
     url='https://github.com/bmabey/pyLDAvis',
-    download_url = 'https://github.com/bmabey/pyLDAvis/tarball/3.2.2',
+    download_url = 'https://github.com/bmabey/pyLDAvis/tarball/3.3.0',
     packages=['pyLDAvis'],
     package_dir={'pyLDAvis': 'pyLDAvis'},
     tests_require=['pytest'],
     include_package_data=True,
     install_requires=requirements,
-    license="MIT",
+    license='MIT',
     zip_safe=False,
     keywords=['data science', 'visualization'],
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
-        "Programming Language :: Python :: 2",
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',

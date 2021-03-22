@@ -99,6 +99,33 @@ Before you submit a pull request, check that it meets these guidelines:
 2. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
-3. The pull request should work for Python 2.7, 3.5, 3.6, 3.7, 3.8, 3.9, and for PyPy. Check
+3. The pull request should work for Python 3.7, 3.8, 3.9, and for PyPI. Check
    https://travis-ci.org/bmabey/pyLDAvis/pull_requests
    and make sure that the tests pass for all supported Python versions.
+
+Maintainers
+------------
+
+Ready to publish a new version to PyPi? Here's how the workflow to follow.
+
+1. Ensure you are in the pyLDAvis directory
+2. Pipenv workflow::
+
+    $ pipenv install -e .
+    $ pipenv install --dev
+    $ pipenv shell
+    (pyLDAvis) $ flake8 pyLDAvis tests
+    (pyLDAvis) $ pytest
+    (pyLDAvis) $ tox
+
+    -- TestPyPi
+    (pyLDAvis) $ python setup.py sdist
+    (pyLDAvis) $ twine check dist/*
+    (pyLDAvis) $ twine upload --repository testpypi dist/*
+
+    -- Publish
+    (pyLDAvis) $ twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
+
+Note: MacOS Big Sur is both 10.16 and 11.0 – it’s official (https://eclecticlight.co/2020/07/21/big-sur-is-both-10-16-and-11-0-its-official/) ::
+
+    $ export SYSTEM_VERSION_COMPAT=1

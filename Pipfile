@@ -1,0 +1,24 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pyLDAvis = {editable = true, path = "."}
+numpy = ">=1.20.1"
+scipy = "*"
+pandas = "*"
+joblib = "*"
+numexpr = "*"
+future = "*"
+funcy = "*"
+sklearn = "*"
+scikit-learn = "*"
+gensim = "*"
+Jinja2 = "*"
+
+[dev-packages]
+pytest = ">=3.7"
+
+[requires]
+python_version = "3.9"
