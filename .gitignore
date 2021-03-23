@@ -89,3 +89,7 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+# Notebooks
+notebooks/data
+notebooks/newsgroups*
