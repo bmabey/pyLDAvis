@@ -3,6 +3,14 @@
 History
 -------
 
+3.3.1 (2021-03-24)
+--------------------
+
+* Restored x-axis scale labels for term bars #200
+* import pyLDAvis.gensim_models as gensimvis
+* Deleted orphaned files.
+* Update .gitignore for notebooks/* models, data.
+
 3.3.0 (2021-03-16)
 --------------------
 

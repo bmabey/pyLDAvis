@@ -16,6 +16,7 @@ sklearn = "*"
 scikit-learn = "*"
 gensim = "*"
 Jinja2 = "*"
+reproducer = {editable = true, path = "."}
 
 [dev-packages]
 pytest = ">=3.7"

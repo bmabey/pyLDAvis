@@ -125,6 +125,7 @@ Ready to publish a new version to PyPi? Here's how the workflow to follow.
 
     -- Publish
     (pyLDAvis) $ twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
+    (pyLDAvis) $ rm dist/*.tar.gz
 
 Note: MacOS Big Sur is both 10.16 and 11.0 – it’s official (https://eclecticlight.co/2020/07/21/big-sur-is-both-10-16-and-11-0-its-official/) ::
 
