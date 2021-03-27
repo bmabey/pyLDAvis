@@ -16,6 +16,7 @@ Contents:
    usage
    contributing
    authors
+   modules/API
    history
 
 Indices and tables
