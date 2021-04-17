@@ -1,3 +1,4 @@
+/* CUSTOM COPY
 /* Original code taken from https://github.com/cpsievert/LDAvis */
 /* Copyright 2013, AT&T Intellectual Property */
 /* MIT Licence */
@@ -435,7 +436,7 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
             });
 
         svg.append("text")
-            .text("Intertopic Distance Map (via multidimensional scaling)")
+            .text("Distances Between Topics")
             .attr("x", mdswidth/2 + margin.left)
             .attr("y", 30)
             .style("font-size", "16px")
@@ -495,24 +496,24 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
             .text("Estimated term frequency within the selected topic");
 
         // footnotes:
-        d3.select("#" + barFreqsID)
-            .append("a")
-            .attr("xlink:href", "http://vis.stanford.edu/files/2012-Termite-AVI.pdf")
-            .attr("target", "_blank")
-            .append("text")
-            .attr("x", 0)
-            .attr("y", mdsheight + 10 + (6/2)*barguide.height + 5)
-            .style("dominant-baseline", "middle")
-            .text("1. saliency(term w) = frequency(w) * [sum_t p(t | w) * log(p(t | w)/p(t))] for topics t; see Chuang et. al (2012)");
-        d3.select("#" + barFreqsID)
-            .append("a")
-            .attr("xlink:href", "http://nlp.stanford.edu/events/illvi2014/papers/sievert-illvi2014.pdf")
-            .attr("target", "_blank")
-            .append("text")
-            .attr("x", 0)
-            .attr("y", mdsheight + 10 + (8/2)*barguide.height + 5)
-            .style("dominant-baseline", "middle")
-            .text("2. relevance(term w | topic t) = \u03BB * p(w | t) + (1 - \u03BB) * p(w | t)/p(w); see Sievert & Shirley (2014)");
+//        d3.select("#" + barFreqsID)
+//            .append("a")
+//            .attr("xlink:href", "http://vis.stanford.edu/files/2012-Termite-AVI.pdf")
+//            .attr("target", "_blank")
+//            .append("text")
+//            .attr("x", 0)
+//            .attr("y", mdsheight + 10 + (6/2)*barguide.height + 5)
+//            .style("dominant-baseline", "middle")
+//            .text("1. saliency(term w) = frequency(w) * [sum_t p(t | w) * log(p(t | w)/p(t))] for topics t; see Chuang et. al (2012)");
+//        d3.select("#" + barFreqsID)
+//            .append("a")
+//            .attr("xlink:href", "http://nlp.stanford.edu/events/illvi2014/papers/sievert-illvi2014.pdf")
+//            .attr("target", "_blank")
+//            .append("text")
+//            .attr("x", 0)
+//            .attr("y", mdsheight + 10 + (8/2)*barguide.height + 5)
+//            .style("dominant-baseline", "middle")
+//            .text("2. relevance(term w | topic t) = \u03BB * p(w | t) + (1 - \u03BB) * p(w | t)/p(w); see Sievert & Shirley (2014)");
 
         // Bind 'default' data to 'default' bar chart
         var basebars = chart.selectAll(to_select + " .bar-totals")
@@ -640,13 +641,13 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
                 .attr("y", 0)
                 .style("font-size", "14px")
                 .text("Slide to adjust relevance metric:");
-            var yy = d3.select("#" + lambdaZeroID)
-                .append("text")
-                .attr("x", 125)
-                .attr("y", -5)
-                .style("font-size", "10px")
-                .style("position", "absolute")
-                .text("(2)");
+//            var yy = d3.select("#" + lambdaZeroID)
+//                .append("text")
+//                .attr("x", 125)
+//                .attr("y", -5)
+//                .style("font-size", "10px")
+//                .style("position", "absolute")
+//                .text("(2)");
 
             var sliderDiv = document.createElement("div");
             sliderDiv.setAttribute("id", sliderDivID);
@@ -983,7 +984,7 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
                 .attr("class", "bubble-tool") //  set class so we can remove it when highlight_off is called
                 .style("text-anchor", "middle")
                 .style("font-size", "16px")
-                .text("Top-" + R + " Most Relevant Terms for Topic " + topics + " (" + Freq + "% of tokens)");
+                .text("Top " + R + " Most Relevant Terms for Topic " + topics + " (" + Freq + "% of terms)");
 
             // grab the bar-chart data for this topic only:
             var dat2 = lamData.filter(function(d) {
