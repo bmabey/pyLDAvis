@@ -2,56 +2,51 @@
 
 import os
 
-from gensim.models import LdaModel, HdpModel
+from gensim.models import LdaModel, HdpModel, AuthorTopicModel
 from gensim.corpora.dictionary import Dictionary
+from gensim.test.utils import common_dictionary, common_corpus
 
 import pyLDAvis
 import pyLDAvis.gensim_models as gensim_models
 
 
-def get_corpus_dictionary():
-    """Crafts a toy corpus and the dictionary associated."""
-    corpus = [
-        ['carrot', 'salad', 'tomato'],
-        ['carrot', 'salad', 'dish'],
-        ['tomato', 'dish'],
-        ['tomato', 'salad'],
-
-        ['car', 'break', 'highway'],
-        ['highway', 'accident', 'car'],
-        ['moto', 'break'],
-        ['accident', 'moto', 'car']
-    ]
-    dictionary = Dictionary(corpus)
-
-    # Transforming corpus with dictionary.
-    corpus = [dictionary.doc2bow(doc) for doc in corpus]
-
-    # Building reverse index.
-    for (token, uid) in dictionary.token2id.items():
-        dictionary.id2token[uid] = token
-
-    return corpus, dictionary
+def get_author2doc():
+    """Crafts a toy mapping between authors and documents."""
+    author2doc = {
+        'john': [0, 1, 2, 3, 4, 5, 6],
+        'jane': [2, 3, 4, 5, 6, 7, 8],
+        'jack': [0, 2, 4, 6, 8],
+        'jill': [1, 3, 5, 7]
+    }
+    return author2doc
 
 
 def test_lda():
     """Trains a LDA model and tests the html outputs."""
-    corpus, dictionary = get_corpus_dictionary()
-    lda = LdaModel(corpus=corpus, num_topics=2)
+    lda = LdaModel(corpus=common_corpus, id2word=common_dictionary, num_topics=2)
 
-    data = gensim_models.prepare(lda, corpus, dictionary)
+    data = gensim_models.prepare(lda, common_corpus, common_dictionary)
     pyLDAvis.save_html(data, 'index_lda.html')
     os.remove('index_lda.html')
 
 
 def test_hdp():
     """Trains a HDP model and tests the html outputs."""
-    corpus, dictionary = get_corpus_dictionary()
-    hdp = HdpModel(corpus, dictionary.id2token)
+    hdp = HdpModel(corpus=common_corpus, id2word=common_dictionary)
 
-    data = gensim_models.prepare(hdp, corpus, dictionary)
+    data = gensim_models.prepare(hdp, common_corpus, common_dictionary)
     pyLDAvis.save_html(data, 'index_hdp.html')
     os.remove('index_hdp.html')
+
+
+def test_atm():
+    """Trains an Author-Topic model and tests the html outputs."""
+    atm = AuthorTopicModel(corpus=common_corpus, id2word=common_dictionary,
+                           author2doc=get_author2doc(), num_topics=2)
+
+    data = gensim_models.prepare(atm, common_corpus, common_dictionary)
+    pyLDAvis.save_html(data, 'index_atm.html')
+    os.remove('index_atm.html')
 
 
 def test_sorted_terms():
@@ -61,10 +56,9 @@ def test_sorted_terms():
     in a particular lambda value, then with this function we can get the
     terms in that order.
     """
-    corpus, dictionary = get_corpus_dictionary()
-    lda = LdaModel(corpus=corpus, num_topics=2)
+    lda = LdaModel(corpus=common_corpus, id2word=common_dictionary, num_topics=2)
 
-    data = gensim_models.prepare(lda, corpus, dictionary)
+    data = gensim_models.prepare(lda, common_corpus, common_dictionary)
     # https://nlp.stanford.edu/events/illvi2014/papers/sievert-illvi2014.pdf
     # lambda = 0 should rank the terms by loglift
     # lambda = 1 should rank them by logprob.
@@ -77,4 +71,5 @@ def test_sorted_terms():
 if __name__ == "__main__":
     test_lda()
     test_hdp()
+    test_atm()
     test_sorted_terms()
