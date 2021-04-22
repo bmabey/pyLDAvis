@@ -11,12 +11,21 @@ import pyLDAvis.gensim_models as gensim_models
 
 
 def get_author2doc():
-    """Crafts a toy mapping between authors and documents."""
+    """Crafts a toy mapping between authors and documents (multiple authors per document)."""
     author2doc = {
         'john': [0, 1, 2, 3, 4, 5, 6],
         'jane': [2, 3, 4, 5, 6, 7, 8],
         'jack': [0, 2, 4, 6, 8],
         'jill': [1, 3, 5, 7]
+    }
+    return author2doc
+
+
+def get_simple_author2doc():
+    """Crafts a toy mapping between authors and documents (single author per document)."""
+    author2doc = {
+        'john': [0, 1, 2, 3, 4],
+        'jane': [5, 6, 7, 8],
     }
     return author2doc
 
@@ -47,6 +56,15 @@ def test_atm():
     data = gensim_models.prepare(atm, common_corpus, common_dictionary)
     pyLDAvis.save_html(data, 'index_atm.html')
     os.remove('index_atm.html')
+
+def test_simple_atm():
+    """Trains an Author-Topic model and tests the html outputs."""
+    atm = AuthorTopicModel(corpus=common_corpus, id2word=common_dictionary,
+                           author2doc=get_simple_author2doc(), num_topics=2)
+
+    data = gensim_models.prepare(atm, common_corpus, common_dictionary)
+    pyLDAvis.save_html(data, 'index_simple_atm.html')
+    os.remove('index_simple_atm.html')
 
 
 def test_sorted_terms():
