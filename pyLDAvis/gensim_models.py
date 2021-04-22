@@ -45,9 +45,14 @@ def _extract_data(topic_model, corpus, dictionary, doc_topic_dists=None):
         # If its an HDP model.
         if hasattr(topic_model, 'lda_beta'):
             gamma = topic_model.inference(corpus)
+        # If its an Author-Topic model.
+        elif hasattr(topic_model, 'num_authors'):
+            gamma, _ = topic_model.inference(topic_model.corpus, topic_model.author2doc, topic_model.doc2author, rhot=0)
         else:
             gamma, _ = topic_model.inference(corpus)
-        doc_topic_dists = gamma / gamma.sum(axis=1)[:, None]
+        doc_topic_dists = gamma / gamma.sum(axis=1)[:, np.newaxis]
+    elif isinstance(doc_topic_dists, np.ndarray):
+        pass # Nothing to do, expects already normalized format
     else:
         if isinstance(doc_topic_dists, list):
             doc_topic_dists = gensim.matutils.corpus2dense(doc_topic_dists, num_topics).T
