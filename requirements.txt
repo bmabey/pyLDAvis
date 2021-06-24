@@ -6,7 +6,6 @@ jinja2
 numexpr
 future
 funcy
-sklearn
 scikit-learn
 gensim
 setuptools
