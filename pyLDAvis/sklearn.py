@@ -17,7 +17,7 @@ def _get_term_freqs(dtm):
 
 
 def _get_vocab(vectorizer):
-    return vectorizer.get_feature_names()
+    return vectorizer.get_feature_names_out()
 
 
 def _row_norm(dists):
