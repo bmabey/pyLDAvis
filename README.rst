@@ -50,7 +50,7 @@ Ben Mabey walked through the visualization in this short talk using a Hacker New
 
 `Carson Sievert <https://cpsievert.me/>`__ created a video demoing the R package. The visualization is the same and so it applies equally to pyLDAvis:
 
--  `Visualizing & Exploring the Twenty Newsgroup Data <http://stat-graphics.org/movies/ldavis.html>`__
+-  `Visualizing & Exploring the Twenty Newsgroup Data <https://www.youtube.com/watch?v=IksL96ls4o0>`__
 
 More documentation
 ~~~~~~~~~~~~~~~~~~
