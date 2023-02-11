@@ -5,6 +5,7 @@ joblib
 jinja2
 numexpr
 funcy
+sklearn
 scikit-learn
 gensim
 setuptools
