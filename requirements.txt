@@ -4,7 +4,6 @@ pandas>=1.2.0
 joblib
 jinja2
 numexpr
-future
 funcy
 scikit-learn
 gensim

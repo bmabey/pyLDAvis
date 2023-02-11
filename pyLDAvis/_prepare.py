@@ -4,7 +4,6 @@ pyLDAvis Prepare
 Main transformation functions for preparing LDAdata to the visualization's data structures
 """
 
-from past.builtins import basestring
 from collections import namedtuple
 import json
 import logging
@@ -382,7 +381,7 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
         plot_opts = {'xlab': 'PC1', 'ylab': 'PC2'}
 
     # parse mds
-    if isinstance(mds, basestring):
+    if isinstance(mds, str):
         mds = mds.lower()
         if mds == 'pcoa':
             mds = js_PCoA
