@@ -162,7 +162,7 @@ def js_TSNE(distributions, **kwargs):
     tsne : array, shape (`n_dists`, 2)
     """
     dist_matrix = squareform(pdist(distributions, metric=_jensen_shannon))
-    model = TSNE(n_components=2, random_state=0, metric='precomputed', **kwargs)
+    model = TSNE(n_components=2, random_state=0, metric='precomputed', perplexity=min(len(dist_matrix)-1, 30), **kwargs)
     return model.fit_transform(dist_matrix)
 
 
