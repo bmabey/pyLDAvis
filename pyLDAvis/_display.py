@@ -24,7 +24,7 @@ SIMPLE_HTML = jinja2.Template("""
 <script type="text/javascript" src="{{ ldavis_url }}"></script>
 <link rel="stylesheet" type="text/css" href="{{ ldavis_css_url }}">
 
-<div id={{ visid }}></div>
+<div id={{ visid }} style="background-color:white;"></div>
 <script type="text/javascript">
    !function(LDAvis){
        new LDAvis("#" + {{ visid }}, {{ vis_json }});
@@ -39,7 +39,7 @@ REQUIREJS_HTML = jinja2.Template("""
 
 <link rel="stylesheet" type="text/css" href="{{ ldavis_css_url }}">
 
-<div id={{ visid }}></div>
+<div id={{ visid }} style="background-color:white;"></div>
 <script type="text/javascript">
 
 var {{ visid_raw }}_data = {{ vis_json }};
@@ -67,7 +67,7 @@ GENERAL_HTML = jinja2.Template("""
 <link rel="stylesheet" type="text/css" href="{{ ldavis_css_url }}">
 
 
-<div id={{ visid }}></div>
+<div id={{ visid }} style="background-color:white;"></div>
 <script type="text/javascript">
 
 var {{ visid_raw }}_data = {{ vis_json }};
