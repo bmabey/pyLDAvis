@@ -39,7 +39,7 @@ __all__ = ["__version__",
            "display", "show", "save_html", "save_json",
            "enable_notebook", "disable_notebook"]
 
-__version__ = "3.3.1"
+__version__ = "3.4.0"
 
 from pyLDAvis._display import *
 from pyLDAvis._prepare import prepare, js_PCoA, PreparedData

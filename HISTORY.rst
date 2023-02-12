@@ -3,10 +3,24 @@
 History
 -------
 
+3.4.0 (2023-02-11)
+~~~~~~~~~~~~~~~~~~
+
+* Remove "sklearn" from requirements #234
+* Tox testing: No module named 'sklearn.manifold'; 'sklearn' is not a package.
+  * Rename sklearn.py to lda_model.py.
+* Update sklearn.py #239.
+* fixes error of get_feature_names removal #235.
+* Bump joblib from 1.0.1 to 1.2.0 dependencies #231.
+* Fixing for small number of topics #229.
+* Bump numpy from 1.20.1 to 1.22.0 dependenciesv #227.
+* License correction #224.
+* Fix background color in Notebooks with dark themes #222.
+
 3.3.1 (2021-03-24)
 ~~~~~~~~~~~~~~~~~~
 
-* Restored x-axis scale labels for term bars #200
+* Restored x-axis scale labels for term bars #200.
 * import pyLDAvis.gensim_models as gensimvis
 * Deleted orphaned files.
 * Update .gitignore for notebooks/* models, data.
@@ -15,10 +29,10 @@ History
 ~~~~~~~~~~~~~~~~~~
 
 * Python 3.7, 3.8, 3.9: dropped 2.7, 3.5, 3.6 support.
-* RuntimeWarning: divide by zero encountered in log #174
-* Deprecation warning due to invalid escape sequences #166
-* `python setup.py test` is deprecated
-* FutureWarning: pandas.util.testing is deprecated
+* RuntimeWarning: divide by zero encountered in log #174.
+* Deprecation warning due to invalid escape sequences #166.
+* `python setup.py test` is deprecated.
+* FutureWarning: pandas.util.testing is deprecated.
 
 3.2.2 (2021-02-19)
 ~~~~~~~~~~~~~~~~~~

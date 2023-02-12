@@ -1,5 +1,5 @@
 """
-pyLDAvis sklearn
+pyLDAvis lda_model
 ===============
 Helper functions to visualize sklearn's LatentDirichletAllocation models
 """
@@ -85,7 +85,7 @@ def prepare(lda_model, dtm, vectorizer, **kwargs):
     Example
     --------
     For example usage please see this notebook:
-    http://nbviewer.ipython.org/github/bmabey/pyLDAvis/blob/master/notebooks/sklearn.ipynb
+    http://nbviewer.ipython.org/github/bmabey/pyLDAvis/blob/master/notebooks/LDA%20model.ipynb
 
     See
     ------

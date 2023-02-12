@@ -3,21 +3,17 @@ pyLDAvis Prepare
 ===============
 Main transformation functions for preparing LDAdata to the visualization's data structures
 """
-
-from collections import namedtuple
 import json
 import logging
-from joblib import Parallel, delayed, cpu_count
 import numpy as np
 import pandas as pd
+from collections import namedtuple
+from joblib import Parallel, delayed, cpu_count
 from scipy.stats import entropy
 from scipy.spatial.distance import pdist, squareform
+from sklearn.manifold import MDS, TSNE
+
 from pyLDAvis.utils import NumPyEncoder
-try:
-    from sklearn.manifold import MDS, TSNE
-    sklearn_present = True
-except ImportError:
-    sklearn_present = False
 
 
 def __num_dist_rows__(array, ndigits=2):
@@ -162,7 +158,8 @@ def js_TSNE(distributions, **kwargs):
     tsne : array, shape (`n_dists`, 2)
     """
     dist_matrix = squareform(pdist(distributions, metric=_jensen_shannon))
-    model = TSNE(n_components=2, random_state=0, metric='precomputed', perplexity=min(len(dist_matrix)-1, 30), **kwargs)
+    model = TSNE(n_components=2, random_state=0, metric='precomputed',
+                 perplexity=min(len(dist_matrix) - 1, 30), **kwargs)
     return model.fit_transform(dist_matrix)
 
 
@@ -229,6 +226,7 @@ def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_f
 
     # compute the distinctiveness and saliency of the terms:
     # this determines the R terms that are displayed when no topic is selected.
+    # TODO(msusol): Make flake8 test pass here with 'unused' variables.
     tt_sum = topic_term_dists.sum()
     topic_given_term = pd.eval("topic_term_dists / tt_sum")
     log_1 = np.log(pd.eval("topic_given_term.T / topic_proportion"))
@@ -386,12 +384,8 @@ def prepare(topic_term_dists, doc_topic_dists, doc_lengths, vocab, term_frequenc
         if mds == 'pcoa':
             mds = js_PCoA
         elif mds in ('mmds', 'tsne'):
-            if sklearn_present:
-                mds_opts = {'mmds': js_MMDS, 'tsne': js_TSNE}
-                mds = mds_opts[mds]
-            else:
-                logging.warning('sklearn not present, switch to PCoA')
-                mds = js_PCoA
+            mds_opts = {'mmds': js_MMDS, 'tsne': js_TSNE}
+            mds = mds_opts[mds]
         else:
             logging.warning('Unknown mds `%s`, switch to PCoA' % mds)
             mds = js_PCoA
