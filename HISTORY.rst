@@ -3,9 +3,10 @@
 History
 -------
 
-3.4.0 (2023-02-11)
+3.4.0 (2023-02-12)
 ~~~~~~~~~~~~~~~~~~
 
+* Adding testing for Python 3.10, 3.11, move default version to Python 3.10.
 * Remove "sklearn" from requirements #234
 * Tox testing: No module named 'sklearn.manifold'; 'sklearn' is not a package.
   * Rename sklearn.py to lda_model.py.
