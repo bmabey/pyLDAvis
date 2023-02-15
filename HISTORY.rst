@@ -9,6 +9,7 @@ History
 * Adding testing for Python 3.10, 3.11, move default version to Python 3.10.
 * Tox testing: No module named 'sklearn.manifold'; 'sklearn' is not a package.
   * Rename sklearn.py to lda_model.py.
+* ValueError: The parameter init="pca" cannot be used with metric="precomputed".
 * Update sklearn.py #239.
 * fixes error of get_feature_names removal #235.
 * Remove "sklearn" from requirements #234
