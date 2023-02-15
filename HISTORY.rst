@@ -7,16 +7,17 @@ History
 ~~~~~~~~~~~~~~~~~~
 
 * Adding testing for Python 3.10, 3.11, move default version to Python 3.10.
-* Remove "sklearn" from requirements #234
 * Tox testing: No module named 'sklearn.manifold'; 'sklearn' is not a package.
   * Rename sklearn.py to lda_model.py.
 * Update sklearn.py #239.
 * fixes error of get_feature_names removal #235.
+* Remove "sklearn" from requirements #234
 * Bump joblib from 1.0.1 to 1.2.0 dependencies #231.
 * Fixing for small number of topics #229.
 * Bump numpy from 1.20.1 to 1.22.0 dependenciesv #227.
 * License correction #224.
 * Fix background color in Notebooks with dark themes #222.
+* Start building Wheels alongside sdist #221
 
 3.3.1 (2021-03-24)
 ~~~~~~~~~~~~~~~~~~

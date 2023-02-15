@@ -5,7 +5,6 @@ joblib>=1.2.0
 jinja2
 numexpr
 funcy
-sklearn
-scikit-learn
+scikit-learn>=1.0.0
 gensim
 setuptools
