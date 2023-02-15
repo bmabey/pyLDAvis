@@ -24,10 +24,11 @@ setup(
     author='Ben Mabey',
     author_email='ben@benmabey.com',
     url='https://github.com/bmabey/pyLDAvis',
-    download_url = 'https://github.com/bmabey/pyLDAvis/tarball/3.4.0',
+    download_url='https://github.com/bmabey/pyLDAvis/tarball/3.4.0',
     packages=['pyLDAvis'],
     package_dir={'pyLDAvis': 'pyLDAvis'},
     tests_require=['pytest'],
+    python_requires=">=3.8",
     include_package_data=True,
     install_requires=requirements,
     license='BSD-3-Clause',
@@ -42,5 +43,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
     ]
 )
