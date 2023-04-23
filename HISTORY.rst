@@ -5,7 +5,7 @@ History
 
 3.4.1 (2023-04-23)
 ~~~~~~~~~~~~~~~~~~
-*   Pandas 2.x release, the drop shall use .drop(saliency, axis=1) #247
+* Pandas 2.x release, the drop shall use .drop(saliency, axis=1) #247
 
 3.4.0 (2023-02-12)
 ~~~~~~~~~~~~~~~~~~
