@@ -241,7 +241,7 @@ def _topic_info(topic_term_dists, topic_proportion, term_frequency, term_topic_f
         'Total': term_frequency,
         'Category': 'Default'})
     default_term_info = default_term_info.sort_values(
-        by='saliency', ascending=False).head(R).drop('saliency', 1)
+        by='saliency', ascending=False).head(R).drop('saliency', axis=1)
     # Rounding Freq and Total to integer values to match LDAvis code:
     default_term_info['Freq'] = np.floor(default_term_info['Freq'])
     default_term_info['Total'] = np.floor(default_term_info['Total'])

@@ -18,7 +18,7 @@ else:
 
 setup(
     name='pyLDAvis',
-    version='3.4.0',
+    version='3.4.1',
     description='Interactive topic model visualization. Port of the R package.',
     long_description=readme,
     author='Ben Mabey',
