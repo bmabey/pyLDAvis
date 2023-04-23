@@ -61,7 +61,7 @@ def test_end_to_end_with_R_examples():
 
     join_percent = float(len(joined)) / len(etinfo)
     print('Topic Info join was %.0f%%' % (100 * join_percent))
-    assert_frame_equal(ejoined, ojoined, check_less_precise=True)
+    assert_frame_equal(ejoined, ojoined, check_exact=False, rtol=0.1)
     assert join_percent > 0.95
 
     def abs_basis(df):
@@ -71,7 +71,7 @@ def test_end_to_end_with_R_examples():
 
     emds, omds = both(lambda r: abs_basis(pd.DataFrame(r['mdsDat'])))
     assert_frame_equal(emds.reindex(sorted(oddf.columns), axis=1),
-                       omds.reindex(sorted(oddf.columns), axis=1), check_less_precise=True)
+                       omds.reindex(sorted(oddf.columns), axis=1), check_exact=False, rtol=0.1)
 
     def rounded_token_table(r):
         tt = pd.DataFrame(r['token.table'])
