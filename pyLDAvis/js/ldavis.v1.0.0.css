@@ -2,7 +2,7 @@
 /* Copyright 2013, AT&T Intellectual Property */
 /* MIT Licence */
 
-path {
+.slideraxis path {
   fill: none;
   stroke: none;
 }
