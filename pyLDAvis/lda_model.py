@@ -6,14 +6,23 @@ Helper functions to visualize sklearn's LatentDirichletAllocation models
 
 import funcy as fp
 import pyLDAvis
+import numpy as np
 
 
 def _get_doc_lengths(dtm):
-    return dtm.sum(axis=1).getA1()
+    if isinstance(dtm, np.ndarray):
+        return dtm.sum(axis=1).ravel()
+    if isinstance(dtm, np.matrix):
+        return dtm.sum(axis=1).getA1()
+    raise TypeError(str(type(dtm)))
 
 
 def _get_term_freqs(dtm):
-    return dtm.sum(axis=0).getA1()
+    if isinstance(dtm, np.ndarray):
+        return dtm.sum(axis=0).ravel()
+    if isinstance(dtm, np.matrix):
+        return dtm.sum(axis=0).getA1()
+    raise TypeError(str(type(dtm)))
 
 
 def _get_vocab(vectorizer):
