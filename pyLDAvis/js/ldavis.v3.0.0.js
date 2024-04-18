@@ -508,7 +508,7 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
             .attr("x", 0)
             .attr("y", mdsheight + 10 + (6/2)*barguide.height + 5)
             .style("dominant-baseline", "middle")
-            .text("1. saliency(term w) = frequency(w) * [sum_t p(t | w) * log(p(t | w)/p(t))] for topics t; see Chuang et. al (2012)");
+            .text("1. saliency(term w) = p(w) * [sum_t p(t | w) * log(p(t | w)/p(t))] for topics t; see Chuang et. al (2012)");
         d3.select("#" + barFreqsID)
             .append("a")
             .attr("xlink:href", "http://nlp.stanford.edu/events/illvi2014/papers/sievert-illvi2014.pdf")
@@ -517,7 +517,7 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
             .attr("x", 0)
             .attr("y", mdsheight + 10 + (8/2)*barguide.height + 5)
             .style("dominant-baseline", "middle")
-            .text("2. relevance(term w | topic t) = \u03BB * p(w | t) + (1 - \u03BB) * p(w | t)/p(w); see Sievert & Shirley (2014)");
+            .text("2. relevance(term w | topic t; \u03BB) = \u03BB * log(p(w | t)) + (1 - \u03BB) * log(p(w | t)/p(w)); see Sievert & Shirley (2014)");
 
         // Bind 'default' data to 'default' bar chart
         var basebars = chart.selectAll(to_select + " .bar-totals")
