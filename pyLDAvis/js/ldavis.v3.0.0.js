@@ -133,7 +133,7 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
             mdsData3.push(obj);
         };
         
-        startIndex = data['topic.order'][0];
+        var startIndex = data['topic.order'][0];
         vis_state.topic = startIndex - 1;
 
 
