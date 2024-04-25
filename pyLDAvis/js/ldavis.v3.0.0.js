@@ -182,7 +182,7 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
                 if (termElem !== undefined) term_off(termElem);
                 vis_state.term = "";
                 var value_old = document.getElementById(topicID).value;
-                var value_new = Math.min(K - 1 + startIndex, +value_old + 1).toFixed(0);
+                var value_new = Math.min(K + startIndex - 1, +value_old + 1).toFixed(0);
                 // increment the value in the input box
                 document.getElementById(topicID).value = value_new;
                 topic_off(document.getElementById(topicID + value_old));
