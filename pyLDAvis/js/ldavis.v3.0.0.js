@@ -132,6 +132,10 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
             }
             mdsData3.push(obj);
         };
+        
+        var startIndex = data['topic.order'][0];
+        vis_state.topic = startIndex - 1;
+
 
         // large data for the widths of bars in bar-charts. 6 columns: Term, logprob, loglift, Freq, Total, Category
         // Contains all possible terms for topics in (1, 2, ..., k) and lambda in the user-supplied grid of lambda values
@@ -165,7 +169,7 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
                 d3.select(lambda_select + "-value").text(vis_state.lambda);
                 // transition the order of the bars
                 var increased = lambda.old < vis_state.lambda;
-                if (vis_state.topic > 0) reorder_bars(increased);
+                if (vis_state.topic > startIndex - 1) reorder_bars(increased);
                 // store the current lambda value
                 state_save(true);
                 document.getElementById(lambdaID).value = vis_state.lambda;
@@ -178,7 +182,7 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
                 if (termElem !== undefined) term_off(termElem);
                 vis_state.term = "";
                 var value_old = document.getElementById(topicID).value;
-                var value_new = Math.min(K, +value_old + 1).toFixed(0);
+                var value_new = Math.min(K + startIndex - 1, +value_old + 1).toFixed(0);
                 // increment the value in the input box
                 document.getElementById(topicID).value = value_new;
                 topic_off(document.getElementById(topicID + value_old));
@@ -194,7 +198,7 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
                 if (termElem !== undefined) term_off(termElem);
                 vis_state.term = "";
                 var value_old = document.getElementById(topicID).value;
-                var value_new = Math.max(0, +value_old - 1).toFixed(0);
+                var value_new = Math.max(startIndex - 1, +value_old - 1).toFixed(0);
                 // increment the value in the input box
                 document.getElementById(topicID).value = value_new;
                 topic_off(document.getElementById(topicID + value_old));
@@ -211,8 +215,9 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
                 vis_state.term = "";
                 topic_off(document.getElementById(topicID + vis_state.topic));
                 var value_new = document.getElementById(topicID).value;
-                if (!isNaN(value_new) && value_new > 0) {
-                    value_new = Math.min(K, Math.max(1, value_new));
+                // older versions check for value_new !== "" too, why?
+                if (!isNaN(value_new) && value_new > startIndex - 1) {
+                    value_new = Math.min(K + startIndex - 1, Math.max(startIndex, value_new));
                     topic_on(document.getElementById(topicID + value_new));
                     vis_state.topic = value_new;
                     state_save(true);
@@ -411,7 +416,7 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
             })
             .on("mouseover", function(d) {
                 var old_topic = topicID + vis_state.topic;
-                if (vis_state.topic > 0 && old_topic != this.id) {
+                if (vis_state.topic > (startIndex - 1) && old_topic != this.id) {
                     topic_off(document.getElementById(old_topic));
                 }
                 topic_on(this);
@@ -421,7 +426,7 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
                 // http://bl.ocks.org/jasondavies/3186840
                 d3.event.stopPropagation();
                 var old_topic = topicID + vis_state.topic;
-                if (vis_state.topic > 0 && old_topic != this.id) {
+                if (vis_state.topic > (startIndex - 1) && old_topic != this.id) {
                     topic_off(document.getElementById(old_topic));
                 }
                 // make sure topic input box value and fragment reflects clicked selection
@@ -431,7 +436,7 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
             })
             .on("mouseout", function(d) {
                 if (vis_state.topic != d.topics) topic_off(this);
-                if (vis_state.topic > 0) topic_on(document.getElementById(topicID + vis_state.topic));
+                if (vis_state.topic > (startIndex - 1)) topic_on(document.getElementById(topicID + vis_state.topic));
             });
 
         svg.append("text")
@@ -503,7 +508,7 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
             .attr("x", 0)
             .attr("y", mdsheight + 10 + (6/2)*barguide.height + 5)
             .style("dominant-baseline", "middle")
-            .text("1. saliency(term w) = frequency(w) * [sum_t p(t | w) * log(p(t | w)/p(t))] for topics t; see Chuang et. al (2012)");
+            .text("1. saliency(term w) = p(w) * [sum_t p(t | w) * log(p(t | w)/p(t))] for topics t; see Chuang et. al (2012)");
         d3.select("#" + barFreqsID)
             .append("a")
             .attr("xlink:href", "http://nlp.stanford.edu/events/illvi2014/papers/sievert-illvi2014.pdf")
@@ -512,7 +517,7 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
             .attr("x", 0)
             .attr("y", mdsheight + 10 + (8/2)*barguide.height + 5)
             .style("dominant-baseline", "middle")
-            .text("2. relevance(term w | topic t) = \u03BB * p(w | t) + (1 - \u03BB) * p(w | t)/p(w); see Sievert & Shirley (2014)");
+            .text("2. relevance(term w | topic t; \u03BB) = \u03BB * log(p(w | t)) + (1 - \u03BB) * log(p(w | t)/p(w)); see Sievert & Shirley (2014)");
 
         // Bind 'default' data to 'default' bar chart
         var basebars = chart.selectAll(to_select + " .bar-totals")
@@ -602,9 +607,11 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
             var topicInput = document.createElement("input");
             topicInput.setAttribute("style", "width: 50px");
             topicInput.type = "text";
-            topicInput.min = "0";
-            topicInput.max = K; // assumes the data has already been read in
-            topicInput.value = "0"; // a value of 0 indicates no topic is selected
+            topicInput.min = (startIndex - 1).toString();
+            topicInput.max = (K + startIndex - 1).toString(); // assumes the data has already been read in
+            
+            topicInput.value = (startIndex - 1).toString(); // a value of (startIndex - 1) indicates no topic is selected
+
             topicInput.step = "1";
             topicInput.id = topicID;
             topicDiv.appendChild(topicInput);
@@ -1180,7 +1187,7 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
                 radius[i] = 0;
             }
             for (i = 0; i < k; i++) {
-                radius[dat2[i].Topic - 1] = dat2[i].Freq;
+                radius[dat2[i].Topic - startIndex] = dat2[i].Freq;
             }
 
             var size = [];
@@ -1190,7 +1197,7 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
             for (i = 0; i < k; i++) {
                 // If we want to also re-size the topic number labels, do it here
                 // 11 is the default, so leaving this as 11 won't change anything.
-                size[dat2[i].Topic - 1] = 11;
+                size[dat2[i].Topic - startIndex] = 11;
             }
 
             var rScaleCond = d3.scaleSqrt()
@@ -1276,8 +1283,8 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
 
             // Short-term: assume format of "#topic=k&lambda=l&term=s" where k, l, and s are strings (b/c they're from a URL)
 
-            // Force k (topic identifier) to be an integer between 0 and K:
-            vis_state.topic = Math.round(Math.min(K, Math.max(0, vis_state.topic)));
+            // Force k (topic identifier) to be an integer between (startIndex - 1) and K:
+            vis_state.topic = Math.round(Math.min(K + startIndex - 1, Math.max(startIndex - 1, vis_state.topic)));
 
             // Force l (lambda identifier) to be in [0, 1]:
             vis_state.lambda = Math.min(1, Math.max(0, vis_state.lambda));
@@ -1289,10 +1296,10 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
             // select the topic and transition the order of the bars (if appropriate)
             if (!isNaN(vis_state.topic)) {
                 document.getElementById(topicID).value = vis_state.topic;
-                if (vis_state.topic > 0) {
+                if (vis_state.topic > startIndex - 1) {
                     topic_on(document.getElementById(topicID + vis_state.topic));
                 }
-                if (vis_state.lambda < 1 && vis_state.topic > 0) {
+                if (vis_state.lambda < 1 && vis_state.topic > startIndex - 1) {
                     reorder_bars(false);
                 }
             }
@@ -1314,14 +1321,14 @@ var LDAvis = function(to_select, data_or_file_name, color1, color2) {
         }
 
         function state_reset() {
-            if (vis_state.topic > 0) {
+            if (vis_state.topic > startIndex - 1) {
                 topic_off(document.getElementById(topicID + vis_state.topic));
             }
             if (vis_state.term != "") {
                 term_off(document.getElementById(termID + vis_state.term));
             }
             vis_state.term = "";
-            document.getElementById(topicID).value = vis_state.topic = 0;
+            document.getElementById(topicID).value = vis_state.topic = startIndex - 1;
             state_save(true);
         }
 
