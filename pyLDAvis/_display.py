@@ -255,12 +255,12 @@ def show(data, ip='127.0.0.1', port=8888, n_retries=50,
     """
     files = None
     if local:
-        kwargs['ldavis_url'] = urls.LDAVIS_URL
-        kwargs['d3_url'] = urls.D3_URL
-        kwargs['ldavis_css_url'] = urls.LDAVIS_CSS_URL
+        kwargs['ldavis_url'] = '/LDAvis.js'
+        kwargs['d3_url'] = '/d3.js'
+        kwargs['ldavis_css_url'] = '/LDAvis.css'
         files = {'/LDAvis.js': ["text/javascript", open(urls.LDAVIS_LOCAL, 'r').read()],
-                 '/LDAvis.css': ["text/css", open(urls.LDAVIS_CSS_URL, 'r').read()],
-                 '/d3.js': ["text/javascript", open(urls.D3_URL, 'r').read()]}
+                 '/LDAvis.css': ["text/css", open(urls.LDAVIS_CSS_LOCAL, 'r').read()],
+                 '/d3.js': ["text/javascript", open(urls.D3_LOCAL, 'r').read()]}
     html = prepared_data_to_html(data, **kwargs)
     serve(html, ip=ip, port=port, n_retries=n_retries, files=files,
           open_browser=open_browser, http_server=http_server)
